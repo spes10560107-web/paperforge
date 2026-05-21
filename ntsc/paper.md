@@ -2,16 +2,20 @@
 # ============================================================
 # === 國科會大專學生研究計畫成果報告基本資訊 ===
 # ============================================================
-thesis-title-zh: "3D 列印件瑕疵檢測與品質評分研究設計"
-thesis-title-en: "Defect Detection and Quality Grading System for 3D-Printed Parts"
-university-zh: "國立聯合大學"
-department: "機械工程學系"
-program: "大專學生研究計畫"
-degree: "成果報告"
+project-title-zh: "3D 列印件瑕疵檢測與品質評分研究設計"
+project-title-en: "Defect Detection and Quality Grading System for 3D-Printed Parts"
+project-id: "NSTC 114-2813-C-239-054-E"
+project-type: "國科會\\quad 大專學生專題研究計畫"
 student: "劉哲銘"
-advisor: "張致文 博士"
+advisor: "張致文"
+period-from: "114 年 07 月 01 日"
+period-to: "115 年 02 月 28 日"
+period-months: "計 8 個月"
+affiliation: "國立聯合大學機械工程學系"
+handling-method: "本計畫可公開查詢"
 year: "115"
-month: "4"
+month: "04"
+day: "27"
 
 # ============================================================
 # === 圖片子圖支援 ===
@@ -224,7 +228,7 @@ header-includes:
 
 \vspace{0.3cm}
 
-{\fontsize{14pt}{18pt}\selectfont 計\,畫\,名\,稱：3D 列印件瑕疵檢測與品質評分研究設計\par}
+{\fontsize{14pt}{18pt}\selectfont 計\,畫\,名\,稱：\ProjectTitleZh\par}
 
 \vspace{0.3cm}
 
@@ -237,13 +241,13 @@ header-includes:
 \noindent\hspace*{2cm}\begin{minipage}{0.8\textwidth}
 \setlength{\parskip}{0.35cm}
 
-執行計畫學生：劉哲銘
+執行計畫學生：\StudentName
 
-學生計畫編號：NSTC 114-2813-C-239-054-E
+學生計畫編號：\ProjectId
 
-研\,究\,期\,間：114 年 07 月 01 日至 115 年 02 月 28 日止，計 8 個月
+研\,究\,期\,間：\PeriodFrom 至 \PeriodTo 止，\PeriodMonths
 
-指\,導\,教\,授：張致文
+指\,導\,教\,授：\AdvisorName
 \end{minipage}
 
 \vfill
@@ -251,11 +255,11 @@ header-includes:
 \begin{center}
 \setlength{\parskip}{0.3cm}
 
-處理方式：本計畫可公開查詢
+處理方式：\HandlingMethod
 
-執\,行\,單\,位：國立聯合大學機械工程學系
+執\,行\,單\,位：\Affiliation
 
-中\,華\,民\,國\,115 年 04 月 27 日
+中\,華\,民\,國\,\ROCYear\ 年\ \ROCMonth\ 月\ \ROCDay\ 日
 \end{center}
 
 \vspace*{0.5cm}
@@ -271,27 +275,27 @@ header-includes:
 
 \vspace*{2cm}
 
-{\bfseries\fontsize{18pt}{24pt}\selectfont 國科會\quad 大專學生專題研究計畫\par}
+{\bfseries\fontsize{18pt}{24pt}\selectfont \ProjectType\par}
 
 \vspace{2.5cm}
 
-{\bfseries\fontsize{22pt}{30pt}\selectfont 3D 列印件瑕疵檢測與品質評分研究設計\par}
+{\bfseries\fontsize{22pt}{30pt}\selectfont \ProjectTitleZh\par}
 
 \vspace{1cm}
 
-{\fontsize{14pt}{18pt}\selectfont NSTC 114-2813-C-239-054-E\par}
+{\fontsize{14pt}{18pt}\selectfont \ProjectId\par}
 
 \vspace{3.5cm}
 
-指導老師：張致文 老師
+指導老師：\AdvisorName\ 老師
 
 \vspace{1cm}
 
-專題學生：劉哲銘
+專題學生：\StudentName
 
 \vfill
 
-中\,華\,民\,國\,115\,年\,4\,月
+中\,華\,民\,國\,\ROCYear\,年\,\ROCMonth\,月
 
 \vspace{1cm}
 
@@ -302,18 +306,22 @@ header-includes:
 <!-- 摘要（羅馬數字頁碼 i, ii, iii ...） -->
 <!-- ============================================================ -->
 
-\pagenumbering{roman}
+\pagenumbering{Roman}
 \pagestyle{frontmatter}
 
-摘要
+\begin{center}
+{\Large\bfseries 摘要}
+\end{center}
 
 3D 列印技術近年來已廣泛應用於工業製造、醫療輔具、教育教具及個人創作等多元領域，然而熔融沉積成型（FDM）列印過程中常因噴嘴溫度、回抽設定或列印速度等參數控制不當，導致拉絲（Stringing）、翹曲（Warping）及裂痕（Cracking）等表面瑕疵，影響成品外觀品質與結構完整性。傳統目視檢測方式費時費力，且因操作人員主觀判斷標準不一，難以在大規模生產場景中維持品質評估的一致性與效率。
 
 本研究旨在建立一套以深度學習影像辨識為核心的 3D 列印件自動瑕疵辨識與品質評分系統，以魚骨形狀 PLA 列印件為研究標的，聚焦於拉絲瑕疵嚴重程度的六等級分類（A 至 F）。本研究之流程依序為列印實驗、影像拍攝、影像裁切與模型訓練；資料蒐集期間為 2025/11/22 至 2026/02/07，其中主要列印紀錄集中於 2025/11/22 至 2025/12/10，並於 2026/02/05 至 2026/02/07 補充少數類別與失敗件樣本；影像拍攝於列印完成後進行，並於 2026/02/10 前完成資料裁切、標注、模型訓練與辨識分析。最新資料集共取得 1110 筆有效魚骨樣本，最終整理出 A 級 546 張、B 級 87 張、C 級 213 張、D 級 160 張、E 級 72 張、F 級 32 張。
 
-模型架構選用 MobileNetV3-Large（ImageNet V2 預訓練權重），以遷移學習方式進行六分類微調，並附加品質評分輔助頭同時輸出 0 至 100 的連續品質分數。訓練策略整合 Focal Loss（$\gamma = 2.0$）結合 Label Smoothing（0.1）、批次層級 Mixup 資料增強（$\alpha=0.3$）、Weighted Random Sampler 過採樣、Cosine Annealing Warm Restarts 學習率排程及 Early Stopping 機制（patience=35），以全面應對資料不平衡與小樣本過擬合問題。實驗結果顯示，最新改良版模型（MobileNetV3-Large）在全資料集整體準確率達 95.86\%（1064/1110），各等級準確率分別為：A 級 98.7\%、B 級 92.0\%、C 級 96.7\%、D 級 90.6\%、E 級 88.9\%、F 級 93.8\%。獨立測試集共 167 筆，測試準確率為 83.23\%（139/167），各等級測試準確率分別為 A 級 98.8\%、B 級 53.8\%、C 級 87.5\%、D 級 54.2\%、E 級 54.5\%、F 級 80.0\%。相較於初版模型（MobileNetV3-Small，86.9\%），最新模型全資料集準確率提升約 9.0 個百分點，且 C、D、F 等瑕疵等級的辨識能力明顯改善；惟 B、D、E 等少數或邊界類別於獨立測試集仍有改善空間。本系統已完整整合自動裁切、批量辨識、分級輸出與 HTML 可視化報告等功能，具備作為生產端品質管控輔助原型的應用可行性。
+模型架構選用 MobileNetV3-Large（ImageNet V2 預訓練權重），以遷移學習方式進行六分類微調，並附加品質評分輔助頭同時輸出 0 至 100 的連續品質分數。訓練策略整合 Focal Loss（$\gamma = 2.0$）結合 Label Smoothing（0.1）、批次層級 Mixup 資料增強（$\alpha=0.3$）、Weighted Random Sampler 過採樣、Cosine Annealing Warm Restarts 學習率排程及 Early Stopping 機制（patience=35），以全面應對資料不平衡與小樣本過擬合問題。實驗結果方面，最新改良版模型（MobileNetV3-Large）**在獨立測試集（167 筆未參與訓練之樣本）整體準確率為 83.23\%（139/167）**，各等級測試準確率分別為 A 級 98.8\%、B 級 53.8\%、C 級 87.5\%、D 級 54.2\%、E 級 54.5\%、F 級 80.0\%，顯示 A 級辨識穩定，但 B、D、E 等少數類別之泛化能力仍有明顯改善空間。作為訓練擬合度參考，模型於全資料集回測準確率為 95.86\%（1064/1110）；惟此回測包含已參與訓練之樣本，不代表泛化能力，與獨立測試集準確率不可互換解讀。本系統已完整整合自動裁切、批量辨識、分級輸出與 HTML 可視化報告等功能，**惟受限於單一機型（Bambu Lab A1）、單一材料（PLA）、單一形狀（魚骨）、單一瑕疵類型（拉絲）之研究範圍，現階段定位為品質管控輔助原型，泛化至其他列印條件之能力尚未驗證**。
 
-關鍵詞：3D 列印、熔融沉積成型（FDM）、瑕疵檢測、深度學習、MobileNetV3、品質評分、遷移學習、Focal Loss、資料不平衡
+\vspace{0.5cm}
+
+\noindent\textbf{關鍵詞：3D 列印、熔融沉積成型（FDM）、瑕疵檢測、深度學習、MobileNetV3、品質評分、遷移學習、Focal Loss、資料不平衡}
 
 \newpage
 
@@ -373,6 +381,16 @@ header-includes:
 ## 研究範圍 {#sec:intro-scope}
 
 本研究的研究範圍以 FDM 技術列印之魚骨形狀 PLA 材質列印件為主要研究對象，聚焦於拉絲瑕疵的嚴重程度分類，不包含翹曲及裂痕瑕疵的深入分析（因現有樣本中此兩類瑕疵數量不足）。實驗設備限定為 Bambu Lab A1 3D 印表機，耗材為標準 PLA 線材，拍攝環境為固定背景的室內自然光環境，因此模型的泛化能力主要針對此特定設備與材料條件。資料規模方面，最新資料集共取得 1110 筆有效魚骨樣本，分屬六個品質等級，最多等級 546 張（A 級），最少等級 32 張（F 級）。
+
+為使後續讀者與審查者能正確解讀本研究之結論，茲將本研究之適用範圍與已知限制條列如下：
+
+1. **單一硬體條件**：僅使用 Bambu Lab A1 印表機與標準 PLA 線材，未驗證其他機型（如 Prusa、Creality）或材料（如 PETG、ABS、TPU）之表現。
+2. **單一幾何條件**：僅使用魚骨形狀樣本，模型對其他幾何形狀（如盒體、齒輪、有機曲面）之泛化能力未經驗證。
+3. **單一瑕疵類型**：僅針對拉絲（Stringing）嚴重程度分類；翹曲與裂痕雖於文獻回顧介紹，但因樣本不足未納入訓練與測試。
+4. **資料相關性與分組切分**：1110 張樣本係由 185 張原始照片各裁切出約 6 支魚骨而來，同一原圖切出之多支樣本在光線、背景與列印批次上高度相關。本研究目前**未以原圖為單位進行分組切分（Group Split）**，因此獨立測試集 83.23\% 之準確率可能仍受同源樣本相關性影響而略有高估；實際部署於完全未見過之列印批次時準確率預期會更低，此點列為後續研究的優先補強項目（詳見 \ref{sec:conclusion-future} 節）。
+5. **標注一致性未驗證**：全部 1110 張樣本由單一標注者完成，未進行多人標注一致性測試（如 Cohen's Kappa 或 ICC），「標準化品質等級制度」一語應理解為「單一標注者下的可重複準則」，而非多人標注的一致客觀標準。
+6. **品質分數未經人工校準**：0$\sim$100 分輸出採等級編號之線性轉換為監督目標，尚未與多位有經驗操作人員之主觀評分對齊；現階段僅作為分類結果之輔助連續指標，不宜作為絕對品質量化依據。
+7. **未做基準模型比較與消融研究**：本研究未與 ResNet、EfficientNet 等其他主流架構比較，也未對 Focal Loss、Mixup、Label Smoothing、WeightedRandomSampler 等訓練策略逐項做消融，因此「選擇 MobileNetV3-Large 及該組訓練策略為最佳組合」一說缺乏對照證據，現階段僅能視為「在此一組設定下可達成 83.23\% 測試集準確率之可行解」。
 
 ## 研究流程 {#sec:intro-flow}
 
@@ -456,20 +474,13 @@ MobileNetV3-Large 的整體架構包含：初始卷積層（3$\times$3, stride 2
 
 ## 研究架構 {#sec:method-architecture}
 
-本研究系統架構如圖 \ref{fig:method-flow} 所示，修訂後以資料流與責任分工為主軸呈現。整體流程由列印製樣與影像蒐集開始，經由裁切前處理與人工標注建立 A 至 F 六等級資料集，再以 MobileNetV3-Large 進行遷移學習訓練，最後輸出混淆矩陣、品質分數、批量分級資料夾與 HTML 統計報告。此種呈現方式可直接對應資料來源、模型訓練與推論輸出，避免原流程圖僅堆疊模組而未說明關係。硬體端仍由 Bambu Lab A1、拍攝設備與訓練電腦組成，如圖 \ref{fig:method-hardware} 所示。
+本研究系統架構以資料流與責任分工為主軸呈現，如圖 \ref{fig:method-flow} 所示。整體流程由列印製樣與影像蒐集開始，經由裁切前處理與人工標注建立 A 至 F 六等級資料集，再以 MobileNetV3-Large 進行遷移學習訓練，最後輸出混淆矩陣、品質分數、批量分級資料夾與 HTML 統計報告。此呈現方式可直接對應資料來源、模型訓練與推論輸出三大環節。硬體端由 Bambu Lab A1 印表機、智慧型手機（用於拍攝）與配備 NVIDIA RTX 3050 Laptop GPU 之筆記型電腦（用於訓練與推論）組成，硬體規格詳見 \ref{sec:method-equipment-pc} 節。
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth,keepaspectratio]{images/image5.png}
-\caption{修訂後研究流程與資料流關係圖}
+\caption{研究流程與資料流關係圖}
 \label{fig:method-flow}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.6\textwidth,keepaspectratio]{images/image6.jpeg}
-\caption{系統硬體架構圖}
-\label{fig:method-hardware}
 \end{figure}
 
 ## 實驗設備 {#sec:method-equipment}
@@ -504,11 +515,15 @@ MobileNetV3-Large 的整體架構包含：初始卷積層（3$\times$3, stride 2
 
 ### 列印參數設定截圖 {#sec:method-equipment-params}
 
-本節原先逐張列出列印參數設定截圖，雖然完整，但會使正文被截圖切割，讀者反而難以掌握哪些參數真正影響資料集的一致性。因此修訂後將正文改為說明參數選擇理由，完整設定畫面移至附錄二保存，作為實驗重現時的查核來源。
+本研究的列印參數以「全研究期間統一固定」為原則，避免引入不必要變因，使後續模型訓練可專注於拉絲嚴重程度差異。參數控制重點分為五類：
 
-本研究的列印參數控制重點可分為五類。**第一**，品質設定用於固定層高、線寬與外殼品質，使拉絲差異主要來自列印狀態而非幾何尺寸變動。**第二**，強度設定用於控制填充密度與壁厚，避免樣本因結構強度不足而產生非拉絲類破壞。**第三**，速度設定用於維持列印與移動速度的一致性，降低批次間因噴嘴移動條件不同造成的額外變異。**第四**，支撐設定在魚骨件列印中保持固定，避免支撐拆除痕跡被誤當成瑕疵特徵。**第五**，其他進階設定僅作為固定環境條件，不作為本研究主要變因。
+1. **品質設定**：固定層高、線寬與外殼品質，使拉絲差異主要來自列印狀態而非幾何尺寸變動。
+2. **強度設定**：控制填充密度與壁厚，避免樣本因結構強度不足而產生非拉絲類破壞。
+3. **速度設定**：維持列印與移動速度的一致性，降低批次間因噴嘴移動條件不同造成的額外變異。
+4. **支撐設定**：在魚骨件列印中保持固定，避免支撐拆除痕跡被誤判為瑕疵特徵。
+5. **其他進階設定**：作為固定環境條件，不作為本研究主要變因。
 
-正文保留上述原則即可支撐研究方法；若需逐項核對 Bambu Studio 設定畫面，可參考附錄二之完整截圖。這樣安排能同時保留實驗可重複性與正文閱讀性。
+完整 Bambu Studio 參數設定彙整於附錄二表 \ref{tab:param-summary}，作為實驗重現之查核依據。
 
 ### 電腦硬體與軟體環境 {#sec:method-equipment-pc}
 
@@ -701,7 +716,7 @@ F & 失敗品 & 極度拉絲，幾乎看不出魚骨結構 & 0 分 & 廢品 \\
 
 ### 各等級邊界判斷邏輯 {#sec:method-grading-boundary}
 
-前一節已以圖 \ref{fig:grade-a} 至圖 \ref{fig:grade-f} 呈現 A 至 F 六等級的代表性樣本，因此本節修訂後不再逐張堆疊所有樣本，而改為補充各等級的邊界判斷邏輯。這種寫法能保留標注依據，也能避免正文被大量相似圖片中斷。
+前一節已以圖 \ref{fig:grade-a} 至圖 \ref{fig:grade-f} 呈現 A 至 F 六等級的代表性樣本，本節進一步補充各等級之邊界判斷邏輯，作為標注時的判斷依據。
 
 **A 與 B 等級的差異**在於是否可見極少量短細絲。A 級要求表面乾淨且無明顯拉絲；B 級雖仍可接受，但可能在魚骨細刺或局部轉角處出現少量短絲。這兩級容易混淆的原因，是短絲在拍攝角度與光線變化下可能被弱化或放大，因此標注時必須以整體面積與可見程度共同判斷。
 
@@ -791,7 +806,10 @@ F & 失敗品 & 32 & 2.9\% & 樣本基數最小，仍建議持續補充 \\
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth,keepaspectratio]{images/image16.png}
-\caption{資料集各等級樣本分布（左：張數，右：佔比圓餅圖）}
+\caption{資料集各等級樣本分布（左：張數，右：佔比圓餅圖）\\
+\textbf{TODO（學弟自己修圖）}：原圖中文標籤顯示為亂碼，請以
+\texttt{plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']}
+（Windows）或 \texttt{['Noto Sans CJK TC']}（Linux）重新繪製後覆蓋 image16.png。}
 \label{fig:dataset-dist}
 \end{figure}
 
@@ -809,9 +827,9 @@ version\_21 模型最高驗證準確率為 90.96\%，獨立測試集準確率為
 
 因此，本研究後續分析以混淆矩陣、各等級召回率、測試集準確率與全資料集回測結果作為主要依據。TensorBoard 截圖僅作為實驗紀錄來源，不再於正文逐張展示。
 
-## 舊版模型評估（MobileNetV3-Small，214 張不平衡資料）{#sec:results-old-model}
+## 舊版模型評估（MobileNetV3-Small，214 張不平衡資料） {#sec:results-old-model}
 
-在完成全部樣本的重新標注前，本研究先以初版 MobileNetV3-Small 模型對早期的 214 張嚴重不平衡資料（A=181 張，B$\sim$F 各 4$\sim$9 張）進行訓練，作為基準對照（Baseline）。初版模型的整體準確率雖達 86.9\%，但此數字主要是由 A 等級（約 85\% 佔比）貢獻，D 等級的 Precision 僅 0.304，說明模型幾乎只會預測 A 等級，對 B 至 F 等級的辨識能力極為有限，整體 Macro F1 僅 0.708。詳細評估結果如表 \ref{tab:old-model} 所示。
+在完成全部樣本的重新標注前，本研究先以初版 MobileNetV3-Small 模型對早期的 214 張嚴重不平衡資料（A=181 張，B$\sim$F 各 4$\sim$9 張）進行訓練，作為新版模型之歷史對照（**註：此處 214 張之整體準確率 86.9\% 為驗證/回測表現，舊版獨立測試集準確率為 78.79\%，詳見 \ref{sec:results-comparison} 節之多版本比較表 \ref{tab:multi-versions}**）。即使如此，舊版模型最致命的問題並非整體數字，而是少數類別之嚴重失能：D 等級 Precision 僅 0.304，整體 Macro F1 僅 0.708，顯示模型幾乎只會預測 A 等級，對 B 至 F 等級的辨識能力極為有限。詳細評估結果如表 \ref{tab:old-model} 所示。
 
 \begin{table}[!htbp]
 \centering
@@ -844,9 +862,9 @@ weighted avg & 214 & 0.925 & 0.869 & 0.888 \\
 
 由圖 \ref{fig:old-confusion} 可看出，舊版混淆矩陣中 A 等級有 16 張（8.8\%）被誤判為 D 等級，是最主要的錯誤來源。分析其根本原因：D 等級的訓練樣本僅 9 張，模型無法從如此有限的樣本中學習到 D 等級的穩定特徵表示，導致模型將 D 等級的高置信度預測閾值設定得極低，許多 A 等級樣本因特徵向量與 D 等級過度重疊而被誤分。此外，B 等級（5 張）和 C 等級（4 張）的樣本數同樣嚴重不足，其 F1-score 分別僅 0.615 和 0.667。這些結果明確說明：在嚴重資料不平衡的條件下，即使採用 WeightedRandomSampler 等過採樣技術，若少數類別的樣本數低於臨界值（本研究估計約 20$\sim$30 張），模型效能仍無法有效提升，補充實際樣本才是根本解決之道。
 
-## 改良版模型評估（MobileNetV3-Large，1110 張最新資料）{#sec:results-new-model}
+## 改良版模型評估（MobileNetV3-Large，1110 張最新資料） {#sec:results-new-model}
 
-完成最新 1110 張有效樣本的重新整理並採用升級的 MobileNetV3-Large 模型後，全資料集回測整體準確率提升至 95.86\%（1064/1110），相較舊版 MobileNetV3-Small 的 86.9\% 提升約 9.0 個百分點。各等級全資料集辨識正確率分別為 A 級 98.7\%、B 級 92.0\%、C 級 96.7\%、D 級 90.6\%、E 級 88.9\%、F 級 93.8\%，其中 C 級與 D 級較前版有明顯改善。此處全資料集結果用於檢視模型對已標注資料的整體擬合與批量辨識能力，獨立測試集結果另以 \texttt{test/accuracy} 呈現。詳細評估結果如表 \ref{tab:new-model} 所示。
+完成最新 1110 張有效樣本的重新整理並採用升級的 MobileNetV3-Large 模型後，**獨立測試集（167 筆）整體準確率為 83.23\%（139/167），此為本研究評估模型泛化能力之主要指標**，詳細各等級表現見 \ref{sec:results-new-model-testset} 節。作為訓練擬合度參考，全資料集回測整體準確率為 95.86\%（1064/1110），各等級全資料集辨識正確率分別為 A 級 98.7\%、B 級 92.0\%、C 級 96.7\%、D 級 90.6\%、E 級 88.9\%、F 級 93.8\%；但因此回測包含已參與訓練的樣本，**不能視為模型於未見過資料上的真實表現，僅供觀察模型對已標注資料的整體擬合與批量辨識完成度**。全資料集詳細結果如表 \ref{tab:new-model} 所示，獨立測試集結果見表 \ref{tab:new-model-testset}。
 
 \begin{table}[!htbp]
 \centering
@@ -872,15 +890,53 @@ F 失敗品 & 32 & 30 & 93.8\% & 28.5 分 & 0 分 & $+28.5$ 分 \\
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth,keepaspectratio]{images/image18.png}
-\caption{改良版模型各等級準確率（左）及新舊版對比（右）}
+\caption{改良版模型各等級準確率（左）及新舊版對比（右）\\
+\textbf{TODO（學弟自己修圖）}：原圖中文標籤顯示為亂碼，請以
+\texttt{plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']}
+重新繪製後覆蓋 image18.png。}
 \label{fig:new-model-acc}
 \end{figure}
 
+### 獨立測試集表現（泛化能力主要指標） {#sec:results-new-model-testset}
+
+獨立測試集共 167 筆未參與訓練之樣本，整體準確率 83.23\%（139/167）。**此為本研究評估模型泛化能力之主要量化指標**，相對於全資料集回測 95.86\%（表 \ref{tab:new-model}），可看出兩者落差約 12.6 個百分點，且少數類別之落差更為顯著。詳細結果如表 \ref{tab:new-model-testset} 所示。
+
+\begin{table}[!htbp]
+\centering
+\caption{最新模型（MobileNetV3-Large）獨立測試集各等級表現}
+\label{tab:new-model-testset}
+\small
+\begin{tabular}{lccc}
+\hline
+\textbf{等級} & \textbf{測試準確率} & \textbf{全資料集回測 Recall} & \textbf{落差（pp）} \\
+\hline
+A 完美品   & 98.8\% & 98.7\% & $-$0.1（穩定）\\
+B 良好品   & 53.8\% & 92.0\% & $-$38.2（嚴重）\\
+C 輕微拉絲 & 87.5\% & 96.7\% & $-$9.2 \\
+D 中度拉絲 & 54.2\% & 90.6\% & $-$36.4（嚴重）\\
+E 嚴重拉絲 & 54.5\% & 88.9\% & $-$34.4（嚴重）\\
+F 失敗品   & 80.0\% & 93.8\% & $-$13.8 \\
+\hline
+\textbf{整體} & \textbf{83.23\%（139/167）} & \textbf{95.86\%（1064/1110）} & $-$12.6 \\
+\hline
+\end{tabular}
+
+\vspace{0.3em}
+\footnotesize \textit{註：落差以百分比點（pp）計算 = 測試準確率 $-$ 全資料集回測 Recall。各等級獨立測試集樣本數待學弟由 \texttt{test\_results.csv} 補入細項。}
+\end{table}
+
+**重要解讀**：
+
+1. **A 級辨識穩定**（98.8\%，落差僅 $-$0.1 pp），代表正常列印品在實際部署可可靠識別。
+2. **B、D、E 三個少數類別於獨立測試集準確率全部跌至 50\% 左右**，落差超過 30 個百分點。這顯示模型在這些等級上**有嚴重過擬合**：全資料集回測時看似 88$\sim$92\%，但實際部署到未見樣本時近乎隨機猜測。
+3. **C、F 等級落差中等**（$-$9 至 $-$14 pp），仍可作為輔助分級，但需以人工複核補強。
+4. **此落差來源**綜合包含：(a) F 級樣本基數過小（32 張），(b) 同一原圖切出之多支魚骨在訓練/測試間相關性高（未做 Group Split），(c) 標注一致性未驗證可能引入雜訊。後續補強方向詳見 \ref{sec:conclusion-future} 節。
+
 ### 評估結果整體討論 {#sec:results-new-model-discussion}
 
-本節原先放置分類報告、混淆矩陣與多張 TensorBoard 測試截圖。修訂後正文改以表 \ref{tab:new-model}、圖 \ref{fig:new-model-acc} 與下一節混淆矩陣分析作為主要證據，避免相同資訊重複出現。完整輸出仍保留於實驗資料夾與 TensorBoard/HTML 報告中，可供後續查核。
+本節以表 \ref{tab:new-model}、圖 \ref{fig:new-model-acc} 與下一節混淆矩陣分析作為主要證據。完整分類報告與 TensorBoard 測試截圖保留於實驗資料夾與 HTML 報告中，可供後續查核。
 
-從評估結果看，改良版 MobileNetV3-Large 在全資料集回測中達 95.86\%，但獨立測試集為 83.23\%。這個落差表示模型已能有效擬合目前資料集，但在少數等級與邊界樣本上仍有泛化限制。因此，本研究不將 95.86\% 解讀為實際部署時的保證準確率，而是將其定位為目前標注資料上的回測表現。
+從評估結果看，改良版 MobileNetV3-Large **在獨立測試集（167 筆未參與訓練之樣本）準確率為 83.23\%，此為本研究評估泛化能力之主要指標**。全資料集回測準確率 95.86\% 雖然數字較高，但因樣本已參與訓練，僅能反映模型對已標注資料之擬合度，**不可解讀為實際部署時的保證準確率**。83.23\% 與 95.86\% 之間約 12.6 個百分點的落差，顯示模型在少數等級與邊界樣本上仍存在泛化限制；尤其 B、D、E 三個少數類別於獨立測試集準確率僅 53.8\%、54.2\%、54.5\%（詳見 \ref{sec:results-new-model-testset} 節），代表這些等級在實際部署時的可靠性與全資料集回測呈現之表象存在巨大落差，後續研究應優先補強。
 
 ## 混淆矩陣深度分析 {#sec:results-confusion}
 
@@ -904,7 +960,7 @@ F 失敗品 & 32 & 30 & 93.8\% & 28.5 分 & 0 分 & $+28.5$ 分 \\
 
 ### 誤判案例類型分析 {#sec:results-confusion-error}
 
-誤判案例修訂後改以類型分析為主，而非逐張排列。主要錯誤可分為三類。
+誤判案例以類型分析為主，主要錯誤可分為三類。
 
 **第一**，A 級與 B 級之間的混淆，多發生在魚骨細刺附近有極短細絲時；模型可能將光線、陰影或短絲解讀為輕微瑕疵。
 
@@ -916,7 +972,7 @@ F 失敗品 & 32 & 30 & 93.8\% & 28.5 分 & 0 分 & $+28.5$ 分 \\
 
 ### 正確辨識案例特徵歸納 {#sec:results-confusion-correct}
 
-正確辨識案例的功能是說明模型在典型樣本上的判斷能力。修訂後不再逐張展示所有正確案例，而改以文字歸納：A 級樣本通常具有乾淨輪廓與清楚魚骨間隙；B 級樣本可能存在少量短絲但不影響整體品質；C 與 D 級樣本的差異主要在拉絲覆蓋比例與連續性；E 與 F 級樣本則呈現大範圍拉絲或結構難以辨識。
+正確辨識案例的功能是說明模型在典型樣本上的判斷能力，以下以文字歸納各等級正確辨識的特徵：A 級樣本通常具有乾淨輪廓與清楚魚骨間隙；B 級樣本可能存在少量短絲但不影響整體品質；C 與 D 級樣本的差異主要在拉絲覆蓋比例與連續性；E 與 F 級樣本則呈現大範圍拉絲或結構難以辨識。
 
 從正確案例可看出，模型對典型 A、C、D 與 F 級具有較明確的特徵反應；較不穩定的區域仍集中在相鄰等級的邊界樣本。這與前述混淆矩陣分析一致，也支持後續以邊界樣本補充與標注一致性檢查作為改善方向。
 
@@ -927,7 +983,10 @@ F 失敗品 & 32 & 30 & 93.8\% & 28.5 分 & 0 分 & $+28.5$ 分 \\
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\textwidth,keepaspectratio]{images/image20.png}
-\caption{各等級目標品質分與模型輸出平均分比較}
+\caption{各等級目標品質分與模型輸出平均分比較\\
+\textbf{TODO（學弟自己修圖）}：原圖中文標籤顯示為亂碼，請以
+\texttt{plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']}
+重新繪製後覆蓋 image20.png。}
 \label{fig:quality-score}
 \end{figure}
 
@@ -959,15 +1018,18 @@ F & 失敗品 & 34 & 3.1\% & 失敗品樣本數較少 \\
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.7\textwidth,keepaspectratio]{images/image21.png}
-\caption{批量辨識各等級支數分布統計圖}
+\caption{批量辨識各等級支數分布統計圖\\
+\textbf{TODO（學弟自己修圖）}：原圖中文標籤顯示為亂碼，請以
+\texttt{plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']}
+重新繪製後覆蓋 image21.png。}
 \label{fig:batch-result}
 \end{figure}
 
 ### 端對端辨識流程的實際意義 {#sec:results-batch-pipeline}
 
-批量辨識結果範例修訂後不再逐張排列各等級輸出圖，而改為說明端對端流程的實際意義。系統會將 1110 支魚骨樣本依模型預測結果分入 A 至 F 資料夾，並產生統計圖與 HTML 報告。這個流程的價值在於快速提供批次品質概況，讓使用者先掌握異常等級分布，再針對低品質或邊界樣本進行人工複核。
+本節說明端對端流程之實際意義：系統將 1110 支魚骨樣本依模型預測結果分入 A 至 F 資料夾，並產生統計圖與 HTML 報告。此流程之價值在於快速提供批次品質概況，讓使用者先掌握異常等級分布，再針對低品質或邊界樣本進行人工複核。
 
-最新批量輸出分布為 A 級 544 張、B 級 89 張、C 級 216 張、D 級 156 張、E 級 71 張、F 級 34 張。此分布與人工標注資料集的整體趨勢相近，表示系統可作為初步分級工具；但由於 C/E 等級與資料夾現況曾出現 1 張差異，本研究仍以 TensorBoard/HTML 輸出作為正式表格來源，並建議未來在批量輸出後加入版本化紀錄與自動檢查表。
+最新批量輸出分布為 A 級 544 張、B 級 89 張、C 級 216 張、D 級 156 張、E 級 71 張、F 級 34 張。需特別說明：此批量辨識的 1110 張輸入即為訓練/驗證集，故輸出分布與人工標注資料集分布相近實屬必然，**此結果僅能驗證系統可正常完成端對端流程，不能視為對模型泛化能力的獨立驗證**。對泛化能力的真實評估仍應以 \ref{sec:results-new-model-testset} 節之獨立測試集結果為主。
 
 ## 新舊版模型綜合比較 {#sec:results-comparison}
 
@@ -1024,30 +1086,35 @@ Macro F1（估算）& 0.708 & 約 0.94 \\
 
 ## 結論 {#sec:conclusion-summary}
 
-本研究成功建立了一套以深度學習影像辨識為核心的 3D 列印件瑕疵自動辨識與品質評分系統，以 FDM 列印魚骨件的拉絲瑕疵為研究標的，實現六等級（A 至 F）自動分類與品質評分輸出。主要研究成果總結如下：
+本研究建立了一套以深度學習影像辨識為核心的 3D 列印件瑕疵自動辨識與品質評分系統，以 FDM 列印魚骨件的拉絲瑕疵為研究標的，實現六等級（A 至 F）自動分類與品質評分輸出。主要研究成果總結如下：
 
-1. **標準化品質等級制度**：以拉絲面積佔比為客觀量化依據，建立了六個明確、可重複的品質等級定義，並配合 A 至 F 六張範例圖，確保不同標注人員間的一致性，有效解決了傳統目視檢測主觀性強的核心問題。
-2. **系統性資料蒐集與標注**：透過多批次列印與拍攝，配合 Label Studio 工具完成全部樣本的精確人工標注，建立含 1110 張有效樣本的六等級分類資料集。本研究的實踐驗證了高品質標注資料對深度學習效能的根本性影響：從 214 張嚴重不平衡的舊資料逐步擴充至 1110 張重新標注資料後，全資料集整體準確率提升至 95.86\%。
-3. **高效能深度學習模型**：採用 MobileNetV3-Large（ImageNet V2 預訓練）進行遷移學習，結合 Focal Loss、Label Smoothing、Mixup、WeightedRandomSampler 等多項訓練優化策略，在有限樣本量的條件下達到全資料集整體準確率 95.86\% 的高效能，其中 A、B、C、D、E、F 六個等級全資料集 Recall 均達 88\% 以上，顯示本系統具備品質管控輔助原型可行性，但 B、D、E 等邊界或少數類別仍需持續補充資料以提升泛化能力。
-4. **端對端自動化系統**：整合自動裁切（\texttt{crop\_fish.py}）、批量辨識（\texttt{辨識資料夾.py}）、分級輸出及 HTML 可視化報告等功能，形成由原始照片輸入到品質等級報告輸出的離線批量處理流程。本研究未保留獨立硬體計時紀錄，因此不將單張推論時間作為正式效能指標；系統定位為品質管控輔助原型，後續仍需在固定硬體與批次條件下補做推論時間、吞吐量與人工複核成本評估。
-5. **品質評分量化**：模型同時輸出 0 至 100 的連續品質分數。以 A=100、B=80、C=60、D=40、E=20、F=0 作為目標分數時，各等級預測平均分與目標分數的絕對誤差分別為 A 級 20.6 分、B 級 10.3 分、C 級 2.5 分、D 級 9.8 分、E 級 17.4 分、F 級 28.5 分。此結果顯示品質分已呈現由 A 至 F 遞減的趨勢，但 A、B、E、F 等級仍需進一步校準，才能作為更精準的品質量化依據。
+1. **單一標注者下之可重複品質等級制度**：以拉絲面積佔比為主要判斷依據，建立了六個明確的品質等級定義，並配合 A 至 F 六張範例圖。**惟需特別說明**：本研究全部 1110 張樣本由單一標注者完成，未進行多人標注一致性測試（如 Cohen's Kappa 或 ICC），因此此制度應理解為「單一標注者下的可重複準則」，與真正解決「不同標注人員間主觀差異」之目標尚有距離，後續仍需邀請多位有經驗的操作人員進行交叉標注以驗證一致性。
+2. **系統性資料蒐集與標注**：透過多批次列印與拍攝，配合 Label Studio 工具完成全部樣本的人工標注，建立含 1110 張有效樣本的六等級分類資料集。從 214 張嚴重不平衡的舊資料擴充至 1110 張後，**獨立測試集整體準確率由 78.79\% 提升至 83.23\%**（全資料集回測 86.9\% $\to$ 95.86\%），驗證了資料量擴充對少數類別辨識能力的正面效益。
+3. **深度學習模型 — 主要效能指標與限制**：採用 MobileNetV3-Large（ImageNet V2 預訓練）進行遷移學習，結合 Focal Loss、Label Smoothing、Mixup、WeightedRandomSampler 等訓練策略，**在獨立測試集（167 筆未參與訓練樣本）整體準確率為 83.23\%**。然而 B、D、E 三個少數類別於獨立測試集準確率僅 53.8\%、54.2\%、54.5\%，與全資料集回測 92.0\%、90.6\%、88.9\% 之間有 $-$34 至 $-$38 個百分點之嚴重落差，顯示模型在這些等級上存在明顯過擬合。**本系統現階段僅能在 A 級辨識上達到實際可用之穩定度**（98.8\% 測試準確率），其餘等級於實際部署時仍需人工複核，定位為「品質管控輔助原型」而非「可獨立判定之自動分級系統」。
+4. **端對端自動化流程**：整合自動裁切（\texttt{crop\_fish.py}）、批量辨識（\texttt{辨識資料夾.py}）、分級輸出及 HTML 可視化報告等功能，形成由原始照片輸入到品質等級報告輸出的離線批量處理流程。本研究未保留獨立硬體計時紀錄，因此不將單張推論時間作為正式效能指標；系統部署於實際產線前，仍需在固定硬體與批次條件下補做推論時間、吞吐量與人工複核成本評估。
+5. **品質評分量化（未經人工校準）**：模型同時輸出 0 至 100 的連續品質分數。以 A=100、B=80、C=60、D=40、E=20、F=0 作為目標分數時，各等級預測平均分與目標分數的絕對誤差分別為 A 級 20.6 分、B 級 10.3 分、C 級 2.5 分、D 級 9.8 分、E 級 17.4 分、F 級 28.5 分。此結果顯示品質分已呈現由 A 至 F 遞減的趨勢，但**因目標分數採等級編號之線性轉換、未經多位操作人員主觀評分校準**，A、B、E、F 等級之誤差仍偏大，現階段僅作為分類結果之輔助連續指標，不宜作為絕對品質量化依據。
 
 ## 建議 {#sec:conclusion-future}
 
-根據本研究執行過程中的觀察與系統評估結果，提出以下五點建議供後續研究參考：
+根據本研究執行過程中的觀察與系統評估結果，提出以下建議供後續研究參考。其中第一項為**最高優先級**，直接影響本研究結論之可信度。
 
-1. **持續補充少數等級訓練資料**。雖然最新資料集中 D 級已達 160 張、E 級 72 張，但 F 級仍僅 32 張，且 B 級 87 張相較 A 級仍偏少，未來建議優先補充 B 級邊界樣本與 F 級失敗樣本，並將 F 等級資料補充至 50 張以上，使各等級樣本分布更平均，進一步降低 B/C 與 E/F 邊界的誤判，提高結果的統計可信度。
-2. **擴充至翹曲與裂痕瑕疵的辨識**。本研究因翹曲和裂痕的現有樣本不足，聚焦於拉絲瑕疵的六等級分類。未來可系統性地蒐集翹曲及裂痕樣本，建立涵蓋三種瑕疵類型的多標籤分類系統（Multi-label Classification），更全面地反映 FDM 列印件的品質狀態，提升系統的應用廣度。
-3. **開發即時列印監控系統**。目前系統為列印完成後的離線批量辨識模式，未來可整合 Bambu Lab A1 的內建攝影機或外接 USB 相機串流，在列印進行中進行即時逐層品質監控，一旦偵測到嚴重拉絲（D 等級以上）即觸發警告並自動暫停列印，實現真正的閉環品質管控。
-4. **優化品質評分模型的準確性**。目前品質分採用等級編號的線性轉換作為監督目標，較為粗糙。未來可邀請 5 至 10 名有經驗的操作人員對全部樣本進行主觀評分（連續值 0 至 100），以人工評分作為監督標籤，採用迴歸方式訓練更精確的評分頭，並計算模型輸出分數與人工評分的 ICC（組內相關係數）作為系統可信度的量化指標。
-5. **模型輕量化與邊緣部署**。MobileNetV3-Large 模型大小約 21 MB，適合部署於桌上型電腦或工業電腦。若未來需部署於計算資源有限的邊緣裝置（如 Raspberry Pi 或 NVIDIA Jetson 系列），可進一步評估知識蒸餾、模型剪枝或 INT8 量化等壓縮方法；但任何壓縮方案都必須在相同資料切分下重新測試混淆矩陣、各等級召回率、品質分校準與推論時間，不能僅依模型大小推論精度與速度。
+1. **【最高優先】實驗設計嚴謹度補強**。本研究於資料切分、消融研究與基準比較三方面之嚴謹度仍有不足，建議後續研究優先補強：
+   * **資料以原圖為單位之分組切分（Group Split）**：本研究 1110 張樣本來自 185 張原圖（每張裁切 6 支魚骨），同源樣本相關性高。應改用 \texttt{sklearn.model\_selection.GroupShuffleSplit} 或 \texttt{GroupKFold}，以原圖 ID 為 group，重新評估獨立測試集準確率。預期測試準確率會自目前 83.23\% 進一步下降（合理區間 70$\sim$78\%），但該數字才真正反映模型於完全未見過列印批次之泛化能力。
+   * **訓練策略消融研究（Ablation Study）**：目前同時使用 Focal Loss、Label Smoothing、Mixup、WeightedRandomSampler 四種策略，但缺乏個別有效性證據。建議至少跑兩組對照：(a) 全部移除，僅使用 CrossEntropy + 隨機 sampler；(b) 目前完整配置。並逐一檢視測試集準確率，以判斷每項策略之實際貢獻。
+   * **基準模型比較（Baseline Comparison）**：在相同資料切分下，至少另跑 ResNet18 或 EfficientNet-B0 一組，與 MobileNetV3-Large 比較測試集準確率與 Macro F1，以證明「選擇 MobileNetV3-Large 為最佳方案」之合理性，而非僅憑單一模型結果作結論。
+   * **標注一致性驗證**：邀請 1$\sim$2 位同學重新標注 100 張涵蓋 A$\sim$F 之樣本，計算 Cohen's Kappa；若 $\kappa < 0.7$，需重新檢視標注準則並補充邊界判斷規則。
+2. **持續補充少數等級訓練資料**。雖然最新資料集中 D 級已達 160 張、E 級 72 張，但 F 級仍僅 32 張，且 B 級 87 張相較 A 級仍偏少，未來建議優先補充 B 級邊界樣本與 F 級失敗樣本，並將 F 等級資料補充至 50 張以上，使各等級樣本分布更平均，進一步降低 B/C 與 E/F 邊界的誤判，提高結果的統計可信度。
+3. **擴充至翹曲與裂痕瑕疵的辨識**。本研究因翹曲和裂痕的現有樣本不足，聚焦於拉絲瑕疵的六等級分類。未來可系統性地蒐集翹曲及裂痕樣本，建立涵蓋三種瑕疵類型的多標籤分類系統（Multi-label Classification），更全面地反映 FDM 列印件的品質狀態。
+4. **跨機型 / 跨材料泛化能力驗證**。本研究僅於 Bambu Lab A1 + PLA 條件下訓練與測試。建議蒐集其他常見桌上型印表機（如 Prusa MK4、Creality K1）與其他材料（PETG、ABS）之魚骨件樣本作為跨域測試集，量化模型於不同硬體條件下之效能退化幅度，方能評估本系統作為通用品質管控工具之可行性。
+5. **開發即時列印監控系統**。目前系統為列印完成後的離線批量辨識模式，未來可整合 Bambu Lab A1 的內建攝影機或外接 USB 相機串流，在列印進行中進行即時逐層品質監控，一旦偵測到嚴重拉絲（D 等級以上）即觸發警告並自動暫停列印，實現真正的閉環品質管控。
+6. **優化品質評分模型的準確性**。目前品質分採用等級編號的線性轉換作為監督目標，較為粗糙。未來可邀請 5 至 10 名有經驗的操作人員對全部樣本進行主觀評分（連續值 0 至 100），以人工評分作為監督標籤，採用迴歸方式訓練更精確的評分頭，並計算模型輸出分數與人工評分的 ICC（組內相關係數）作為系統可信度的量化指標。
+7. **模型輕量化與邊緣部署**。MobileNetV3-Large 模型大小約 21 MB，適合部署於桌上型電腦或工業電腦。若未來需部署於計算資源有限的邊緣裝置（如 Raspberry Pi 或 NVIDIA Jetson 系列），可進一步評估知識蒸餾、模型剪枝或 INT8 量化等壓縮方法；但任何壓縮方案都必須在相同資料切分下重新測試混淆矩陣、各等級召回率、品質分校準與推論時間，不能僅依模型大小推論精度與速度。
 
 <!-- ============================================================ -->
 <!-- 參考文獻（Pandoc + biblatex 自動產生） -->
 <!-- ============================================================ -->
 
 \newpage
-\nocite{*}
 \printbibliography[title=參考文獻]
 
 <!-- ============================================================ -->
@@ -1068,339 +1135,115 @@ Macro F1（估算）& 0.708 & 約 0.94 \\
 \titleformat{\section}{\normalsize}{\thesection}{1em}{}
 \titlespacing*{\section}{2em}{12pt}{6pt}
 
-# 列印過程照片完整紀錄 {#sec:appendix-photos}
+# 列印過程代表性照片 {#sec:appendix-photos}
 
-以下為本研究資料蒐集期間的完整紀錄：列印過程照片主要紀錄於 2025/11/22 至 2025/12/10。附圖中之拍攝時間依原始圖檔日期與整理後圖說呈現。
+本附錄保留列印過程中四張代表性照片，分別對應「正常列印中」、「正常列印完成」、「輕微拉絲」、「列印失敗」四種典型狀態，作為前文等級定義之列印現場佐證。原始完整紀錄（16 張）保存於專案資料夾 `ntsc/images/`（image22\~image37.jpg）供需要時查閱。
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.7\textwidth,keepaspectratio]{images/image22.jpg}
-\caption{拍攝時間：2025/11/22 灰色魚骨列印中，結構完整}
-\label{fig:photo-01}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image23.jpg}
-\caption{拍攝時間：2025/11/25 灰色魚骨列印完成，輕微翹曲}
-\label{fig:photo-02}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image24.jpg}
-\caption{拍攝時間：2025/11/25 參數測試件列印中，暗光}
-\label{fig:photo-03}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image25.jpg}
-\caption{拍攝時間：2025/11/26 空列印床，列印結束後}
-\label{fig:photo-04}
+\caption{典型「列印中、結構完整」狀態（2025/11/22，灰色 PLA 魚骨）}
+\label{fig:photo-print-normal}
 \end{figure}
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.7\textwidth,keepaspectratio]{images/image26.jpg}
-\caption{拍攝時間：2025/11/26 藍綠色魚骨列印完成，整齊}
-\label{fig:photo-05}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image27.jpg}
-\caption{拍攝時間：2025/12/04 魚骨列印中，曝光不足}
-\label{fig:photo-06}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image28.jpg}
-\caption{拍攝時間：2025/12/06 藍色魚骨列印中，正常}
-\label{fig:photo-07}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image29.jpg}
-\caption{拍攝時間：2025/12/06 藍色魚骨列印完成，稍暗}
-\label{fig:photo-08}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image30.jpg}
-\caption{拍攝時間：2025/12/06 藍色魚骨列印完成，整齊}
-\label{fig:photo-09}
+\caption{典型「列印完成、整齊」狀態（2025/11/26，藍綠色 PLA 魚骨，對應 A 級樣本來源）}
+\label{fig:photo-print-good}
 \end{figure}
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.7\textwidth,keepaspectratio]{images/image31.jpg}
-\caption{拍攝時間：2025/12/06 藍色魚骨列印中，輕微拉絲}
-\label{fig:photo-10}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image32.jpg}
-\caption{拍攝時間：2025/12/08 藍色魚骨列印中，過曝}
-\label{fig:photo-11}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image33.jpg}
-\caption{拍攝時間：2025/12/09 藍綠魚骨列印中，少量拉絲}
-\label{fig:photo-12}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image34.jpg}
-\caption{拍攝時間：2025/12/09 藍色魚骨嚴重拉絲}
-\label{fig:photo-13}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image35.jpg}
-\caption{拍攝時間：2025/12/10 藍色魚骨列印中，輕微拉絲}
-\label{fig:photo-14}
+\caption{典型「列印中、輕微拉絲」狀態（2025/12/06，藍色 PLA 魚骨，對應 C 級樣本來源）}
+\label{fig:photo-print-light-stringing}
 \end{figure}
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.7\textwidth,keepaspectratio]{images/image36.jpg}
-\caption{拍攝時間：2025/12/10 黃綠色魚骨嚴重拉絲，列印失敗}
-\label{fig:photo-15}
+\caption{典型「列印失敗、嚴重拉絲」狀態（2025/12/10，黃綠色 PLA 魚骨，對應 F 級樣本來源）}
+\label{fig:photo-print-failed}
 \end{figure}
+
+# Bambu Lab A1 列印參數彙整 {#sec:appendix-params}
+
+本研究全程使用同一組 Bambu Studio 列印參數設定（基於 PolyTerra PLA 預設 0.08 mm 設定檔）。表 \ref{tab:param-summary} 彙整影響列印品質之關鍵參數值。完整 24 張參數設定畫面截圖保存於專案資料夾 `ntsc/images/`（image38~image61.PNG），如需逐項核對請逕行查閱原始截圖；圖 \ref{fig:param-quality-representative} 為品質頁籤之代表畫面。
+
+\begin{table}[!htbp]
+\centering
+\caption{Bambu Lab A1 列印參數彙整（全研究期間固定）}
+\label{tab:param-summary}
+\small
+\begin{tabular}{llll}
+\hline
+\textbf{分類} & \textbf{參數項目} & \textbf{設定值} & \textbf{備註} \\
+\hline
+\multirow{6}{*}{品質} & 層高 & 0.08 mm & PolyTerra 預設 \\
+                     & 首層層高 & 0.16 mm & \\
+                     & 線寬（預設） & 0.42 mm & \\
+                     & 線寬（首層） & 0.50 mm & \\
+                     & 線寬（外牆/頂面） & 0.42 mm & \\
+                     & 線寬（內牆/支撐） & 0.45 mm & \\
+\hline
+\multirow{2}{*}{接縫} & 接縫位置 & 背面 & 智能斜拼接縫啟用 \\
+                     & 斜拼角度閾值 & 155$^\circ$ & \\
+\hline
+\multirow{3}{*}{強度} & 牆層數 & （參考截圖） & image45~48.PNG \\
+                     & 填充密度 & （參考截圖） & \\
+                     & 填充圖案 & （參考截圖） & \\
+\hline
+\multirow{2}{*}{速度} & 列印速度 & （參考截圖） & image49~52.PNG \\
+                     & 移位速度 & （參考截圖） & \\
+\hline
+\multirow{2}{*}{支撐} & 支撐類型 & （參考截圖） & image53~56.PNG，魚骨件實際印製多數不啟用支撐 \\
+                     & 支撐密度 & （參考截圖） & \\
+\hline
+\multirow{2}{*}{其他} & 其他進階 & （參考截圖） & image57~61.PNG \\
+                     & 耗材 & PolyTerra PLA & 1.75 mm \\
+\hline
+\end{tabular}
+
+\vspace{0.3em}
+\footnotesize \textit{註：標示「參考截圖」之欄位請學弟自行翻閱對應 image 編號補入實際數值；本表先列出影響品質的主要參數結構供審查者快速掌握。}
+\end{table}
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image37.jpg}
-\caption{空列印床狀態}
-\label{fig:photo-16}
+\includegraphics[width=0.75\textwidth,keepaspectratio]{images/image38.PNG}
+\caption{Bambu Studio 品質頁籤代表截圖（其餘參數頁詳見 `ntsc/images/image39~image61.PNG`）}
+\label{fig:param-quality-representative}
 \end{figure}
 
-# Bambu Lab A1 完整列印參數設定 {#sec:appendix-params}
+# PLA 耗材與冷卻設定彙整 {#sec:appendix-material}
 
-以下為 Bambu Lab A1 印表機於本研究列印實驗中所使用的完整參數設定截圖，涵蓋品質、強度、速度、支撐及其他進階選項，作為實驗重現的完整參數紀錄。
+本研究使用 PolyTerra PLA 1.75 mm 線材，溫度與冷卻參數於全研究期間固定。表 \ref{tab:material-summary} 彙整關鍵設定值，圖 \ref{fig:cooling-representative} 為冷卻設定代表截圖；完整 5 張耗材與冷卻設定截圖保存於 `ntsc/images/image62~image66.PNG`，可供需要時查閱。
 
-## 品質（層高、線寬）設定 {#sec:appendix-params-quality}
+\begin{table}[!htbp]
+\centering
+\caption{PLA 耗材與冷卻設定彙整（全研究期間固定）}
+\label{tab:material-summary}
+\small
+\begin{tabular}{lll}
+\hline
+\textbf{項目} & \textbf{設定值} & \textbf{備註} \\
+\hline
+耗材品牌 / 配方 & PolyTerra PLA & 1.75 mm 直徑 \\
+噴嘴溫度 & 依 PolyTerra PLA 預設 & 詳見 image64~66.PNG \\
+熱床溫度 & 依 PolyTerra PLA 預設 & \\
+冷卻風扇策略 & 全程固定模式 & 詳見 image62~63.PNG，避免變因擴大 \\
+列印速度 & 250 mm/s（正常模式） & 對應 Bambu Lab A1 規格 \\
+\hline
+\end{tabular}
+
+\vspace{0.3em}
+\footnotesize \textit{註：數值欄位請學弟自行翻閱對應 image 編號補入實際數字（噴嘴/熱床溫度、風扇轉速等）。本表先列出參數結構供審查者掌握「耗材與冷卻條件全程固定」之研究設計原則。}
+\end{table}
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.85\textwidth,keepaspectratio]{images/image38.PNG}
-\caption{質量 1 設定畫面}
-\label{fig:param-q1}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image39.PNG}
-\caption{質量 2 設定畫面}
-\label{fig:param-q2}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image40.PNG}
-\caption{質量 3 設定畫面}
-\label{fig:param-q3}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image41.PNG}
-\caption{質量 4 設定畫面}
-\label{fig:param-q4}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image42.PNG}
-\caption{質量 5 設定畫面}
-\label{fig:param-q5}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image43.PNG}
-\caption{質量 6 設定畫面}
-\label{fig:param-q6}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image44.PNG}
-\caption{質量 7 設定畫面}
-\label{fig:param-q7}
-\end{figure}
-
-## 強度（填充、壁厚）設定 {#sec:appendix-params-strength}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image45.PNG}
-\caption{強度 1 設定畫面}
-\label{fig:param-s1}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image46.PNG}
-\caption{強度 2 設定畫面}
-\label{fig:param-s2}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image47.PNG}
-\caption{強度 3 設定畫面}
-\label{fig:param-s3}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image48.PNG}
-\caption{強度 4 設定畫面}
-\label{fig:param-s4}
-\end{figure}
-
-## 速度（列印、移位）設定 {#sec:appendix-params-speed}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image49.PNG}
-\caption{速度 1 設定畫面}
-\label{fig:param-v1}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image50.PNG}
-\caption{速度 2 設定畫面}
-\label{fig:param-v2}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image51.PNG}
-\caption{速度 3 設定畫面}
-\label{fig:param-v3}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image52.PNG}
-\caption{速度 4 設定畫面}
-\label{fig:param-v4}
-\end{figure}
-
-## 支撐結構設定 {#sec:appendix-params-support}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image53.PNG}
-\caption{支撐 1 設定畫面}
-\label{fig:param-sp1}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image54.PNG}
-\caption{支撐 2 設定畫面}
-\label{fig:param-sp2}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image55.PNG}
-\caption{支撐 3 設定畫面}
-\label{fig:param-sp3}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image56.PNG}
-\caption{支撐 4 設定畫面}
-\label{fig:param-sp4}
-\end{figure}
-
-## 其他進階設定 {#sec:appendix-params-other}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image57.PNG}
-\caption{其他 1 設定畫面}
-\label{fig:param-o1}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image58.PNG}
-\caption{其他 2 設定畫面}
-\label{fig:param-o2}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image59.PNG}
-\caption{其他 3 設定畫面}
-\label{fig:param-o3}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image60.PNG}
-\caption{其他 4 設定畫面}
-\label{fig:param-o4}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image61.PNG}
-\caption{其他 5 設定畫面}
-\label{fig:param-o5}
-\end{figure}
-
-# PLA 耗材及冷卻設定截圖 {#sec:appendix-material}
-
-以下為本研究使用 PLA 耗材的相關設定截圖，包含耗材絲徑、溫度曲線及冷卻模式設定，作為列印材料條件的完整紀錄。
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.85\textwidth,keepaspectratio]{images/image62.PNG}
-\caption{冷卻模式 1 設定畫面}
-\label{fig:cooling-1}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.85\textwidth,keepaspectratio]{images/image63.PNG}
-\caption{冷卻模式 2 設定畫面}
-\label{fig:cooling-2}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.85\textwidth,keepaspectratio]{images/image64.PNG}
-\caption{耗材絲 1 設定畫面}
-\label{fig:filament-1}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.85\textwidth,keepaspectratio]{images/image65.PNG}
-\caption{耗材絲 2 設定畫面}
-\label{fig:filament-2}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.85\textwidth,keepaspectratio]{images/image66.PNG}
-\caption{耗材絲 3 設定畫面}
-\label{fig:filament-3}
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/image62.PNG}
+\caption{冷卻模式設定代表截圖（其餘 4 張詳見 `ntsc/images/image63~image66.PNG`）}
+\label{fig:cooling-representative}
 \end{figure}
