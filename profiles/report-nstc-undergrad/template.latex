@@ -496,14 +496,28 @@ $endif$
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{longtable}
-\usepackage{colortbl}
 \usepackage{array}
 \usepackage{multirow}
+\usepackage{tabularx}
+% 註:colortbl (\rowcolor / \columncolor / \cellcolor) 目前 profile 全文未使用,
+% 加上 colortbl v1.0k (2024-10-29) 與 tabularx X 欄相容性有 bug
+% (\insert@pcolumn 未定義錯誤),故不在此處載入。
+% 如需有色表格,可於使用者 YAML header-includes 內自行 \usepackage{colortbl}。
 \usepackage{zhnumber}
 
 % === 圖表位置:偏好原位 ===
 \floatplacement{figure}{!htbp}
 \floatplacement{table}{!htbp}
+
+% === 表格自動換行:tabularx 欄位型別 ===
+% 使用 \begin{tabularx}{\textwidth}{...} 後,以下欄位型別會依剩餘版寬自動分配,
+% 並對長文字自動換行,避免超出頁邊;標準 l/c/r 與 p{...} 欄仍可混用。
+%   L = 左對齊可換行 (>{\raggedright\arraybackslash}X)
+%   C = 置中可換行   (>{\centering\arraybackslash}X)
+%   R = 右對齊可換行 (>{\raggedleft\arraybackslash}X)
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 
 % === 圖表編號採「章-序號」(國科會報告慣例:圖 1-1、表 3-2) ===
 \numberwithin{figure}{section}

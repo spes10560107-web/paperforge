@@ -158,9 +158,9 @@ description: |
 
 ## 五、表格標記
 
-統一使用 **LaTeX `tabular`**，Markdown 表格僅用於草稿。
+統一使用 **LaTeX `tabular` / `tabularx`**，Markdown 表格僅用於草稿。
 
-### 基本表格結構
+### 基本表格結構（一般用 tabular）
 
 ```latex
 \begin{table}[htbp]
@@ -179,12 +179,46 @@ description: |
 \end{table}
 ```
 
-### 欄寬設定
+### 長文欄位自動換行（用 tabularx + L/C/R）
 
-| 語法 | 用途 |
-|------|------|
-| `l` `c` `r` | 自動寬度，靠左/置中/靠右 |
-| `p{6.5cm}` | 固定寬度自動換行（長文用） |
+當欄位內含長段中文說明、容易超出頁邊時，改用 `tabularx` 並把「長文那一欄」設為 `L`（或 `C`、`R`）。
+profile 已預先載入 `tabularx` 並定義以下三種可換行欄位型別：
+
+| 欄位型別 | 對應 LaTeX | 用途 |
+|---------|-----------|------|
+| `L` | `>{\raggedright\arraybackslash}X` | 左對齊可換行 |
+| `C` | `>{\centering\arraybackslash}X`   | 置中可換行 |
+| `R` | `>{\raggedleft\arraybackslash}X`  | 右對齊可換行 |
+
+範例：把第三欄「說明」設為 `L`，超出頁邊會自動換行：
+
+```latex
+\begin{table}[htbp]
+\centering
+\caption{訓練超參數設定}
+\label{tab:hyperparams}
+\small
+\begin{tabularx}{\textwidth}{llL}
+\hline
+\textbf{超參數} & \textbf{設定值} & \textbf{說明} \\
+\hline
+骨幹模型 & MobileNetV3-Large & 採 ImageNet V2 預訓練權重，超出欄寬會自動換行 \\
+學習率   & $2\times10^{-4}$  & AdamW 初始值 \\
+\hline
+\end{tabularx}
+\end{table}
+```
+
+> ⚠ tabularx 至少要有 1 欄是 `X`（含 `L`、`C`、`R`）才能算出剩餘版寬。
+> 若整張表都是數字欄、不需要換行，請用一般 `tabular`。
+
+### 欄寬設定（綜合）
+
+| 語法 | 用途 | 環境 |
+|------|------|------|
+| `l` `c` `r` | 自動寬度，靠左/置中/靠右 | `tabular`、`tabularx` 皆可 |
+| `p{6.5cm}` | 固定寬度可換行（長文用） | `tabular`、`tabularx` 皆可 |
+| `L` `C` `R` | 依剩餘版寬自動分配，可換行 | **僅** `tabularx` |
 
 ### 跨欄、跨列
 
@@ -422,7 +456,8 @@ toc: false
 | 章節未加 `{#sec:...}` | **強制補上** |
 | 手動寫「圖 1-1」 | 用 `\label` + `\ref` 自動編號 |
 | 直接寫參考文獻列表 | 加入 `.bib`，用 `[@key]` 引用 |
-| 用 Markdown 表格做複雜表 | 改用 LaTeX `tabular` |
+| 用 Markdown 表格做複雜表 | 改用 LaTeX `tabular`（含長文則用 `tabularx{\textwidth}{...L...}`） |
+| 表格右側超出頁邊 | 把長文欄改成 `L`/`C`/`R` 並用 `tabularx{\textwidth}` |
 | 加了英文摘要 / 致謝 | NSTC 大專生報告不需要，移除 |
 | 特殊字元未轉義（`%`, `_`） | 加 `\` 轉義 |
 | 修改實驗數字需全文搜尋 | 用 `\def\變數{值}` 集中管理 |

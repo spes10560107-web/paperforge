@@ -266,7 +266,7 @@ toc: false
 <請說明設備規格。可用表格呈現：>
 
 <!--
-範例：
+範例（一般欄位，欄寬隨內容自動調整）：
 \begin{table}[htbp]
 \centering
 \caption{設備技術規格}
@@ -280,6 +280,26 @@ toc: false
 最高速度 & 500 mm/s \\
 \hline
 \end{tabular}
+\end{table}
+
+範例（含長文欄位需自動換行，改用 tabularx + L/C/R）：
+profile 已預先載入 tabularx 與三種可換行欄位型別：
+  L = 左對齊可換行   C = 置中可換行   R = 右對齊可換行
+其餘 l / c / r / p{...} 仍可混用。X 系欄會依剩餘版寬自動分配並對長文字換行。
+
+\begin{table}[htbp]
+\centering
+\caption{訓練超參數設定}
+\label{tab:hyperparams}
+\small
+\begin{tabularx}{\textwidth}{llL}
+\hline
+\textbf{超參數} & \textbf{設定值} & \textbf{說明} \\
+\hline
+骨幹模型 & MobileNetV3-Large & 採 ImageNet V2 預訓練權重，超出欄寬會自動換行 \\
+學習率   & $2\times10^{-4}$  & AdamW 初始值 \\
+\hline
+\end{tabularx}
 \end{table}
 -->
 
