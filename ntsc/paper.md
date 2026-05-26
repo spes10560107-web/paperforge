@@ -762,7 +762,7 @@ F & 失敗品 & 32 & 2.9\% & \makecell{樣本基數最小\\仍建議持續補充
 
 ## 主要結果一覽 {#sec:results-overview}
 
-為方便讀者快速掌握本研究最關鍵之泛化指標，茲將主要結果集中呈現於表 \ref{tab:results-overview}。本論文之主要結果分為兩層：seed=7 嚴格 Group Split 作為詳細分析案例；五 seed mean $\pm$ std 則作為策略比較之穩定性判斷依據。
+為方便讀者快速掌握本研究最關鍵之泛化指標，茲將主要結果集中呈現於表 \ref{tab:results-overview}。本論文之主要結果分為兩層：seed=7 嚴格 Group Split 作為詳細分析案例（後續混淆矩陣、校準、Grad-CAM 均以此案例展開）；五 seed mean $\pm$ std 則作為策略比較之穩定性判斷依據。**須提醒讀者：seed=7 簡化設定之 macro-F1（0.791）明顯高於其五 seed 平均（0.661 $\pm$ 0.079），屬偏樂觀的單次個案；選用 seed=7 僅為提供一致的詳細分析對象，其絕對數值不應視為簡化設定的代表水準，凡策略優劣判斷一律以五 seed 統計為準。**
 
 \clearpage
 
@@ -794,266 +794,13 @@ F & 失敗品 & 32 & 2.9\% & \makecell{樣本基數最小\\仍建議持續補充
 \TableNote[0.96\textwidth]{註：5 seeds 使用 seed = 7, 42, 123, 1234, 2024；成本欄為單次訓練平均時間（NVIDIA GeForce RTX 3050 Laptop GPU）。paired t-test 顯示相對 MobileNetV3-Large 簡化，其他模型在 accuracy 與 QWK 皆未達顯著差異；MobileNetV3-Large 完整與 ResNet18 完整在 macro-F1 上顯著較高。}
 \end{table}
 
-詳細各等級結果、混淆矩陣、品質分校準、模型校準、Grad-CAM 與外部未標注檢查見後續各節。本論文後續呈現順序為：先以 §\ref{sec:results-tensorboard} 至 \ref{sec:results-batch} 鋪陳訓練監控、舊版基準與隨機切分歷史對照，再於 \ref{sec:results-supplemental} 節完整展開主要結果之 Group Split、多 seed、消融與可視化分析，最後於 \ref{sec:results-comparison} 節做多版本綜合對照。**急於了解主要結果之讀者可直接跳至 \ref{sec:results-supplemental} 節**。
+詳細各等級結果、混淆矩陣、品質分校準、模型校準、Grad-CAM 與外部未標注檢查見後續各節。本章採「先主結果、後歷史對照」的順序編排：緊接的 \ref{sec:results-supplemental} 節即完整展開本研究主結果，涵蓋嚴格 Group Split、五 seed 穩定性與顯著性檢定、單變因消融、模型校準、Grad-CAM 與外部未標注檢查；其後的 \ref{sec:results-tensorboard} 至 \ref{sec:results-batch} 節則彙整訓練監控、舊版 214 張基準與隨機切分等模型演進歷程，僅作為歷史對照與資料擬合度觀察，不構成泛化能力或策略優劣之依據；最後於 \ref{sec:results-comparison} 節做跨版本綜合對照。
 
-## TensorBoard 訓練過程監控 {#sec:results-tensorboard}
-
-本研究以 TensorBoard 記錄訓練、驗證與測試過程，但正文不再逐張放置所有監控畫面，而改以關鍵數據與趨勢說明呈現。完整截圖可作為實驗查核資料保存，不必全部置於正文。
-
-隨機切分基準模型最高驗證準確率為 90.96\%，獨立測試集準確率為 83.23\%，全資料集回測準確率為 95.86\%（1064/1110）。其中，全資料集回測用於確認模型對已標注資料的整體擬合與批量辨識能力；獨立測試集準確率則用於觀察模型在未參與訓練樣本上的泛化表現。兩者目的不同，不能混為同一個效能指標。
-
-訓練階段使用 Mixup 資料增強，因此訓練準確率會在混合樣本與軟標籤條件下計算，不能直接與未混合的驗證準確率作等值比較。本研究以驗證集、測試集與全資料集回測三種角度交叉檢視模型表現，避免只依單一曲線判斷模型好壞。
-
-### 訓練曲線趨勢說明 {#sec:results-tensorboard-trend}
-
-訓練曲線的重點不是截圖數量，而是收斂趨勢與泛化落差。從紀錄可知，模型在訓練後期仍維持約 89\% 至 91\% 的驗證表現，顯示資料擴充與正則化策略對少數類別辨識有幫助。然而訓練準確率偏低並不代表模型未學習，因為 Mixup 會使訓練標籤成為軟標籤，準確率指標本身會被混合比例影響。
-
-因此，本研究後續分析以混淆矩陣、各等級召回率、測試集準確率與全資料集回測結果作為主要依據。TensorBoard 截圖僅作為實驗紀錄來源，不再於正文逐張展示。
-
-### Group Split 補充實驗訓練曲線 {#sec:results-tensorboard-supplemental}
-
-本研究之三組補充實驗（MobileNetV3-Large 簡化、ResNet18 完整、EfficientNet-B0 完整）使用相同 Group Split 切分、25 epoch 上限與 patience=7 之 Early Stopping。三模型之驗證集收斂曲線匯出後並排呈現如圖 \ref{fig:gs-training-curves} 所示。
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{images/gs-training-curves.png}
-\caption{Group Split 補充實驗驗證集收斂曲線（左：驗證準確率；右：驗證損失）}
-\label{fig:gs-training-curves}
-\end{figure}
-
-由曲線可觀察到三項細節：(1) **三模型皆在 5 至 10 epoch 內驗證準確率即衝至 80\% 以上**，顯示 ImageNet 預訓練權重對小樣本任務之遷移學習效果顯著；(2) **EfficientNet-B0 完整最早收斂**（第 4 個 logging step 即達最佳 86.31\% 驗證準確率，總計 12 epoch 後 Early Stopping），而 MobileNet 簡化於第 9 step 達最佳 85.12\%（17 epoch 後停止）、ResNet18 完整於第 11 step 達最佳 86.31\%（19 epoch 後停止）；(3) **三模型於收斂後期皆出現驗證準確率小幅波動**（如 ResNet18 從 86.31\% 回落至 83.33\%、MobileNet 簡化從 85.12\% 回落至 83.93\%），反映 batch size 32 下小資料集驗證準確率本身之 noise level。三者最佳驗證準確率僅相差約 1 個百分點，與測試集準確率差距（86.31\% 至 82.14\%）方向一致，但**所有差距皆落在驗證準確率波動幅度之內**。此再次支持 \ref{sec:results-supplemental-interpretation} 節之保守解讀。
-
-## 舊版模型評估（MobileNetV3-Small，214 張不平衡資料） {#sec:results-old-model}
-
-在完成全部樣本的重新標注前，本研究先以初版 MobileNetV3-Small 模型對早期的 214 張嚴重不平衡資料（A 級 181 張，B 至 F 級各 4 至 9 張）進行訓練，作為新版模型之歷史對照（**註：此處 214 張之整體準確率 86.9\% 為驗證/回測表現，舊版獨立測試集準確率為 78.79\%，詳見 \ref{sec:results-comparison} 節之多版本比較表 \ref{tab:multi-versions}**）。即使如此，舊版模型最致命的問題並非整體數字，而是少數類別之嚴重失能：D 等級 Precision 僅 0.304，整體 Macro F1 僅 0.708，顯示模型幾乎只會預測 A 等級，對 B 至 F 等級的辨識能力極為有限。詳細評估結果如表 \ref{tab:old-model} 所示。
-
-\begin{table}[H]
-\centering
-\caption{舊版模型（MobileNetV3-Small，214 張）評估結果}
-\label{tab:old-model}
-\small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{ccccc}
-\hline
-\textbf{等級} & \textbf{樣本數} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
-\hline
-A 完美品 & 181 & 0.982 & 0.884 & 0.930 \\
-B 良好品 & 5 & 0.500 & 0.800 & 0.615 \\
-C 輕微拉絲 & 4 & 0.600 & 0.750 & 0.667 \\
-D 中度拉絲 & 9 & 0.304 & 0.778 & 0.438 \\
-E 嚴重拉絲 & 9 & 0.727 & 0.889 & 0.800 \\
-F 失敗品 & 6 & 1.000 & 0.667 & 0.800 \\
-\hline
-macro avg & 214 & 0.686 & 0.795 & 0.708 \\
-weighted avg & 214 & 0.925 & 0.869 & 0.888 \\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth,height=0.7\textheight,keepaspectratio]{images/old-model-confusion-matrix.png}
-\caption{舊版模型混淆矩陣（A$\to$D 誤判 16 張為主要問題）}
-\label{fig:old-confusion}
-\end{figure}
-
-舊版模型之完整混淆矩陣數字如表 \ref{tab:old-confusion-matrix} 所示。
-
-\begin{table}[H]
-\centering
-\caption{舊版模型（MobileNetV3-Small，214 張）混淆矩陣（列為真實標籤，欄為預測標籤）}
-\label{tab:old-confusion-matrix}
-\small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{cccccccc}
-\hline
-\textbf{真實 \textbackslash 預測} & A & B & C & D & E & F & 樣本數 \\
-\hline
-A 完美品   & \textbf{160} & 3 & 2 & \underline{\textbf{16}} & 0 & 0 & 181 \\
-B 良好品   & 1 & \textbf{4} & 0 & 0 & 0 & 0 & 5 \\
-C 輕微拉絲 & 0 & 0 & \textbf{3} & 0 & 1 & 0 & 4 \\
-D 中度拉絲 & 2 & 0 & 0 & \textbf{7} & 0 & 0 & 9 \\
-E 嚴重拉絲 & 0 & 1 & 0 & 0 & \textbf{8} & 0 & 9 \\
-F 失敗品   & 0 & 0 & 0 & 0 & 2 & \textbf{4} & 6 \\
-\hline
-\textbf{合計} & 163 & 8 & 5 & 23 & 11 & 4 & \textbf{214} \\
-\hline
-\end{tabular}
-
-\TableNote{註：對角線為正確分類數（粗體），底線標示主要錯誤（A→D 16 張，佔 A 級 8.8\%）。整體準確率 86.9\%（186/214），但 D 級 23 筆預測中僅 7 筆正確（Precision 0.304）；模型實質上將 16 張 A 級樣本誤判為 D 級，導致 D 級預測膨脹。}
-\end{table}
-
-由表 \ref{tab:old-confusion-matrix} 與圖 \ref{fig:old-confusion} 可看出，舊版混淆矩陣中 A 等級有 16 張（8.8\%）被誤判為 D 等級，是最主要的錯誤來源。分析其根本原因：D 等級的訓練樣本僅 9 張，模型無法從如此有限的樣本中學習到 D 等級的穩定特徵表示，導致模型將 D 等級的高置信度預測閾值設定得極低，許多 A 等級樣本因特徵向量與 D 等級過度重疊而被誤分。此外，B 等級（5 張）和 C 等級（4 張）的樣本數同樣嚴重不足，其 F1-score 分別僅 0.615 和 0.667。這些結果明確說明：在嚴重資料不平衡的條件下，即使採用 WeightedRandomSampler 等過採樣技術，若少數類別的樣本數低於臨界值（本研究估計約 20 至 30 張），模型效能仍無法有效提升，補充實際樣本才是根本解決之道。
-
-## 改良版模型評估（MobileNetV3-Large，1110 張資料，隨機切分原完整策略） {#sec:results-new-model}
-
-> **讀者提示**：本節為**隨機切分版本**之結果，作為歷史對照與資料擬合度觀察用途；本研究之策略比較以 \ref{sec:results-supplemental} 節之 Group Split、多 seed 與消融結果為準，seed=7 簡化設定 86.31\% 則作為詳細混淆矩陣與校準分析案例。
-
-完成 1110 張有效樣本的重新整理並採用升級的 MobileNetV3-Large 模型後，**隨機切分獨立測試集（167 筆）整體準確率為 83.23\%（139/167）**，詳細各等級表現見 \ref{sec:results-new-model-testset} 節。作為訓練擬合度參考，全資料集回測整體準確率為 95.86\%（1064/1110），各等級全資料集辨識正確率分別為 A 級 98.7\%、B 級 92.0\%、C 級 96.7\%、D 級 90.6\%、E 級 88.9\%、F 級 93.8\%；但因此回測包含已參與訓練的樣本，**不能視為模型於未見過資料上的真實表現，僅供觀察模型對已標注資料的整體擬合與批量辨識完成度**。全資料集詳細結果如表 \ref{tab:new-model} 所示，獨立測試集結果見表 \ref{tab:new-model-testset}。
-
-\begin{table}[H]
-\centering
-\caption{隨機切分原完整策略模型（MobileNetV3-Large）全資料集回測各等級表現（含訓練資料，僅供擬合度參考，非泛化指標）}
-\label{tab:new-model}
-\small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{ccccccc}
-\hline
-\textbf{等級} & \textbf{樣本數} & \textbf{正確數} & \textbf{Recall} & \textbf{預測平均} & \textbf{目標分數} & \textbf{誤差} \\
-\hline
-A 完美品 & 546 & 539 & 98.7\% & 79.4 分 & 100 分 & $-20.6$ 分 \\
-B 良好品 & 87 & 80 & 92.0\% & 69.7 分 & 80 分 & $-10.3$ 分 \\
-C 輕微拉絲 & 213 & 206 & 96.7\% & 57.5 分 & 60 分 & $-2.5$ 分 \\
-D 中度拉絲 & 160 & 145 & 90.6\% & 49.8 分 & 40 分 & $+9.8$ 分 \\
-E 嚴重拉絲 & 72 & 64 & 88.9\% & 37.4 分 & 20 分 & $+17.4$ 分 \\
-F 失敗品 & 32 & 30 & 93.8\% & 28.5 分 & 0 分 & $+28.5$ 分 \\
-\hline
-\textbf{整體} & \textbf{1110} & \textbf{1064} & \textbf{95.86\%} & \makecell{66.0 分\\（weighted）}& --- & --- \\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{images/new-model-accuracy-comparison.png}
-\caption{改良版模型各等級準確率（左）及新舊版對比（右）}
-\label{fig:new-model-acc}
-\end{figure}
-
-### 獨立測試集表現（泛化能力主要指標） {#sec:results-new-model-testset}
-
-獨立測試集共 167 筆未參與訓練之樣本，整體準確率 83.23\%（139/167）。**此為本研究評估模型泛化能力之主要量化指標**，相對於全資料集回測 95.86\%（表 \ref{tab:new-model}），可看出兩者落差約 12.6 個百分點，且少數類別之落差更為顯著。詳細結果如表 \ref{tab:new-model-testset} 所示。
-
-\begin{table}[H]
-\centering
-\caption{隨機切分原完整策略模型（MobileNetV3-Large）獨立測試集各等級表現}
-\label{tab:new-model-testset}
-\small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{ccccc}
-\hline
-\textbf{等級} & \textbf{測試樣本數} & \textbf{測試準確率} & \makecell{\textbf{全資料集}\\\textbf{回測 Recall}} & \textbf{落差（pp）} \\
-\hline
-A 完美品   & 82 & 98.8\%（81/82）& 98.7\% & $-0.1$（穩定）\\
-B 良好品   & 13 & 53.8\%（7/13） & 92.0\% & $-38.2$（嚴重）\\
-C 輕微拉絲 & 32 & 87.5\%（28/32）& 96.7\% & $-9.2$ \\
-D 中度拉絲 & 24 & 54.2\%（13/24）& 90.6\% & $-36.4$（嚴重）\\
-E 嚴重拉絲 & 11 & 54.5\%（6/11） & 88.9\% & $-34.4$（嚴重）\\
-F 失敗品   & 5  & 80.0\%（4/5）  & 93.8\% & $-13.8$ \\
-\hline
-\textbf{整體} & \textbf{167} & \textbf{83.23\%（139/167）} & \textbf{95.86\%（1064/1110）} & $-12.6$ \\
-\hline
-\end{tabular}
-
-\TableNote{註：落差以百分比點（pp）計算 = 測試準確率 − 全資料集回測 Recall。各等級測試樣本數依資料切分比例隨機分配，B、E、F 三類基數僅 5 至 13 張，單一誤判即可造成顯著百分比變化，解讀時須與樣本數一併考量。}
-\end{table}
-
-**重要解讀**：
-
-1. **A 級辨識穩定**（98.8\%，落差僅 −0.1 pp），代表正常列印品在實際部署可被穩定辨識。
-2. **B、D、E 三個少數類別於獨立測試集準確率全部跌至 50\% 左右**，落差超過 30 個百分點。這顯示模型在這些等級上**有嚴重過擬合**：全資料集回測時看似 88 至 92\%，但實際部署到未見樣本時近乎隨機猜測。
-3. **C、F 等級落差中等**（−9 至 −14 pp），仍可作為輔助分級，但需以人工複核補強。
-4. **此落差來源**綜合包含：(a) F 級樣本基數過小（32 張），(b) 同一原圖切出之多支魚骨在訓練/測試間相關性高（此為隨機切分情境下之資料洩漏風險，Group Split 重訓結果詳見 \ref{sec:results-supplemental} 節），(c) 標注一致性未驗證可能引入雜訊。後續補強方向詳見 \ref{sec:conclusion-future} 節。
-
-### 評估結果整體討論 {#sec:results-new-model-discussion}
-
-本節以表 \ref{tab:new-model}、圖 \ref{fig:new-model-acc} 與下一節混淆矩陣分析作為主要證據。完整分類報告與 TensorBoard 測試截圖保留於實驗資料夾與 HTML 報告中，可供後續查核。
-
-從評估結果看，改良版 MobileNetV3-Large **在獨立測試集（167 筆未參與訓練之樣本）準確率為 83.23\%，此為本研究評估泛化能力之主要指標**。全資料集回測準確率 95.86\% 雖然數字較高，但因樣本已參與訓練，僅能反映模型對已標注資料之擬合度，**不可解讀為實際部署時的保證準確率**。83.23\% 與 95.86\% 之間約 12.6 個百分點的落差，顯示模型在少數等級與邊界樣本上仍存在泛化限制；尤其 B、D、E 三個少數類別於獨立測試集準確率僅 53.8\%、54.2\%、54.5\%（詳見 \ref{sec:results-new-model-testset} 節），代表這些等級在實際部署時的可靠性與全資料集回測呈現之表象存在巨大落差，後續研究應優先補強。
-
-## 混淆矩陣深度分析 {#sec:results-confusion}
-
-以下以隨機切分基準模型之混淆矩陣作為主要分析依據，說明各品質等級的辨識穩定性與主要混淆來源（Group Split 嚴格切分之簡化設定混淆矩陣詳見 \ref{sec:results-supplemental-classes} 節）。
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth,height=0.7\textheight,keepaspectratio]{images/new-model-confusion-matrix.png}
-\caption{隨機切分基準模型混淆矩陣（1110 張全資料集回測，含訓練樣本）}
-\label{fig:new-confusion}
-\end{figure}
-
-由圖 \ref{fig:new-confusion} 之評估結果可觀察到以下趨勢：
-
-1. A 等級共 546 張，準確率 98.7\%，完美品辨識最穩定。
-2. B 等級共 87 張，準確率 92.0\%，與 A/C 邊界仍為主要混淆來源。
-3. C 等級共 213 張，準確率 96.7\%，已具備穩定辨識能力。
-4. D 等級共 160 張，準確率 90.6\%，較前版 77.8\% 明顯改善。
-5. E 等級共 72 張，準確率 88.9\%。
-6. F 等級共 32 張，準確率 93.8\%，但樣本數仍偏少，未來仍建議持續補充嚴重失敗樣本。
-
-### 誤判案例類型分析 {#sec:results-confusion-error}
-
-誤判案例以類型分析為主，主要錯誤可分為三類。
-
-**第一**，A 級與 B 級之間的混淆，多發生在魚骨細刺附近有極短細絲時；模型可能將光線、陰影或短絲解讀為輕微瑕疵。
-
-**第二**，C 級與 D 級之間的混淆，主要來自拉絲面積比例接近臨界值，尤其當拉絲集中於局部區域時，模型對整體嚴重程度的判定會產生偏差。
-
-**第三**，E 級與 F 級之間的混淆，與嚴重失敗樣本數不足有關，模型較難穩定學習結構崩壞與嚴重拉絲的邊界。
-
-這些誤判顯示，本研究的主要瓶頸不只在模型架構，也在標注準則與邊界樣本數量。後續若要提升 B/C、C/D 與 E/F 邊界辨識能力，應優先補充邊界樣本，並建立更明確的複核規則，而不是單純增加訓練輪數。
-
-### 正確辨識案例特徵歸納 {#sec:results-confusion-correct}
-
-正確辨識案例的功能是說明模型在典型樣本上的判斷能力，以下以文字歸納各等級正確辨識的特徵：A 級樣本通常具有乾淨輪廓與清楚魚骨間隙；B 級樣本可能存在少量短絲但不影響整體品質；C 與 D 級樣本的差異主要在拉絲覆蓋比例與連續性；E 與 F 級樣本則呈現大範圍拉絲或結構難以辨識。
-
-從正確案例可看出，模型對典型 A、C、D 與 F 級具有較明確的特徵反應；較不穩定的區域仍集中在相鄰等級的邊界樣本。這與前述混淆矩陣分析一致，也支持後續以邊界樣本補充與標注一致性檢查作為改善方向。
-
-## 品質評分系統分析 {#sec:results-quality-score}
-
-品質評分輔助頭的輸出如表 \ref{tab:new-model} 所示（隨機切分基準之全資料集回測；簡化設定品質分校準另見表 \ref{tab:plain-quality-score}）。表 \ref{tab:grading-criteria} 中的目標分數為人工定義之等級基準，表 \ref{tab:new-model} 則為模型回歸頭輸出的預測平均分，兩者尚未經校準，因此數值不必完全相同。隨機切分基準全資料集平均品質分為 66.0 分；各等級平均分依 A 至 F 呈現遞減趨勢，分別為 A 級 79.4 分、B 級 69.7 分、C 級 57.5 分、D 級 49.8 分、E 級 37.4 分、F 級 28.5 分。預測平均分可作為比六等級分類更細緻的品質量化工具，例如以品質分 65 分為門檻，低於此值的列印件建議重新列印或進行後處理。比較結果如圖 \ref{fig:quality-score} 所示。
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{images/quality-score-comparison.png}
-\caption{各等級目標品質分與模型輸出平均分比較}
-\label{fig:quality-score}
-\end{figure}
-
-## 批量辨識系統實測 {#sec:results-batch}
-
-本研究將訓練完成的隨機切分基準模型整合至批量辨識流程，對 1110 支魚骨樣本進行自動辨識，結果如表 \ref{tab:batch-result} 及圖 \ref{fig:batch-result} 所示。此次批量辨識的輸入為既有的已標注資料集（未納入 105 張外部未標注照片），系統將辨識結果依等級分類整理，並在每張裁切圖右上角標示等級，同時產生統計圖。本批量辨識輸出分布為 A 級 544 張、B 級 89 張、C 級 215 張、D 級 156 張、E 級 72 張、F 級 34 張；該流程以原圖 2 欄 $\times$ 3 列裁切後再推論，故與 \ref{sec:results-new-model} 節之全資料集回測（已標注樣本逐張輸入）流程不同，預測分布略有差異。
-
-\begin{table}[H]
-\centering
-\caption{批量辨識 1110 支魚骨結果統計}
-\label{tab:batch-result}
-\small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{ccccc}
-\hline
-\textbf{等級} & \textbf{名稱} & \textbf{辨識支數} & \textbf{佔比(\%)} & \textbf{說明} \\
-\hline
-A & 完美品 & 544 & 49.0\% & 多數列印件品質良好 \\
-B & 良好品 & 89 & 8.0\% & \makecell{A/B 邊界樣本\\略有混淆} \\
-C & 輕微拉絲 & 215 & 19.4\% & \makecell{輕微瑕疵\\主要輸出類別} \\
-D & 中度拉絲 & 156 & 14.1\% & \makecell{中度拉絲樣本\\穩定辨識} \\
-E & 嚴重拉絲 & 72 & 6.5\% & 嚴重瑕疵樣本 \\
-F & 失敗品 & 34 & 3.1\% & 失敗品樣本數較少 \\
-\hline
-\textbf{合計} & --- & \textbf{1110} & \textbf{100\%} & 本批量辨識結果 \\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{images/batch-result-distribution.png}
-\caption{批量辨識各等級支數分布統計圖}
-\label{fig:batch-result}
-\end{figure}
-
-### 端對端辨識流程的實際意義 {#sec:results-batch-pipeline}
-
-本節說明端對端流程之實際意義：系統將 1110 支魚骨樣本依模型預測結果分入 A 至 F 資料夾，並產生統計圖與 HTML 報告。此流程之價值在於快速提供批次品質概況，讓使用者先掌握異常等級分布，再針對低品質或邊界樣本進行人工複核。
-
-本批量輸出分布為 A 級 544 張、B 級 89 張、C 級 215 張、D 級 156 張、E 級 72 張、F 級 34 張。需特別說明：此批量辨識的 1110 張輸入即為訓練/驗證集，故輸出分布與人工標注資料集分布相近實屬必然，**此結果僅能驗證系統可正常完成端對端流程，不能視為對模型泛化能力的獨立驗證**。對泛化能力的真實評估仍應以 \ref{sec:results-supplemental} 節之 Group Split 嚴格測試集結果為主，\ref{sec:results-new-model-testset} 節之隨機切分結果則作為歷史對照。
-
-## Group Split 與補充消融、基準模型實驗 {#sec:results-supplemental}
+## Group Split 嚴格評估、多 seed 與消融（本研究主結果） {#sec:results-supplemental}
 
 ### 實驗設計動機 {#sec:results-supplemental-design}
 
-\ref{sec:results-new-model-testset} 節指出 B、D、E 三個少數類別於隨機切分測試集準確率僅 50\% 左右，並懷疑同源樣本相關性使模型藉由共享背景／光線取得偏高分數。為驗證此風險並補強審查上常被質疑的 baseline 與 ablation 缺口，本研究以分組隨機切分（Group Shuffle Split，以原圖為分組鍵，seed=7）重新切分資料，並補做三組對照實驗。共識別 185 個獨立原圖組，切分結果如表 \ref{tab:group-split-dist} 所示。
+本研究 1110 張樣本由 185 張原始照片各裁切出約 6 支魚骨而成，同一原圖切出之多支魚骨在背景、光線與列印批次上高度相關。若採隨機切分，這些同源魚骨會同時落入訓練與測試集，使模型得以藉共享背景／光線「記憶」而非真正泛化，造成過度樂觀的評估（此風險在後文 \ref{sec:results-new-model-testset} 節之隨機切分版本中確有顯現：B、D、E 三個少數類別測試準確率僅 50\% 左右）。為從源頭杜絕此種資料洩漏，並補強審查上常被質疑的 baseline 與 ablation 缺口，本研究以分組隨機切分（Group Shuffle Split，以原圖為分組鍵，seed=7）以原圖為單位重新切分資料，確保同一原圖之魚骨不跨越訓練／測試集，並補做三組對照實驗。共識別 185 個獨立原圖組，切分結果如表 \ref{tab:group-split-dist} 所示。
 
 \begin{table}[H]
 \centering
@@ -1210,6 +957,8 @@ MobileNetV3-Large 簡化 (full) & 87.30\% & 0.779 & 0.953 & 0.812 & 11.2\% & 1.5
 * **跨等級誤判排序**：MobileNetV3-Large 完整等預算、ResNet18 完整、EfficientNet-B0 完整皆為 1.2\%，低於簡化設定的 3.0\%
 
 具體而言：**簡化策略 23 筆誤判中有 5 筆為跨等級誤判**（其中 D→A 屬於「將中度拉絲誤判為完美品」之高成本錯誤），而三組完整策略之跨等級誤判皆為 2 筆。這顯示完整正則化策略（Focal Loss + Label Smoothing + Mixup + Weighted Sampler）在 seed=7 下較能抑制「跨大幅度誤判」；此特性對品質管控應用尤為重要，因為將 D 級（建議重印）誤判為 A 級（直接使用）的成本，遠高於將 D 級誤判為 C 級的成本。
+
+惟須特別強調：**此「完整策略跨等級誤判較低」之現象僅見於 seed=7，並非穩定結論**。在後文 \ref{sec:results-supplemental-multiseed} 節之五 seed 平均下，簡化設定反而擁有全場最低的跨等級誤判率（3.10\% $\pm$ 0.27）與最高的 QWK（0.921 $\pm$ 0.009），完整策略並未保有此優勢。因此跨等級誤判成本之高低不應據單一 seed 定論；完整策略經多 seed 驗證後真正穩定的優勢僅在 macro-F1（見表 \ref{tab:paired-ttest}），而非跨等級誤判或 QWK。
 
 **因此，本研究之主要泛化結論需修正為**：早期「簡化勝過完整」來自特定 checkpoint 與單一 seed，經等預算與多 seed 補強後不宜再作為定論。較穩健的說法是：完整策略在 seed=7 與 macro-F1 上顯示價值，但五 seed accuracy / QWK 差異未達顯著；最終模型選擇仍應依下游應用對「整體正確率」、「少數類別 macro-F1」與「跨等級誤判成本」之權衡決定。
 
@@ -1563,6 +1312,261 @@ ResNet18 完整 & -0.36 pp & 0.745 & +0.052 & \textbf{0.0363} & -0.006 & 0.604 \
 4. **校準與 confidence 可轉化為實務流程**：低 confidence 子集準確率明顯較低，適合設計人工複核門檻。
 
 仍未完成的關鍵限制包括：具人工標籤的 OOD 測試集、多位標注者一致性、ordinal-aware loss（如 CORAL [@caoRankConsistentOrdinal2020]、CORN [@shiDeepNeuralNetworks2023]）、以及 ResNet18 / EfficientNet-B0 在簡化策略下的全因子比較。換言之，本研究目前足以作為可重現基準與輔助原型，但仍不應宣稱可在跨機型、跨材料或跨拍攝條件下直接部署。
+
+## 模型演進歷程與歷史對照 {#sec:results-tensorboard}
+
+> **本節定位**：前述 \ref{sec:results-supplemental} 節已完整呈現本研究主結果（嚴格 Group Split、五 seed、消融與可視化）。以下各小節彙整模型由 214 張舊版資料擴充至 1110 張、並由隨機切分走向嚴格 Group Split 的演進歷程，**僅作為訓練監控、歷史對照與資料擬合度觀察之用，不構成泛化能力或策略優劣之依據**；凡涉及泛化能力之結論，一律以前述 \ref{sec:results-supplemental} 節為準。
+
+本研究以 TensorBoard 記錄訓練、驗證與測試過程，但正文不再逐張放置所有監控畫面，而改以關鍵數據與趨勢說明呈現。完整截圖可作為實驗查核資料保存，不必全部置於正文。
+
+隨機切分基準模型最高驗證準確率為 90.96\%，獨立測試集準確率為 83.23\%，全資料集回測準確率為 95.86\%（1064/1110）。其中，全資料集回測用於確認模型對已標注資料的整體擬合與批量辨識能力；獨立測試集準確率則用於觀察模型在未參與訓練樣本上的泛化表現。兩者目的不同，不能混為同一個效能指標。
+
+訓練階段使用 Mixup 資料增強，因此訓練準確率會在混合樣本與軟標籤條件下計算，不能直接與未混合的驗證準確率作等值比較。本研究以驗證集、測試集與全資料集回測三種角度交叉檢視模型表現，避免只依單一曲線判斷模型好壞。
+
+### 訓練過程監控（TensorBoard） {#sec:results-tensorboard-trend}
+
+訓練曲線的重點不是截圖數量，而是收斂趨勢與泛化落差。從紀錄可知，模型在訓練後期仍維持約 89\% 至 91\% 的驗證表現，顯示資料擴充與正則化策略對少數類別辨識有幫助。然而訓練準確率偏低並不代表模型未學習，因為 Mixup 會使訓練標籤成為軟標籤，準確率指標本身會被混合比例影響。
+
+因此，本研究後續分析以混淆矩陣、各等級召回率、測試集準確率與全資料集回測結果作為主要依據。TensorBoard 截圖僅作為實驗紀錄來源，不再於正文逐張展示。
+
+### Group Split 補充實驗訓練曲線 {#sec:results-tensorboard-supplemental}
+
+本研究之三組補充實驗（MobileNetV3-Large 簡化、ResNet18 完整、EfficientNet-B0 完整）使用相同 Group Split 切分、25 epoch 上限與 patience=7 之 Early Stopping。三模型之驗證集收斂曲線匯出後並排呈現如圖 \ref{fig:gs-training-curves} 所示。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{images/gs-training-curves.png}
+\caption{Group Split 補充實驗驗證集收斂曲線（左：驗證準確率；右：驗證損失）}
+\label{fig:gs-training-curves}
+\end{figure}
+
+由曲線可觀察到三項細節：(1) **三模型皆在 5 至 10 epoch 內驗證準確率即衝至 80\% 以上**，顯示 ImageNet 預訓練權重對小樣本任務之遷移學習效果顯著；(2) **EfficientNet-B0 完整最早收斂**（第 4 個 logging step 即達最佳 86.31\% 驗證準確率，總計 12 epoch 後 Early Stopping），而 MobileNet 簡化於第 9 step 達最佳 85.12\%（17 epoch 後停止）、ResNet18 完整於第 11 step 達最佳 86.31\%（19 epoch 後停止）；(3) **三模型於收斂後期皆出現驗證準確率小幅波動**（如 ResNet18 從 86.31\% 回落至 83.33\%、MobileNet 簡化從 85.12\% 回落至 83.93\%），反映 batch size 32 下小資料集驗證準確率本身之 noise level。三者最佳驗證準確率僅相差約 1 個百分點，與測試集準確率差距（86.31\% 至 82.14\%）方向一致，但**所有差距皆落在驗證準確率波動幅度之內**。此再次支持前述 \ref{sec:results-supplemental-interpretation} 節之保守解讀。
+
+## 舊版模型評估（MobileNetV3-Small，214 張不平衡資料） {#sec:results-old-model}
+
+在完成全部樣本的重新標注前，本研究先以初版 MobileNetV3-Small 模型對早期的 214 張嚴重不平衡資料（A 級 181 張，B 至 F 級各 4 至 9 張）進行訓練，作為新版模型之歷史對照（**註：此處 214 張之整體準確率 86.9\% 為驗證/回測表現，舊版獨立測試集準確率為 78.79\%，詳見 \ref{sec:results-comparison} 節之多版本比較表 \ref{tab:multi-versions}**）。即使如此，舊版模型最致命的問題並非整體數字，而是少數類別之嚴重失能：D 等級 Precision 僅 0.304，整體 Macro F1 僅 0.708，顯示模型幾乎只會預測 A 等級，對 B 至 F 等級的辨識能力極為有限。詳細評估結果如表 \ref{tab:old-model} 所示。
+
+\begin{table}[H]
+\centering
+\caption{舊版模型（MobileNetV3-Small，214 張）評估結果}
+\label{tab:old-model}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{ccccc}
+\hline
+\textbf{等級} & \textbf{樣本數} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
+\hline
+A 完美品 & 181 & 0.982 & 0.884 & 0.930 \\
+B 良好品 & 5 & 0.500 & 0.800 & 0.615 \\
+C 輕微拉絲 & 4 & 0.600 & 0.750 & 0.667 \\
+D 中度拉絲 & 9 & 0.304 & 0.778 & 0.438 \\
+E 嚴重拉絲 & 9 & 0.727 & 0.889 & 0.800 \\
+F 失敗品 & 6 & 1.000 & 0.667 & 0.800 \\
+\hline
+macro avg & 214 & 0.686 & 0.795 & 0.708 \\
+weighted avg & 214 & 0.925 & 0.869 & 0.888 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,height=0.7\textheight,keepaspectratio]{images/old-model-confusion-matrix.png}
+\caption{舊版模型混淆矩陣（A$\to$D 誤判 16 張為主要問題）}
+\label{fig:old-confusion}
+\end{figure}
+
+舊版模型之完整混淆矩陣數字如表 \ref{tab:old-confusion-matrix} 所示。
+
+\begin{table}[H]
+\centering
+\caption{舊版模型（MobileNetV3-Small，214 張）混淆矩陣（列為真實標籤，欄為預測標籤）}
+\label{tab:old-confusion-matrix}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{cccccccc}
+\hline
+\textbf{真實 \textbackslash 預測} & A & B & C & D & E & F & 樣本數 \\
+\hline
+A 完美品   & \textbf{160} & 3 & 2 & \underline{\textbf{16}} & 0 & 0 & 181 \\
+B 良好品   & 1 & \textbf{4} & 0 & 0 & 0 & 0 & 5 \\
+C 輕微拉絲 & 0 & 0 & \textbf{3} & 0 & 1 & 0 & 4 \\
+D 中度拉絲 & 2 & 0 & 0 & \textbf{7} & 0 & 0 & 9 \\
+E 嚴重拉絲 & 0 & 1 & 0 & 0 & \textbf{8} & 0 & 9 \\
+F 失敗品   & 0 & 0 & 0 & 0 & 2 & \textbf{4} & 6 \\
+\hline
+\textbf{合計} & 163 & 8 & 5 & 23 & 11 & 4 & \textbf{214} \\
+\hline
+\end{tabular}
+
+\TableNote{註：對角線為正確分類數（粗體），底線標示主要錯誤（A→D 16 張，佔 A 級 8.8\%）。整體準確率 86.9\%（186/214），但 D 級 23 筆預測中僅 7 筆正確（Precision 0.304）；模型實質上將 16 張 A 級樣本誤判為 D 級，導致 D 級預測膨脹。}
+\end{table}
+
+由表 \ref{tab:old-confusion-matrix} 與圖 \ref{fig:old-confusion} 可看出，舊版混淆矩陣中 A 等級有 16 張（8.8\%）被誤判為 D 等級，是最主要的錯誤來源。分析其根本原因：D 等級的訓練樣本僅 9 張，模型無法從如此有限的樣本中學習到 D 等級的穩定特徵表示，導致模型將 D 等級的高置信度預測閾值設定得極低，許多 A 等級樣本因特徵向量與 D 等級過度重疊而被誤分。此外，B 等級（5 張）和 C 等級（4 張）的樣本數同樣嚴重不足，其 F1-score 分別僅 0.615 和 0.667。這些結果明確說明：在嚴重資料不平衡的條件下，即使採用 WeightedRandomSampler 等過採樣技術，若少數類別的樣本數低於臨界值（本研究估計約 20 至 30 張），模型效能仍無法有效提升，補充實際樣本才是根本解決之道。
+
+## 改良版模型評估（MobileNetV3-Large，1110 張資料，隨機切分原完整策略） {#sec:results-new-model}
+
+> **讀者提示**：本節為**隨機切分版本**之結果，作為歷史對照與資料擬合度觀察用途；本研究之策略比較以 \ref{sec:results-supplemental} 節之 Group Split、多 seed 與消融結果為準，seed=7 簡化設定 86.31\% 則作為詳細混淆矩陣與校準分析案例。
+
+完成 1110 張有效樣本的重新整理並採用升級的 MobileNetV3-Large 模型後，**隨機切分獨立測試集（167 筆）整體準確率為 83.23\%（139/167）**，詳細各等級表現見 \ref{sec:results-new-model-testset} 節。作為訓練擬合度參考，全資料集回測整體準確率為 95.86\%（1064/1110），各等級全資料集辨識正確率分別為 A 級 98.7\%、B 級 92.0\%、C 級 96.7\%、D 級 90.6\%、E 級 88.9\%、F 級 93.8\%；但因此回測包含已參與訓練的樣本，**不能視為模型於未見過資料上的真實表現，僅供觀察模型對已標注資料的整體擬合與批量辨識完成度**。全資料集詳細結果如表 \ref{tab:new-model} 所示，獨立測試集結果見表 \ref{tab:new-model-testset}。
+
+\begin{table}[H]
+\centering
+\caption{隨機切分原完整策略模型（MobileNetV3-Large）全資料集回測各等級表現（含訓練資料，僅供擬合度參考，非泛化指標）}
+\label{tab:new-model}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{ccccccc}
+\hline
+\textbf{等級} & \textbf{樣本數} & \textbf{正確數} & \textbf{Recall} & \textbf{預測平均} & \textbf{目標分數} & \textbf{誤差} \\
+\hline
+A 完美品 & 546 & 539 & 98.7\% & 79.4 分 & 100 分 & $-20.6$ 分 \\
+B 良好品 & 87 & 80 & 92.0\% & 69.7 分 & 80 分 & $-10.3$ 分 \\
+C 輕微拉絲 & 213 & 206 & 96.7\% & 57.5 分 & 60 分 & $-2.5$ 分 \\
+D 中度拉絲 & 160 & 145 & 90.6\% & 49.8 分 & 40 分 & $+9.8$ 分 \\
+E 嚴重拉絲 & 72 & 64 & 88.9\% & 37.4 分 & 20 分 & $+17.4$ 分 \\
+F 失敗品 & 32 & 30 & 93.8\% & 28.5 分 & 0 分 & $+28.5$ 分 \\
+\hline
+\textbf{整體} & \textbf{1110} & \textbf{1064} & \textbf{95.86\%} & \makecell{66.0 分\\（weighted）}& --- & --- \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{images/new-model-accuracy-comparison.png}
+\caption{改良版模型各等級準確率（左）及新舊版對比（右）}
+\label{fig:new-model-acc}
+\end{figure}
+
+### 獨立測試集表現（泛化能力主要指標） {#sec:results-new-model-testset}
+
+獨立測試集共 167 筆未參與訓練之樣本，整體準確率 83.23\%（139/167）。**此為本研究評估模型泛化能力之主要量化指標**，相對於全資料集回測 95.86\%（表 \ref{tab:new-model}），可看出兩者落差約 12.6 個百分點，且少數類別之落差更為顯著。詳細結果如表 \ref{tab:new-model-testset} 所示。
+
+\begin{table}[H]
+\centering
+\caption{隨機切分原完整策略模型（MobileNetV3-Large）獨立測試集各等級表現}
+\label{tab:new-model-testset}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{ccccc}
+\hline
+\textbf{等級} & \textbf{測試樣本數} & \textbf{測試準確率} & \makecell{\textbf{全資料集}\\\textbf{回測 Recall}} & \textbf{落差（pp）} \\
+\hline
+A 完美品   & 82 & 98.8\%（81/82）& 98.7\% & $-0.1$（穩定）\\
+B 良好品   & 13 & 53.8\%（7/13） & 92.0\% & $-38.2$（嚴重）\\
+C 輕微拉絲 & 32 & 87.5\%（28/32）& 96.7\% & $-9.2$ \\
+D 中度拉絲 & 24 & 54.2\%（13/24）& 90.6\% & $-36.4$（嚴重）\\
+E 嚴重拉絲 & 11 & 54.5\%（6/11） & 88.9\% & $-34.4$（嚴重）\\
+F 失敗品   & 5  & 80.0\%（4/5）  & 93.8\% & $-13.8$ \\
+\hline
+\textbf{整體} & \textbf{167} & \textbf{83.23\%（139/167）} & \textbf{95.86\%（1064/1110）} & $-12.6$ \\
+\hline
+\end{tabular}
+
+\TableNote{註：落差以百分比點（pp）計算 = 測試準確率 − 全資料集回測 Recall。各等級測試樣本數依資料切分比例隨機分配，B、E、F 三類基數僅 5 至 13 張，單一誤判即可造成顯著百分比變化，解讀時須與樣本數一併考量。}
+\end{table}
+
+**重要解讀**：
+
+1. **A 級辨識穩定**（98.8\%，落差僅 −0.1 pp），代表正常列印品在實際部署可被穩定辨識。
+2. **B、D、E 三個少數類別於獨立測試集準確率全部跌至 50\% 左右**，落差超過 30 個百分點。這顯示模型在這些等級上**有嚴重過擬合**：全資料集回測時看似 88 至 92\%，但實際部署到未見樣本時近乎隨機猜測。
+3. **C、F 等級落差中等**（−9 至 −14 pp），仍可作為輔助分級，但需以人工複核補強。
+4. **此落差來源**綜合包含：(a) F 級樣本基數過小（32 張），(b) 同一原圖切出之多支魚骨在訓練/測試間相關性高（此為隨機切分情境下之資料洩漏風險，Group Split 重訓結果詳見前述 \ref{sec:results-supplemental} 節），(c) 標注一致性未驗證可能引入雜訊。後續補強方向詳見 \ref{sec:conclusion-future} 節。
+
+### 評估結果整體討論 {#sec:results-new-model-discussion}
+
+本節以表 \ref{tab:new-model}、圖 \ref{fig:new-model-acc} 與下一節混淆矩陣分析作為主要證據。完整分類報告與 TensorBoard 測試截圖保留於實驗資料夾與 HTML 報告中，可供後續查核。
+
+從評估結果看，改良版 MobileNetV3-Large **在獨立測試集（167 筆未參與訓練之樣本）準確率為 83.23\%，此為本研究評估泛化能力之主要指標**。全資料集回測準確率 95.86\% 雖然數字較高，但因樣本已參與訓練，僅能反映模型對已標注資料之擬合度，**不可解讀為實際部署時的保證準確率**。83.23\% 與 95.86\% 之間約 12.6 個百分點的落差，顯示模型在少數等級與邊界樣本上仍存在泛化限制；尤其 B、D、E 三個少數類別於獨立測試集準確率僅 53.8\%、54.2\%、54.5\%（詳見 \ref{sec:results-new-model-testset} 節），代表這些等級在實際部署時的可靠性與全資料集回測呈現之表象存在巨大落差，後續研究應優先補強。
+
+## 混淆矩陣深度分析 {#sec:results-confusion}
+
+以下以隨機切分基準模型之混淆矩陣作為主要分析依據，說明各品質等級的辨識穩定性與主要混淆來源（Group Split 嚴格切分之簡化設定混淆矩陣詳見前述 \ref{sec:results-supplemental-classes} 節）。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,height=0.7\textheight,keepaspectratio]{images/new-model-confusion-matrix.png}
+\caption{隨機切分基準模型混淆矩陣（1110 張全資料集回測，含訓練樣本）}
+\label{fig:new-confusion}
+\end{figure}
+
+由圖 \ref{fig:new-confusion} 之評估結果可觀察到以下趨勢：
+
+1. A 等級共 546 張，準確率 98.7\%，完美品辨識最穩定。
+2. B 等級共 87 張，準確率 92.0\%，與 A/C 邊界仍為主要混淆來源。
+3. C 等級共 213 張，準確率 96.7\%，已具備穩定辨識能力。
+4. D 等級共 160 張，準確率 90.6\%，較前版 77.8\% 明顯改善。
+5. E 等級共 72 張，準確率 88.9\%。
+6. F 等級共 32 張，準確率 93.8\%，但樣本數仍偏少，未來仍建議持續補充嚴重失敗樣本。
+
+### 誤判案例類型分析 {#sec:results-confusion-error}
+
+誤判案例以類型分析為主，主要錯誤可分為三類。
+
+**第一**，A 級與 B 級之間的混淆，多發生在魚骨細刺附近有極短細絲時；模型可能將光線、陰影或短絲解讀為輕微瑕疵。
+
+**第二**，C 級與 D 級之間的混淆，主要來自拉絲面積比例接近臨界值，尤其當拉絲集中於局部區域時，模型對整體嚴重程度的判定會產生偏差。
+
+**第三**，E 級與 F 級之間的混淆，與嚴重失敗樣本數不足有關，模型較難穩定學習結構崩壞與嚴重拉絲的邊界。
+
+這些誤判顯示，本研究的主要瓶頸不只在模型架構，也在標注準則與邊界樣本數量。後續若要提升 B/C、C/D 與 E/F 邊界辨識能力，應優先補充邊界樣本，並建立更明確的複核規則，而不是單純增加訓練輪數。
+
+### 正確辨識案例特徵歸納 {#sec:results-confusion-correct}
+
+正確辨識案例的功能是說明模型在典型樣本上的判斷能力，以下以文字歸納各等級正確辨識的特徵：A 級樣本通常具有乾淨輪廓與清楚魚骨間隙；B 級樣本可能存在少量短絲但不影響整體品質；C 與 D 級樣本的差異主要在拉絲覆蓋比例與連續性；E 與 F 級樣本則呈現大範圍拉絲或結構難以辨識。
+
+從正確案例可看出，模型對典型 A、C、D 與 F 級具有較明確的特徵反應；較不穩定的區域仍集中在相鄰等級的邊界樣本。這與前述混淆矩陣分析一致，也支持後續以邊界樣本補充與標注一致性檢查作為改善方向。
+
+## 品質評分系統分析 {#sec:results-quality-score}
+
+品質評分輔助頭的輸出如表 \ref{tab:new-model} 所示（隨機切分基準之全資料集回測；簡化設定品質分校準另見表 \ref{tab:plain-quality-score}）。表 \ref{tab:grading-criteria} 中的目標分數為人工定義之等級基準，表 \ref{tab:new-model} 則為模型回歸頭輸出的預測平均分，兩者尚未經校準，因此數值不必完全相同。隨機切分基準全資料集平均品質分為 66.0 分；各等級平均分依 A 至 F 呈現遞減趨勢，分別為 A 級 79.4 分、B 級 69.7 分、C 級 57.5 分、D 級 49.8 分、E 級 37.4 分、F 級 28.5 分。預測平均分**僅能作為與分類等級單調對應的輔助排序指標，而非經校準的絕對品質量化**：由表 \ref{tab:new-model} 可見 D、E、F 等較差等級的預測平均分系統性高於目標分數（如 F 級目標 0 分、預測平均卻達 28.5 分），顯示回歸頭未能充分學習極端失敗特徵。因此本研究不建議以單一絕對門檻（如 65 分）直接判定重印，宜將品質分與分類結果及人工複核併用，作為排序與篩選之輔助。比較結果如圖 \ref{fig:quality-score} 所示。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{images/quality-score-comparison.png}
+\caption{各等級目標品質分與模型輸出平均分比較}
+\label{fig:quality-score}
+\end{figure}
+
+## 批量辨識系統實測 {#sec:results-batch}
+
+本研究將訓練完成的隨機切分基準模型整合至批量辨識流程，對 1110 支魚骨樣本進行自動辨識，結果如表 \ref{tab:batch-result} 及圖 \ref{fig:batch-result} 所示。此次批量辨識的輸入為既有的已標注資料集（未納入 105 張外部未標注照片），系統將辨識結果依等級分類整理，並在每張裁切圖右上角標示等級，同時產生統計圖。本批量辨識輸出分布為 A 級 544 張、B 級 89 張、C 級 215 張、D 級 156 張、E 級 72 張、F 級 34 張；該流程以原圖 2 欄 $\times$ 3 列裁切後再推論，故與 \ref{sec:results-new-model} 節之全資料集回測（已標注樣本逐張輸入）流程不同，預測分布略有差異。
+
+\begin{table}[H]
+\centering
+\caption{批量辨識 1110 支魚骨結果統計}
+\label{tab:batch-result}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{ccccc}
+\hline
+\textbf{等級} & \textbf{名稱} & \textbf{辨識支數} & \textbf{佔比(\%)} & \textbf{說明} \\
+\hline
+A & 完美品 & 544 & 49.0\% & 多數列印件品質良好 \\
+B & 良好品 & 89 & 8.0\% & \makecell{A/B 邊界樣本\\略有混淆} \\
+C & 輕微拉絲 & 215 & 19.4\% & \makecell{輕微瑕疵\\主要輸出類別} \\
+D & 中度拉絲 & 156 & 14.1\% & \makecell{中度拉絲樣本\\穩定辨識} \\
+E & 嚴重拉絲 & 72 & 6.5\% & 嚴重瑕疵樣本 \\
+F & 失敗品 & 34 & 3.1\% & 失敗品樣本數較少 \\
+\hline
+\textbf{合計} & --- & \textbf{1110} & \textbf{100\%} & 本批量辨識結果 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth,height=0.7\textheight,keepaspectratio]{images/batch-result-distribution.png}
+\caption{批量辨識各等級支數分布統計圖}
+\label{fig:batch-result}
+\end{figure}
+
+### 端對端辨識流程的實際意義 {#sec:results-batch-pipeline}
+
+本節說明端對端流程之實際意義：系統將 1110 支魚骨樣本依模型預測結果分入 A 至 F 資料夾，並產生統計圖與 HTML 報告。此流程之價值在於快速提供批次品質概況，讓使用者先掌握異常等級分布，再針對低品質或邊界樣本進行人工複核。
+
+本批量輸出分布為 A 級 544 張、B 級 89 張、C 級 215 張、D 級 156 張、E 級 72 張、F 級 34 張。需特別說明：此批量辨識的 1110 張輸入即為訓練/驗證集，故輸出分布與人工標注資料集分布相近實屬必然，**此結果僅能驗證系統可正常完成端對端流程，不能視為對模型泛化能力的獨立驗證**。對泛化能力的真實評估仍應以前述 \ref{sec:results-supplemental} 節之 Group Split 嚴格測試集結果為主；本節所屬之隨機切分（\ref{sec:results-new-model-testset} 節）僅作歷史對照。
 
 ## 新舊版模型綜合比較 {#sec:results-comparison}
 
