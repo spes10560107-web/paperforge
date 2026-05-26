@@ -227,13 +227,13 @@ toc: false
 
 ## 研究背景 {#sec:intro-background}
 
-3D 列印技術（Three-Dimensional Printing），又稱積層製造（Additive Manufacturing, AM），係指透過電腦輔助設計（CAD）軟體建立三維數位模型後，依據切片軟體產生的路徑指令，將材料逐層堆積成形的製造技術[@ISOASTM52900]。自 1980 年代光固化成型（Stereolithography, SLA）等技術問世以來，積層製造歷經數十年演進，應用範圍由工業快速原型逐漸擴展至航太、汽車、醫療、電子、建築及個人消費等多元領域[@gibsonAdditiveManufacturingTechnologies2021; @OurStory3D2017]，相關市場規模亦持續成長，使列印品質管控的自動化需求日益受到重視[@marketsandmarkets3DPrintingMarket]。
+3D 列印技術（Three-Dimensional Printing），又稱積層製造（Additive Manufacturing, AM），係指透過電腦輔助設計（CAD）軟體建立三維數位模型後，依據切片軟體產生的路徑指令，將材料逐層堆積成形的製造技術[@ISOASTM52900]。自 Charles Hull 於 1984 年提出光固化成型技術（Stereolithography, SLA）相關專利，並由 3D Systems 推動早期商業化應用後，3D 列印技術歷經數十年的持續演進，應用範圍由工業快速原型製造逐漸擴展至航太、汽車、醫療、電子、建築及個人消費等多元應用領域[@gibsonAdditiveManufacturingTechnologies2021; @OurStory3D2017]。市場研究機構 MarketsandMarkets 於 2023 年估計，全球 3D 列印市場規模可能由 2023 年約 150 億美元成長至 2028 年約 345 億美元，年均複合成長率約為 18.1\%[@marketsandmarkets3DPrintingMarket]；此數字僅作為產業應用動機與市場脈絡參考，實際市場規模仍可能因研究機構、估算口徑與年度更新而改變，不作為本文模型效能或方法有效性之證據。
 
 在眾多 3D 列印技術中，熔融沉積成型（Fused Deposition Modeling, FDM）因設備成本相對低廉、操作流程較為簡易，且可支援 PLA、PETG、ABS、TPU 等多種熱塑性材料，成為桌上型與教育應用場域中常見的 3D 列印技術之一[@gibsonAdditiveManufacturingTechnologies2021; @InventorFDM3D2017]。FDM 的基本工作原理是將熱塑性聚合物線材（Filament，直徑通常為 1.75 mm 或 2.85 mm）送入加熱腔，融化後由噴嘴（Nozzle）擠出，依照切片路徑在熱床（Heated Bed）上逐層堆積，冷卻固化後形成實體成品。由於 FDM 技術的普及，其列印品質管控的重要性日益受到業界與學術界的重視。
 
 然而，FDM 列印的品質受到多項關鍵參數的交互影響，包括噴嘴溫度、熱床溫度、列印速度、回抽距離（Retraction Distance）與速度、層高（Layer Height）、填充密度（Infill Density）、冷卻風扇轉速及支撐結構設定等。任一參數設定不當，均可能引發不同類型的列印瑕疵，導致成品品質下降。目前業界對 FDM 列印品質的評估，仍多依賴操作人員的人工目視檢查，缺乏系統化、自動化的品質管控機制，難以滿足工業 4.0 背景下智慧製造的需求。
 
-在工業 4.0 透過資訊通訊技術使機器、製程與生產系統智慧化連網、提升製造自動化的趨勢下[@WhatIndustry40; @WhatIndustrie40]，將深度學習導入 3D 列印品質管控、建立自動化的瑕疵辨識與評分系統，既符合此技術路線，也具有顯著的實際應用價值。
+工業 4.0（Industry 4.0）一詞最早於 2011 年德國漢諾威工業展（Hannover Fair）中被提出，後續由德國工業 4.0 工作小組於 2013 年提出正式推動建議。其核心在於透過資訊通訊技術，使機器、製程與生產系統形成智慧化連網，進而提升製造流程的即時性、自動化與資訊整合能力[@WhatIndustry40; @WhatIndustrie40]。在此背景下，將深度學習技術導入 3D 列印品質管控，建立自動化的瑕疵辨識與評分系統，既符合工業 4.0 的技術路線，也具有顯著的實際應用價值。
 
 ## 研究動機 {#sec:intro-motivation}
 
@@ -248,7 +248,7 @@ toc: false
 1. **FDM 魚骨拉絲六等級資料集**：建立包含 1110 張魚骨影像、依拉絲面積佔比定義之六等級（A 至 F）資料集；雖目前由單一標注者完成尚待多人一致性驗證，但就本研究目前蒐集之文獻範圍而言，可作為後續 FDM 拉絲瑕疵小樣本影像分類研究之可重現基準。
 2. **嚴格分組切分與多 seed 泛化評估**：以原圖為單位進行 Group Split（原圖零重疊），避免同源樣本造成過度樂觀的評估；MobileNetV3-Large 在嚴格測試集達約 86\% 整體準確率，並以五個 seed 重複後平均仍維持約 81\%，提供比單次切分更保守的小樣本工業視覺基準（詳細數值見 \ref{sec:results-supplemental} 節）。
 3. **模型策略比較、消融與不確定性分析**：本研究完成 MobileNetV3-Large、ResNet18、EfficientNet-B0 之完整 / 簡化策略比較，並補做 Focal Loss、Label Smoothing、Mixup、Weighted Random Sampler 之單變因消融。五 seed 結果顯示，各模型 accuracy 與 QWK 差異未達統計顯著；但 MobileNetV3-Large 完整與 ResNet18 完整之 macro-F1 顯著高於簡化設定。消融結果顯示移除 Weighted Sampler 對 QWK 與跨等級誤判傷害最大，模型校準則顯示低 confidence 樣本適合導入人工複核流程。
-4. **端對端批量辨識系統可行性**：整合自動裁切、批量推論、分級輸出與 HTML 可視化報告，於桌上型 GPU 上達毫秒級單張推論（每秒可處理上百張），驗證離線批量部署之可行性（詳細效能見 \ref{sec:results-batch} 節）。
+4. **端對端批量辨識系統可行性**：整合自動裁切、批量推論、分級輸出與 HTML 可視化報告，於桌上型 GPU（RTX 3050 Laptop）上達毫秒級單張推論（約 6.90 ms、每秒約 145 張），驗證離線批量部署之可行性（詳細效能見 \ref{sec:results-batch} 節）。
 
 附帶產出包含可量化的六等級評分準則、各等級範例圖、Label Studio 標注流程與雙輸出（六分類 + 0 至 100 連續品質分）模型架構，作為後續研究擴充之共用工具。
 
@@ -1669,7 +1669,7 @@ Macro F1 & \mccell{舊版：0.708（全資料估算）\\改良版：seed=7 簡�
 1. **單一標注者下之可重複品質等級制度**：以拉絲面積佔比為主要判斷依據，建立六個明確的品質等級定義並配合 A 至 F 範例圖。本研究主張的是「模型可學習並重現此套固定標注準則」，可降低批量檢查負擔並提供人工複核輔助；惟全部樣本由單一標注者完成、尚未進行多人一致性測試，故不宣稱已建立多人共識下的客觀品質標準（標注一致性限制詳見 \ref{sec:results-supplemental-interpretation} 節）。
 2. **系統性資料蒐集與標注**：透過多批次列印與拍攝，配合 Label Studio 工具完成全部樣本的人工標注，建立含 1110 張有效樣本的六等級分類資料集。從 214 張嚴重不平衡的舊資料擴充至 1110 張後，**隨機切分獨立測試集整體準確率由 78.79\% 提升至 83.23\%**；進一步以 Group Split 嚴格切分重新訓練，seed=7 詳細案例可達 **86.31\%（145/168）**，五 seed 平均約 80\% 至 81\%，顯示模型已具備初步輔助分級能力，但單次切分結果不應過度外推。
 3. **深度學習模型效能與不確定性**：以 MobileNetV3-Large（ImageNet V2 預訓練）為主，並補做完整 / 簡化策略、ResNet18 與 EfficientNet-B0 對照。五 seed 重複後，各模型平均 accuracy 均落在 80\% 至 81\%，accuracy 與 QWK 之 paired t-test 未達顯著差異；惟完整策略與 ResNet18 之 macro-F1 顯著高於簡化設定（詳見 \ref{sec:results-supplemental-multiseed} 節）。單變因消融顯示 Weighted Random Sampler 對 QWK 與跨等級誤判控制最關鍵；模型校準後低 confidence 子集準確率明顯偏低，適合作為人工複核門檻（詳見 \ref{sec:results-supplemental-calibration} 節）。故系統定位為「品質管控輔助原型」，而非可獨立判定之自動分級系統。
-4. **端對端自動化流程**：整合自動裁切、批量辨識、分級輸出與 HTML 可視化報告，形成由原始照片到品質等級報告的離線批量處理流程；主要簡化模型於 RTX 3050 Laptop GPU 單張推論約 6.90 ms，驗證離線批量部署之可行性。惟此為單機離線量測，產線部署前仍需補做完整吞吐量、人工複核成本與現場穩定性評估。
+4. **端對端自動化流程**：整合自動裁切、批量辨識、分級輸出與 HTML 可視化報告，形成由原始照片到品質等級報告的離線批量處理流程；主要簡化模型於 RTX 3050 Laptop GPU 單張推論約 6.90 ms（約 144.9 張/秒），原完整 Group Split 模型約 7.05 ms（約 141.8 張/秒），驗證離線批量部署之可行性。惟此為單機離線量測，產線部署前仍需補做完整吞吐量、人工複核成本與現場穩定性評估。
 5. **品質評分量化（未經人工校準）**：模型同時輸出 0 至 100 的連續品質分數。各等級平均分在 Group Split 測試集與全資料回測下均呈 A $>$ B $>$ C $>$ D $>$ E $>$ F 之單調遞減（數值詳見表 \ref{tab:plain-quality-score}），具輔助排序價值；惟目標分數採等級編號之線性轉換、未經多人主觀評分校準，B、D、E、F 等級之預測平均偏高，現階段僅作為分類結果之輔助連續指標，不宜作為絕對品質量化依據。
 
 \vspace{0.5em}
