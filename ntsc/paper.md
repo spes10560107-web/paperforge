@@ -329,17 +329,19 @@ toc: false
 
 ## 相關文獻探討 {#sec:literature-related}
 
-Jogin 等人[@joginFeatureExtractionUsing2018]對卷積神經網路在 CIFAR-10 影像分類任務上進行系統性研究，採用 6 層 Conv2D--ReLU--MaxPooling 模組架構，搭配全連接層與 Softmax 分類頭，對 10 類 50,000 張 32 × 32 像素彩色影像進行分類，最終達到 85.97\% 的準確率，顯著優於同期的支援向量機（SVM）、決策樹及隨機森林等傳統機器學習方法。此研究奠定了 CNN 在中等規模影像分類任務中的效能基準，並論證了 CNN 深度特徵在多類別辨識中的優越性，為本研究採用 CNN 架構提供了重要參考依據。
+本節依「通用影像分類 → 小樣本遷移學習 → 類別不平衡處理 → 與本研究最相近之 FDM 領域研究」的順序，逐步收斂至本研究的問題情境。
 
-Scarpa 等人[@scarpaCNNBasedFusionMethod2018]提出基於三層 CNN 的多源衛星影像融合方法，將 Sentinel-1（SAR 雷達）與 Sentinel-2（光學）影像進行跨模態特徵融合，以估算 NDVI（歸一化植被指數）。實驗在非洲 Burkina Faso 農業區進行，結果顯示融合模型的相關係數達 0.907，PSNR 達 25.33 dB，優於傳統插值法與回歸法。此研究展現了 CNN 在處理不同來源、不同模態資料時的強大表徵學習能力，間接支持了將 CNN 應用於多種拍攝條件下的列印件品質辨識的可行性。
+Jogin 等人[@joginFeatureExtractionUsing2018]在 CIFAR-10 上以六層 Conv2D--ReLU--MaxPooling 架構對 10 類、50,000 張 32 × 32 像素彩色影像分類，達到 85.97\% 準確率，明顯優於同期的支援向量機（SVM）、決策樹與隨機森林等傳統方法。此結果說明 CNN 自動學得的深度特徵在多類別影像分類上具系統性優勢，為本研究以 CNN 取代人工特徵工程提供基本依據；惟此屬通用影像分類任務，與 FDM 表面瑕疵之關聯僅屬間接。
 
-Varshni 等人[@varshniPneumoniaDetectionUsing2019]採用多種預訓練 CNN 模型（包括 DenseNet-169、ResNet-50、VGG-16 及 Xception）對 ChestX-ray14 資料集中的肺炎 X 光影像進行特徵提取，並搭配 SVM（RBF 核）分類器進行二分類。DenseNet-169+SVM 的組合在 AUC 指標上達到 0.8002，優於其他模型。此研究證明，預訓練模型的遷移學習在醫學影像等小樣本任務中的有效性，對本研究在有限標注樣本條件下採用預訓練 MobileNetV3-Large 提供了充分的方法論依據。
+Varshni 等人[@varshniPneumoniaDetectionUsing2019]以 DenseNet-169、ResNet-50、VGG-16、Xception 等預訓練模型對 ChestX-ray14 肺炎 X 光影像做特徵提取並接 SVM 分類，其中 DenseNet-169+SVM 在 AUC 達 0.8002。此研究直接針對「標注樣本有限」之情境，證明遷移學習在小樣本醫學影像上的有效性，與本研究在約千張量級資料上採用 ImageNet 預訓練 MobileNetV3-Large 的處境高度吻合，為本研究的遷移學習策略提供方法論依據。
 
-Lin 等人[@linFocalLossDense2017]提出的 Focal Loss 最初設計用於解決目標偵測任務中前景（目標）與背景（非目標）的極端類別不平衡問題。其核心思想是在標準交叉熵損失的基礎上，引入調焦因子 $(1-p_t)^\gamma$，對模型已正確分類的高信心樣本降低損失權重，使訓練過程更專注於困難樣本（Hard Example），從而在類別分布極端不均的情況下仍能有效訓練。本研究中，A 等級（546 張）與 F 等級（32 張）樣本比例約 17:1，屬中度不平衡，直接應用 Focal Loss 可有效緩解多數類別主導訓練梯度的問題。
+Lin 等人[@linFocalLossDense2017]提出之 Focal Loss 原用於目標偵測中前景（目標）與背景（非目標）的極端類別不平衡，其在標準交叉熵的基礎上引入調焦因子 $(1-p_t)^\gamma$，降低模型已正確分類之高信心樣本的損失權重，使訓練聚焦於困難樣本（Hard Example），在類別分布不均時仍能有效收斂。此思路適用於本研究各瑕疵等級樣本數差異懸殊的情形（本研究實際採用之不平衡處理組合詳見 \ref{sec:method-model} 節）。
+
+與本研究最直接相關者為 Brion 與 Pattinson[@brionGeneralisable3DPrinting2022]，其以多頭神經網路對 FDM 列印過程進行**即時**錯誤偵測與參數校正，並在多種印表機、材料與幾何形狀上展現泛化能力，屬「列印中（in-process）」的閉迴路監控。相較之下，本研究著眼於「列印後（post-print）」的成品表面品質評級：將拉絲瑕疵依嚴重度劃分為 A 至 F 六個**序數**等級並輸出連續品質分，且刻意採用可部署於邊緣裝置的輕量模型，於小規模且不平衡的資料上以嚴格切分重複評估。兩者在偵測時機、輸出粒度與部署情境上互補，而後者正是本研究欲補足之處（詳見 \ref{sec:literature-gap} 節）。
 
 ## MobileNetV3 架構 {#sec:literature-mobilenetv3}
 
-MobileNet 系列最早由 Howard 等人提出，其核心設計是以深度可分離卷積降低模型參數量與計算量，使 CNN 更適合部署於行動端與邊緣裝置[@howardMobileNetsEfficientConvolutional2017]。MobileNetV3 則進一步結合神經架構搜尋、Squeeze-and-Excitation 模組與 Hard-Swish 激活函數，以提升精度與推論效率[@howardSearchingMobileNetV32019]。MobileNetV3-Large 是 Google 針對移動端與邊緣計算場景設計的高效深度學習模型，其架構通過神經架構搜索（NAS）技術自動搜尋最優配置，並融合以下三項核心技術：（1）**深度可分離卷積（Depthwise Separable Convolution）**：將標準卷積分解為深度卷積（Depthwise Conv）與逐點卷積（Pointwise Conv）兩步驟，在保持感受野的同時大幅降低計算量；（2）**壓縮激活（Squeeze-and-Excitation, SE）注意力機制**：對特徵圖的各通道重要性進行自適應加權，強化關鍵特徵的表達；（3）**Hard-Swish 激活函數**：以分段線性函數近似 Swish 激活，在效能損失極小的前提下大幅降低計算成本。
+MobileNet 系列最早由 Howard 等人提出，其核心設計是以深度可分離卷積（Depthwise Separable Convolution）取代標準卷積：將其分解為深度卷積（Depthwise Conv）與逐點卷積（Pointwise Conv）兩步驟，在維持感受野的同時大幅降低參數量與計算量，使 CNN 更適合部署於行動端與邊緣裝置[@howardMobileNetsEfficientConvolutional2017]。MobileNetV3 則由 Google 以神經架構搜尋（NAS）自動搜尋最優配置，並在深度可分離卷積的基礎上再引入兩項關鍵技術[@howardSearchingMobileNetV32019]：（1）**壓縮激活（Squeeze-and-Excitation, SE）注意力機制**：對特徵圖各通道的重要性進行自適應加權，強化關鍵特徵的表達；（2）**Hard-Swish 激活函數**：以分段線性函數近似 Swish 激活，在效能損失極小的前提下大幅降低計算成本。
 
 MobileNetV3-Large 的整體架構包含：初始卷積層（3 × 3 卷積，stride = 2）、15 個 Bottleneck 模組（其中部分模組含 SE 注意力機制）、1 × 1 卷積升維層、自適應平均池化層，以及最終的分類頭。以 224 × 224 像素輸入為例，模型參數量約 5.4M，計算量約 219 MFLOPs；在本研究使用的預訓練模型中，較新版本（V2）之 ImageNet-1K 預訓練權重 Top-1 指標高於前一版本（V1），因此以較新版本作為本研究初始化權重。本研究採用 ImageNet V2 預訓練權重，可充分利用模型在 1.28M 張大規模影像上學習到的通用視覺特徵，顯著減少對標注資料量的依賴。
 
@@ -347,7 +349,13 @@ MobileNetV3-Large 的整體架構包含：初始卷積層（3 × 3 卷積，stri
 
 遷移學習（Transfer Learning）在電腦視覺領域的核心假設是：在大規模資料集（如 ImageNet）上預訓練的模型，已學習到豐富的底層視覺特徵（邊緣、紋理、形狀等），這些特徵可以遷移至目標任務，即使目標任務的資料量遠少於預訓練資料集。常用的遷移學習策略包括：（a）**特徵提取（Feature Extraction）**：凍結預訓練模型的全部或大部分層，僅訓練新增的任務特定層；（b）**微調（Fine-tuning）**：以較小的學習率對全部或部分層進行更新，使模型特徵更好地適應目標任務。
 
-資料不平衡（Class Imbalance）的處理是本研究的重要技術課題之一。本研究同時採用三種互補的策略：（1）**WeightedRandomSampler**：在資料載入階段，對少數類別樣本以更高的機率抽取，確保每個批次中各等級樣本均有充分的學習機會；（2）**Focal Loss**：在損失函數層面對困難樣本（含少數類別）加重懲罰[@linFocalLossDense2017]；（3）**Mixup 資料增強**[@zhangMixupEmpiricalRisk2018]：在批次層面對任意兩筆樣本進行線性混合，擴充訓練分布的多樣性，並正則化模型對邊界樣本的預測信心。三種策略從資料採樣、損失計算及資料擴充三個角度協同應對不平衡問題，效果優於單一策略。
+資料不平衡（Class Imbalance）是小樣本瑕疵分類常見的難題，文獻上的處理手段大致可分為三類：（1）**資料採樣層面**的重採樣，如對少數類別過採樣（oversampling）或加權抽樣，平衡各類別在訓練過程中的曝光機會；（2）**損失函數層面**的成本敏感法，如前述 Focal Loss[@linFocalLossDense2017]，對困難樣本或少數類別加重懲罰；（3）**資料增強層面**的方法，如 Mixup[@zhangMixupEmpiricalRisk2018]在批次中對任意兩筆樣本進行線性混合，擴充訓練分布的多樣性並抑制模型對邊界樣本的過度自信。三類手段彼此正交、可組合使用；本研究實際採用之組合與超參數設定詳見 \ref{sec:method-model} 節。
+
+## 研究缺口與本研究定位 {#sec:literature-gap}
+
+綜合前述文獻，可歸納出三點現況與缺口。其一，CNN 與遷移學習在工業表面瑕疵檢測（半導體晶圓、鋼板、紡織品、PCB 等）已有成熟應用，並在多項基準上達到甚至超越人類水準[@bhattImageBasedSurfaceDefect2021]；但這些任務多屬「有無瑕疵」或「瑕疵種類」的名目分類，少有針對單一瑕疵之「嚴重程度分級」的序數評估。其二，在 FDM 領域，既有代表性研究（如 Brion 與 Pattinson[@brionGeneralisable3DPrinting2022]）聚焦於列印過程中的即時錯誤偵測與校正，著重「即時介入、避免廢件」，而非列印完成後對成品表面品質給出細緻且可量化的分級。其三，遷移學習雖已證實能緩解小樣本問題[@varshniPneumoniaDetectionUsing2019]，但各研究的資料規模、不平衡程度與評估切分方式差異甚大，少有在「小樣本、類別不平衡」條件下同時報告嚴格切分、多 seed 重複與校準分析的可重現評估。
+
+據此，本研究的定位是補足「列印後、單一瑕疵（拉絲）、序數品質分級、輕量可部署、嚴格可重現評估」這一交集情境：以 ImageNet 預訓練之 MobileNetV3-Large 為骨幹進行遷移學習，輸出 A 至 F 六等級分類並附加連續品質分；針對類別不平衡採用重採樣、成本敏感損失與資料增強的組合（見 \ref{sec:method-model} 節）；並以 Group Split 嚴格切分、多 seed 重複與校準分析建立可重現的效能基準（見 \ref{sec:results} 章）。此情境在現有文獻中著墨相對有限，亦是本研究的主要貢獻所在。
 
 # 研究方法 {#sec:method}
 
