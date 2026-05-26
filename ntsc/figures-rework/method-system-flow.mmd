@@ -1,0 +1,67 @@
+%% 對應 paper.md sec:method-architecture / sec:method-system
+%% 以「資料流 + 五個元件」為主軸，呼應表 \ref{tab:system-components}
+%% 修正原圖「3D CNN」錯誤描述（本研究為 2D + MobileNetV3-Large）
+%% 產生：mmdc -i method-system-flow.mmd -o method-system-flow.png -t neutral -b white --width 2400
+%% 註：頂層改 TB；Pipeline 內 5 個元件改為 TB 堆疊，避免在 0.95\textwidth 縮放後字體過小
+
+%%{init: {'theme':'neutral', 'flowchart':{'nodeSpacing':30, 'rankSpacing':40, 'padding':8, 'htmlLabels':true, 'useMaxWidth':false}, 'themeVariables':{'fontSize':'28px'}}}%%
+flowchart TB
+    subgraph Hardware["硬體與資料來源（含算力支援）"]
+        direction LR
+        H1["Bambu Lab A1<br/>PLA、魚骨件"]
+        H2["智慧型手機<br/>俯拍熱床<br/>~30 cm、12 MP"]
+        H3["筆電 + RTX 3050<br/>4 GB VRAM、32 GB RAM"]
+    end
+
+    subgraph Pipeline["端對端資料流"]
+        direction TB
+
+        subgraph C1["① 影像裁切模組"]
+            direction LR
+            C1A["crop_fish.py<br/>固定網格 2×3"]
+            C1B[("原始照片<br/>3024 × 4032 px")]
+            C1C[("魚骨子圖<br/>~700 × 900 px")]
+            C1B --> C1A --> C1C
+        end
+
+        subgraph C2["② 標注管理模組"]
+            direction LR
+            C2A["Label Studio<br/>+ parse_labelstudio.py"]
+            C2B[("A–F 等級資料夾<br/>data/raw/A ～ F/")]
+            C2A --> C2B
+        end
+
+        subgraph C3["③ 模型訓練模組"]
+            direction LR
+            C3A["train_and_report.py<br/>+ run_supplemental_experiments.py"]
+            C3B["MobileNetV3-Large<br/>2D CNN，ImageNet V2<br/>簡化設定"]
+            C3C[("best.ckpt")]
+            C3A --> C3B --> C3C
+        end
+
+        subgraph C4["④ 批量推論模組"]
+            direction LR
+            C4A["辨識資料夾.py<br/>FP16、GPU 推論"]
+            C4B[("分級資料夾<br/>results/graded/A ～ F/")]
+            C4A --> C4B
+        end
+
+        subgraph C5["⑤ 結果視覺化模組"]
+            direction LR
+            C5A["HTML / 統計圖<br/>等級分布 + 混淆矩陣 + 品質分"]
+            C5B[("JSON 結果<br/>+ HTML 報告")]
+            C5A --> C5B
+        end
+
+        C1 --> C2 --> C3 --> C4 --> C5
+    end
+
+    Hardware --> Pipeline
+
+    classDef hw fill:#fde2e2,stroke:#cf222e,color:#1f2328
+    classDef comp fill:#cfe8ff,stroke:#1f6feb,color:#1f2328
+    classDef data fill:#fff8b3,stroke:#9a6700,color:#1f2328
+
+    class H1,H2,H3 hw
+    class C1A,C2A,C3A,C3B,C4A,C5A comp
+    class C1B,C1C,C2B,C3C,C4B,C5B data

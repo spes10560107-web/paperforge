@@ -1,0 +1,49 @@
+%% 對應 paper.md sec:intro-flow（研究整體流程圖）
+%% 將三大階段與正文敘述對齊；訓練設定與最新主要結論一致（簡化設定 Group Split 86.31%）
+%% 產生：mmdc -i research-overall-flow.mmd -o research-overall-flow.png -t neutral -b white --width 2400
+%% 頂層用 LR：三個 Phase 左右排列；各 Phase 內部仍 TB（節點縱向堆疊），避免圖過高 overflow A4
+%% init 區塊：放大字體並收緊 node 間距，提高資訊密度（PDF 內每個 node 看起來更大）
+
+%%{init: {'theme':'neutral', 'flowchart':{'nodeSpacing':25, 'rankSpacing':35, 'padding':6, 'htmlLabels':true, 'useMaxWidth':false}, 'themeVariables':{'fontSize':'22px'}}}%%
+flowchart LR
+    Start([開始])
+
+    subgraph Phase1["階段一：資料蒐集與前處理"]
+        direction TB
+        P1A["3D 列印樣本製作<br/>Bambu Lab A1、PLA、魚骨形狀"]
+        P1B["影像拍攝<br/>智慧型手機俯拍熱床，固定距離與背景<br/>共 8 批次、185 張原圖"]
+        P1C["魚骨自動裁切<br/>crop_fish.py（2 欄 × 3 列固定網格）<br/>→ 1110 張單支魚骨"]
+        P1D["人工標注<br/>Label Studio、A–F 六等級<br/>單一標注者完成"]
+        P1A --> P1B --> P1C --> P1D
+    end
+
+    subgraph Phase2["階段二：模型訓練與評估"]
+        direction TB
+        P2A["資料切分<br/>Group Split（以原圖 ID 為 group，seed = 7）<br/>訓練 774 / 驗證 168 / 測試 168"]
+        P2B["模型訓練<br/>MobileNetV3-Large（ImageNet V2 預訓練）<br/>簡化設定：Cross Entropy + 0.3 × MSE 輔助頭"]
+        P2C["模型評估<br/>Group Split 測試集整體 86.31%（145/168）<br/>Macro F1 = 0.791、Weighted F1 = 0.859"]
+        P2D["基準與消融對照<br/>ResNet18 完整 84.52% / EfficientNet-B0 完整 82.14%<br/>原 MobileNetV3-Large 完整 82.74%"]
+        P2A --> P2B --> P2C --> P2D
+    end
+
+    subgraph Phase3["階段三：系統整合與應用"]
+        direction TB
+        P3A["批量辨識系統<br/>辨識資料夾.py、單張推論 6.90 ms（RTX 3050 Laptop）"]
+        P3B["分級輸出<br/>results/graded/A ～ F/，每張右上角標等級與信心度"]
+        P3C["可視化報告<br/>HTML 互動報告：等級分布、混淆矩陣、品質分"]
+        P3A --> P3B --> P3C
+    end
+
+    Done([完成])
+
+    Start --> Phase1 --> Phase2 --> Phase3 --> Done
+
+    classDef phase1 fill:#cfe8ff,stroke:#1f6feb,color:#1f2328
+    classDef phase2 fill:#e7d4ff,stroke:#8250df,color:#1f2328
+    classDef phase3 fill:#ffe5b4,stroke:#d97706,color:#1f2328
+    classDef startend fill:#d1f2d1,stroke:#1a7f37,color:#1f2328
+
+    class P1A,P1B,P1C,P1D phase1
+    class P2A,P2B,P2C,P2D phase2
+    class P3A,P3B,P3C phase3
+    class Start,Done startend
