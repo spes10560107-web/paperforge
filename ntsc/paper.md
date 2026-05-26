@@ -261,7 +261,7 @@ toc: false
 1. **單一硬體條件**：僅使用 Bambu Lab A1 印表機與標準 PLA 線材，未驗證其他機型（如 Prusa、Creality）或材料（如 PETG、ABS、TPU）之表現。
 2. **單一幾何條件**：僅使用魚骨形狀樣本，模型對其他幾何形狀（如盒體、齒輪、有機曲面）之泛化能力未經驗證。
 3. **單一瑕疵類型**：僅針對拉絲（Stringing）嚴重程度分類；翹曲與裂痕雖於文獻回顧介紹，但因樣本不足未納入訓練與測試。
-4. **資料相關性與分組切分**：1110 張樣本係由 185 張原始照片各裁切出約 6 支魚骨而來，同一原圖切出之多支樣本在光線、背景與列印批次上高度相關。為避免同源樣本造成過度樂觀的評估，本研究以原圖 ID 為 group 鍵採用 \texttt{GroupShuffleSplit}（seed=7）切分，並在零原圖重疊之嚴格測試集（168 筆）上評估；惟 B、E、F 測試樣本數偏少（16、8、4 張），相關結果詳見 \ref{sec:results-supplemental} 節。
+4. **資料相關性與分組切分**：1110 張樣本係由 185 張原始照片各裁切出約 6 支魚骨而來，同一原圖切出之多支樣本在光線、背景與列印批次上高度相關。為避免同源樣本造成過度樂觀的評估，本研究以原圖 ID 為分組鍵，採用分組隨機切分（Group Shuffle Split，seed=7），並在零原圖重疊之嚴格測試集（168 筆）上評估；惟 B、E、F 測試樣本數偏少（16、8、4 張），相關結果詳見 \ref{sec:results-supplemental} 節。
 
 上述為本研究之主要邊界條件。其餘較技術性之限制，包含標注一致性未驗證（單一標注者，未做 Cohen's / Fleiss' Kappa）、品質分數未經多人主觀評分校準、基準模型比較與消融研究之範圍、ordinal 任務以 nominal classification 近似處理、模型可解釋性僅完成 Grad-CAM 定性檢查，以及外部影像僅完成未標注 sanity check、文獻與市場資料來源之準確性等；此類限制因需搭配方法與實驗結果方能完整說明，統一於 \ref{sec:results-supplemental-interpretation} 節與第 \ref{sec:conclusion} 章之結論中討論。
 
@@ -341,7 +341,7 @@ Lin 等人[@linFocalLossDense2017]提出的 Focal Loss 最初設計用於解決�
 
 MobileNet 系列最早由 Howard 等人提出，其核心設計是以深度可分離卷積降低模型參數量與計算量，使 CNN 更適合部署於行動端與邊緣裝置[@howardMobileNetsEfficientConvolutional2017]。MobileNetV3 則進一步結合神經架構搜尋、Squeeze-and-Excitation 模組與 Hard-Swish 激活函數，以提升精度與推論效率[@howardSearchingMobileNetV32019]。MobileNetV3-Large 是 Google 針對移動端與邊緣計算場景設計的高效深度學習模型，其架構通過神經架構搜索（NAS）技術自動搜尋最優配置，並融合以下三項核心技術：（1）**深度可分離卷積（Depthwise Separable Convolution）**：將標準卷積分解為深度卷積（Depthwise Conv）與逐點卷積（Pointwise Conv）兩步驟，在保持感受野的同時大幅降低計算量；（2）**壓縮激活（Squeeze-and-Excitation, SE）注意力機制**：對特徵圖的各通道重要性進行自適應加權，強化關鍵特徵的表達；（3）**Hard-Swish 激活函數**：以分段線性函數近似 Swish 激活，在效能損失極小的前提下大幅降低計算成本。
 
-MobileNetV3-Large 的整體架構包含：初始卷積層（3 × 3 卷積，stride = 2）、15 個 Bottleneck 模組（其中部分模組含 SE 注意力機制）、1 × 1 卷積升維層、自適應平均池化層，以及最終的分類頭。以 224 × 224 像素輸入為例，模型參數量約 5.4M，計算量約 219 MFLOPs；在本研究使用的 torchvision 預訓練模型中，\texttt{IMAGENET1K\_V2} 權重之 ImageNet-1K Top-1 指標高於 \texttt{IMAGENET1K\_V1}，因此作為本研究初始化權重。本研究採用 ImageNet V2 預訓練權重，可充分利用模型在 1.28M 張大規模影像上學習到的通用視覺特徵，顯著減少對標注資料量的依賴。
+MobileNetV3-Large 的整體架構包含：初始卷積層（3 × 3 卷積，stride = 2）、15 個 Bottleneck 模組（其中部分模組含 SE 注意力機制）、1 × 1 卷積升維層、自適應平均池化層，以及最終的分類頭。以 224 × 224 像素輸入為例，模型參數量約 5.4M，計算量約 219 MFLOPs；在本研究使用的預訓練模型中，較新版本（V2）之 ImageNet-1K 預訓練權重 Top-1 指標高於前一版本（V1），因此以較新版本作為本研究初始化權重。本研究採用 ImageNet V2 預訓練權重，可充分利用模型在 1.28M 張大規模影像上學習到的通用視覺特徵，顯著減少對標注資料量的依賴。
 
 ## 遷移學習與資料不平衡處理 {#sec:literature-transfer}
 
@@ -445,7 +445,7 @@ PyTorch & 2.6.0+cu124 \\
 
 本研究以魚骨形狀列印件作為樣本，是因其具有細長肋條、尖端與多個間隙，對 FDM 拉絲瑕疵特別敏感。當噴嘴溫度、回抽設定、移動速度或冷卻條件不穩定時，細絲通常會出現在魚骨間隙與尖端區域，因此此幾何形狀適合作為拉絲嚴重程度分類的測試對象。
 
-資料蒐集採分批列印方式進行，主要紀錄集中於 2025/11/22 至 2025/12/10，並於 2026/02/05 至 2026/02/07 補充少數等級與失敗件樣本。每組原始照片可裁切出 6 支魚骨樣本，最後整理為 1110 筆有效資料。正文保留資料蒐集流程與代表性設計說明，完整列印過程照片改列於附錄一，避免主文被連續照片切斷。
+資料蒐集採分批列印方式進行，並另行補充少數等級與失敗件樣本，使各等級樣本更為完整。每組原始照片可裁切出 6 支魚骨樣本，最後整理為 1110 筆有效資料。正文保留資料蒐集流程與代表性設計說明，完整列印過程照片改列於附錄一，避免主文被連續照片切斷。
 
 此安排的重點是讓正文回答三個問題：為何選擇魚骨件、資料如何分批取得，以及照片如何轉換為可訓練資料。至於每一張列印過程照片的時間與狀態，屬於實驗紀錄與佐證資料，放在附錄一更適合查核與保存。
 
@@ -459,20 +459,20 @@ PyTorch & 2.6.0+cu124 \\
 \label{tab:batch-stats}
 \small
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{cccc}
+\begin{tabular}{ccc}
 \hline
-\textbf{批次} & \textbf{日期} & \textbf{張數} & \textbf{裁切後樣本數} \\
+\textbf{批次} & \textbf{張數} & \textbf{裁切後樣本數} \\
 \hline
-第 1 批 & 2025/11/22 & 3 & 18 \\
-第 2 批 & 2025/11/25 & 20 & 120 \\
-第 3 批 & 2025/11/26 & 14 & 84 \\
-第 4 批 & 2025/12/04 & 17 & 102 \\
-第 5 批 & 2025/12/06 & 51 & 306 \\
-第 6 批 & 2025/12/08 & 30 & 180 \\
-第 7 批 & 2025/12/09 & 30 & 180 \\
-第 8 批 & 2025/12/10 & 20 & 120 \\
+第 1 批 & 3 & 18 \\
+第 2 批 & 20 & 120 \\
+第 3 批 & 14 & 84 \\
+第 4 批 & 17 & 102 \\
+第 5 批 & 51 & 306 \\
+第 6 批 & 30 & 180 \\
+第 7 批 & 30 & 180 \\
+第 8 批 & 20 & 120 \\
 \hline
-\textbf{合計} & --- & \textbf{185} & \textbf{1110} \\
+\textbf{合計} & \textbf{185} & \textbf{1110} \\
 \hline
 \end{tabular}
 \end{table}
@@ -481,9 +481,9 @@ PyTorch & 2.6.0+cu124 \\
 
 ### 魚骨自動裁切 {#sec:method-preprocessing-crop}
 
-本研究依列印與拍攝完成後整理之實驗照片進行魚骨樣本裁切，並於 2026/02/10 前完成模型訓練與辨識分析，使用自行開發的 \texttt{tools/crop\_fish.py} 腳本進行自動切割。裁切採用固定網格方式：將每張照片等分為 2 欄 × 3 列，各格切出一支魚骨，裁切後尺寸約 700 × 900 pixels，保留足夠細節供後續辨識。為處理路徑含中文字元的問題，程式改用 PIL \texttt{Image.open()} 或 numpy \texttt{fromfile()}+cv2.\texttt{imdecode()} 組合讀取，確保跨平台相容性。本研究整理後共取得 1110 張有效單支魚骨樣本。
+本研究依列印與拍攝完成後整理之實驗照片進行魚骨樣本自動裁切。裁切採用固定網格方式：將每張照片等分為 2 欄 × 3 列，各格切出一支魚骨，裁切後尺寸約 700 × 900 pixels，保留足夠細節供後續辨識。本研究整理後共取得 1110 張有效單支魚骨樣本。
 
-以下圖 \ref{fig:crop-fish01} 至圖 \ref{fig:crop-fish03} 為裁切腳本輸出的魚骨裁切結果範例，可清楚看到每支魚骨被完整切割、背景一致，裁切品質良好。
+以下圖 \ref{fig:crop-fish01} 至圖 \ref{fig:crop-fish03} 為自動裁切輸出的魚骨裁切結果範例，可清楚看到每支魚骨被完整切割、背景一致，裁切品質良好。
 
 \begin{figure}[H]
 \centering
@@ -617,10 +617,10 @@ F & 失敗品 & \makecell{極度拉絲\\幾乎看不出魚骨結構} & 0 分 & �
 本研究使用 Label Studio（開源標注平台）[@OpenSourceData]完成全部裁切圖的人工標注。標注流程為：
 
 1. 將裁切圖匯入 Label Studio 專案。
-2. A 等級直接 Submit 不畫框。
-3. 有拉絲的樣本，以邊界框框住拉絲區域，並從下拉選單選擇對應嚴重程度標籤。
-4. 完成後從 Label Studio 匯出 CSV。
-5. 執行 \texttt{tools/parse\_labelstudio.py} 解析 CSV，將各樣本複製至對應等級資料夾 \texttt{data/raw/A} 至 \texttt{F}。
+2. A 等級直接標記為合格，不畫框。
+3. 有拉絲的樣本，以邊界框框住拉絲區域，並選擇對應的嚴重程度標籤。
+4. 完成後匯出標注結果。
+5. 解析標注結果，將各樣本依標籤歸入 A 至 F 對應等級的資料集。
 
 標注完成後，A 級 546 張、B 級 87 張、C 級 213 張、D 級 160 張、E 級 72 張、F 級 32 張，共 1110 張有效資料。
 
@@ -634,7 +634,7 @@ F & 失敗品 & \makecell{極度拉絲\\幾乎看不出魚骨結構} & 0 分 & �
 
 1. **參數量與小樣本過擬合風險**：1110 張資料規模偏小，過大模型容易過擬合。MobileNetV3-Large 約 5.4M 參數、ResNet18 約 11.7M、EfficientNet-B0 約 5.3M，皆屬輕量級。相較之下 ResNet50（25.6M）或 ViT-Base（86M）參數量過大，在此資料規模下需更強之資料增強與正則化策略才能避免過擬合。
 2. **推論效率與未來部署彈性**：MobileNetV3 系列原為行動端與邊緣裝置設計，雖本研究在 RTX 3050 桌上型 GPU 部署，但保留未來轉移至 Bambu Lab A1 內建 SoC、Raspberry Pi 或 Jetson Nano 等邊緣裝置之選項。實測單張推論時間 6.90 ms 亦支持即時批量處理需求。
-3. **ImageNet 預訓練權重可用性**：MobileNetV3-Large 之 \texttt{IMAGENET1K\_V2} 權重在本研究使用的 torchvision 權重版本中優於 V1，且可直接載入，遷移學習成本低。
+3. **ImageNet 預訓練權重可用性**：MobileNetV3-Large 之較新版本（V2）ImageNet 預訓練權重優於前一版本（V1），且可直接載入，遷移學習成本低。
 4. **與相近研究之可比較性**：ResNet18 為小資料瑕疵檢測之常用基準，EfficientNet-B0 為近年主流輕量模型代表，三者並列可同時涵蓋「移動端最佳化」「殘差網路經典」「複合縮放最佳化」三條設計哲學，為後續研究者提供可比較之 baseline。
 
 選擇之 trade-off 在於：未涵蓋 Vision Transformer 系列（如 ViT-Tiny、DeiT-Tiny）、ConvNeXt 系列等新架構，亦未探討 self-supervised pre-training（如 DINO、MAE）對小樣本任務之助益，此屬本研究範圍限制，列為後續研究方向。
@@ -643,13 +643,13 @@ F & 失敗品 & \makecell{極度拉絲\\幾乎看不出魚骨結構} & 0 分 & �
 
 本研究採用 MobileNetV3-Large[@howardSearchingMobileNetV32019]（ImageNet V2 預訓練）作為骨幹網路，以遷移學習方式進行六分類微調。模型修改如下：將分類頭最後一個全連接層（原 1000 類輸出）替換為含 Dropout（p = 0.4）的六分類線性層；同時在 pooling 後的特徵向量上接品質評分輔助頭，其結構為 Dropout（p = 0.2）→ Linear → ReLU → Linear → Sigmoid，輸出範圍 0 至 1 的連續品質分，乘以 100 即得 0 至 100 分。訓練時分類頭與評分頭同步優化。
 
-需特別說明的是，現行品質分輔助頭以「等級編號之線性轉換」（A=100, B=80, ..., F=0）作為迴歸目標，**隱含假設等級間距相等且 ordinal 關係由 MSE loss 隱式建模**。嚴格而言，本研究將 ordinal classification 任務以「nominal classification + auxiliary regression」近似處理，未採用 ordinal-aware loss（如 CORAL[Cao 2020]、CORN[Shi 2023]）或 ordinal regularization。此為方法層級之簡化，列入 \ref{sec:conclusion-future} 節後續研究方向。
+需特別說明的是，現行品質分輔助頭以「等級編號之線性轉換」（A=100, B=80, ..., F=0）作為迴歸目標，**隱含假設等級間距相等且 ordinal 關係由 MSE loss 隱式建模**。嚴格而言，本研究將 ordinal classification 任務以「nominal classification + auxiliary regression」近似處理，未採用 ordinal-aware loss（如 CORAL [@caoRankConsistentOrdinal2020]、CORN [@shiDeepNeuralNetworks2023]）或 ordinal regularization。此為方法層級之簡化，列入 \ref{sec:conclusion-future} 節後續研究方向。
 
-本研究實際使用三支訓練腳本，對應不同的資料切分與策略組合（如表 \ref{tab:training-scripts} 所示）。其中 \texttt{tools/run\_supplemental\_experiments.py} 之簡化設定（MobileNetV3-Large）為本研究之主要結果來源，其餘為對照與歷史紀錄。
+本研究依不同的資料切分與策略組合進行多組訓練（如表 \ref{tab:training-scripts} 所示）。其中採用分組切分（Group Split）的簡化設定（MobileNetV3-Large）為本研究之主要結果來源，其餘為對照與歷史紀錄。
 
 \begin{table}[H]
 \centering
-\caption{本研究三支訓練腳本之角色對照}
+\caption{本研究各訓練設定之角色對照}
 \label{tab:training-scripts}
 \begingroup
 \small
@@ -657,17 +657,17 @@ F & 失敗品 & \makecell{極度拉絲\\幾乎看不出魚骨結構} & 0 分 & �
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{ccc}
 \hline
-\textbf{訓練腳本} & \textbf{資料切分} & \textbf{在本論文之角色} \\
+\textbf{訓練設定} & \textbf{資料切分} & \textbf{在本研究之角色} \\
 \hline
-\makecell[c]{\texttt{train\_and}\\\texttt{\_report.py}} & \makecell[c]{隨機切分\\seed=7} & \makecell[c]{原完整候選\\歷史對照} \\
-\makecell[c]{\texttt{train\_group}\\\texttt{\_split.py}} & \makecell[c]{Group Split\\seed=7} & \makecell[c]{原完整候選\\GS 對照} \\
-\makecell[c]{\texttt{tools/run}\\\texttt{\_todo}\\\texttt{\_remaining.py}} & \makecell[c]{Group Split\\5 seeds} & \makecell[c]{多 seed\\補充實驗} \\
+\makecell[c]{原完整\\候選策略} & \makecell[c]{隨機切分\\seed=7} & \makecell[c]{早期\\歷史對照} \\
+\makecell[c]{原完整\\候選策略} & \makecell[c]{分組切分\\seed=7} & \makecell[c]{完整策略\\對照} \\
+\makecell[c]{簡化\\策略} & \makecell[c]{分組切分\\多 seed} & \makecell[c]{主要結果\\與補充分析} \\
 \hline
 \end{tabular}
 \endgroup
 \end{table}
 
-\noindent 表 \ref{tab:training-scripts} 中，\texttt{train\_and\_report.py} 對應隨機切分歷史結果（version\_21），\texttt{train\_group\_split.py} 為 Group Split 完整策略對照，\texttt{tools/run\_todo\_remaining.py} 則負責多 seed、單變因消融、校準、Grad-CAM、PR/ROC、t-SNE 與外部未標注檢查等補充分析。
+\noindent 表 \ref{tab:training-scripts} 中，隨機切分設定對應早期歷史結果；分組切分（Group Split）完整策略為完整候選策略之嚴格切分對照；分組切分多 seed 之簡化設定則負責多 seed、單變因消融、校準、Grad-CAM、PR/ROC、t-SNE 與外部未標注檢查等補充分析，並為本研究主要結果來源。
 
 兩組策略（原完整 vs 簡化）使用相同骨幹、輸入尺寸、批次大小與輔助頭結構，僅差在分類損失與資料採樣方式：
 
@@ -679,7 +679,7 @@ L_{\text{plain}} &= L_{\text{CE}} + 0.3 \times L_{\text{MSE}}
 \label{eq:total-loss}
 \end{equation}
 
-\noindent 其中 $L_{\text{full}}$ 對應原訓練腳本 \texttt{train\_and\_report.py} 之完整候選設定，$L_{\text{plain}}$ 對應 \texttt{tools/run\_supplemental\_experiments.py} 之簡化設定。
+\noindent 其中 $L_{\text{full}}$ 對應完整候選設定，$L_{\text{plain}}$ 對應簡化設定。
 
 seed=7 詳細分析中，簡化設定於同一 Group Split 測試集取得 86.31\%（145/168），可作為後續混淆矩陣、校準與可視化的代表案例；但五 seed 重複後，簡化設定與完整設定在 accuracy / QWK 上未呈現顯著差異，因此本文不再將單次 86.31\% 解讀為策略穩定勝出，而是將其定位為可重現的嚴格切分基準。兩組設定之超參數整理於表 \ref{tab:hyperparameters}。
 
@@ -699,7 +699,7 @@ seed=7 詳細分析中，簡化設定於同一 Group Split 測試集取得 86.31
 學習率 & $2\times10^{-4}$ & AdamW 初始值 \\
 Weight Decay & $3\times10^{-4}$ & --- \\
 學習率排程 & \makecell{CosineAnnealing\\WarmRestarts} & \makecell{$T_0=20$, $T_{\text{mult}}=2$\\$\eta_{\min}=10^{-6}$} \\
-Dropout & \makecell{分類頭 $p=0.4$\\評分頭 $p=0.2$} & \makecell{依 \texttt{train\_and\_report.py}\\設定} \\
+Dropout & \makecell{分類頭 $p=0.4$\\評分頭 $p=0.2$} & \makecell{兩組\\共用} \\
 訓練精度 & FP16 Mixed Precision & GPU 加速 \\
 \hline
 \multicolumn{3}{c}{\textit{＝＝ 兩組設定之差異 ＝＝}} \\
@@ -710,7 +710,7 @@ Mixup Alpha & \makecell{原完整：0.3\\簡化：0.0} & 批次層級線性混�
 過採樣 & \makecell{原完整：WeightedRandomSampler\\（0.75 次方反比）} & --- \\
        & 簡化：無加權，隨機洗牌 & --- \\
 最大輪數 & \makecell{原完整：100\\簡化補充：25} & --- \\
-EarlyStopping Patience & \makecell{原完整：35\\簡化補充：7} & 監控 val/acc \\
+EarlyStopping Patience & \makecell{原完整：35\\簡化補充：7} & 監控驗證準確率 \\
 \hline
 \end{tabular}
 
@@ -779,7 +779,7 @@ F & 失敗品 & 32 & 2.9\% & \makecell{樣本基數最小\\仍建議持續補充
 \makecell[c]{MobileNetV3-Large\\完整\\(5 seeds)} & 80.12 $\pm$ 5.98\% & \textbf{0.713} $\pm$ 0.070 & \makecell[c]{0.909 $\pm$ 0.039\\3.45 $\pm$ 1.70\%} & \makecell[c]{macro-F1 較高\\$p=0.0246$\\20.0 min} \\
 \makecell[c]{ResNet18\\完整\\(5 seeds)} & 80.83 $\pm$ 2.16\% & 0.712 $\pm$ 0.057 & \makecell[c]{0.914 $\pm$ 0.032\\3.33 $\pm$ 1.91\%} & \makecell[c]{macro-F1 較高\\$p=0.0363$\\23.9 min} \\
 \makecell[c]{EfficientNet-B0\\完整\\(5 seeds)} & \textbf{81.19} $\pm$ 2.25\% & 0.698 $\pm$ 0.031 & \makecell[c]{0.910 $\pm$ 0.039\\3.57 $\pm$ 2.10\%} & \makecell[c]{accuracy 與簡化相同\\差異不顯著\\24.3 min} \\
-\makecell[c]{MobileNetV3-Large\\完整\\隨機切分\\version\_21} & 83.23\% & --- & --- & \makecell[c]{歷史對照\\不作為 Group Split\\策略優劣依據} \\
+\makecell[c]{MobileNetV3-Large\\完整\\隨機切分基準} & 83.23\% & --- & --- & \makecell[c]{歷史對照\\不作為 Group Split\\策略優劣依據} \\
 \hline
 \end{tabular}
 \end{adjustbox}
@@ -792,19 +792,19 @@ F & 失敗品 & 32 & 2.9\% & \makecell{樣本基數最小\\仍建議持續補充
 
 本研究以 TensorBoard 記錄訓練、驗證與測試過程，但正文不再逐張放置所有監控畫面，而改以關鍵數據與趨勢說明呈現。完整截圖可作為實驗查核資料保存，不必全部置於正文。
 
-version\_21 模型最高驗證準確率為 90.96\%，獨立測試集準確率為 83.23\%，全資料集回測準確率為 95.86\%（1064/1110）。其中，全資料集回測用於確認模型對已標注資料的整體擬合與批量辨識能力；獨立測試集準確率則用於觀察模型在未參與訓練樣本上的泛化表現。兩者目的不同，不能混為同一個效能指標。
+隨機切分基準模型最高驗證準確率為 90.96\%，獨立測試集準確率為 83.23\%，全資料集回測準確率為 95.86\%（1064/1110）。其中，全資料集回測用於確認模型對已標注資料的整體擬合與批量辨識能力；獨立測試集準確率則用於觀察模型在未參與訓練樣本上的泛化表現。兩者目的不同，不能混為同一個效能指標。
 
-訓練階段使用 Mixup 資料增強，因此 \texttt{train/acc} 會在混合樣本與軟標籤條件下計算，不能直接與未混合的 \texttt{val/acc} 作等值比較。本研究以驗證集、測試集與全資料集回測三種角度交叉檢視模型表現，避免只依單一曲線判斷模型好壞。
+訓練階段使用 Mixup 資料增強，因此訓練準確率會在混合樣本與軟標籤條件下計算，不能直接與未混合的驗證準確率作等值比較。本研究以驗證集、測試集與全資料集回測三種角度交叉檢視模型表現，避免只依單一曲線判斷模型好壞。
 
 ### 訓練曲線趨勢說明 {#sec:results-tensorboard-trend}
 
-訓練曲線的重點不是截圖數量，而是收斂趨勢與泛化落差。從紀錄可知，模型在訓練後期仍維持約 89\% 至 91\% 的驗證表現，顯示資料擴充與正則化策略對少數類別辨識有幫助。然而 \texttt{train/acc} 偏低並不代表模型未學習，因為 Mixup 會使訓練標籤成為軟標籤，準確率指標本身會被混合比例影響。
+訓練曲線的重點不是截圖數量，而是收斂趨勢與泛化落差。從紀錄可知，模型在訓練後期仍維持約 89\% 至 91\% 的驗證表現，顯示資料擴充與正則化策略對少數類別辨識有幫助。然而訓練準確率偏低並不代表模型未學習，因為 Mixup 會使訓練標籤成為軟標籤，準確率指標本身會被混合比例影響。
 
 因此，本研究後續分析以混淆矩陣、各等級召回率、測試集準確率與全資料集回測結果作為主要依據。TensorBoard 截圖僅作為實驗紀錄來源，不再於正文逐張展示。
 
 ### Group Split 補充實驗訓練曲線 {#sec:results-tensorboard-supplemental}
 
-本研究於 \texttt{tools/run\_supplemental\_experiments.py} 之三組補充實驗（MobileNetV3-Large 簡化、ResNet18 完整、EfficientNet-B0 完整）使用相同 Group Split 切分、25 epoch 上限與 patience=7 之 Early Stopping。三模型之驗證集收斂曲線匯出後並排呈現如圖 \ref{fig:gs-training-curves} 所示。
+本研究之三組補充實驗（MobileNetV3-Large 簡化、ResNet18 完整、EfficientNet-B0 完整）使用相同 Group Split 切分、25 epoch 上限與 patience=7 之 Early Stopping。三模型之驗證集收斂曲線匯出後並排呈現如圖 \ref{fig:gs-training-curves} 所示。
 
 \begin{figure}[H]
 \centering
@@ -849,7 +849,7 @@ weighted avg & 214 & 0.925 & 0.869 & 0.888 \\
 \label{fig:old-confusion}
 \end{figure}
 
-舊版模型之完整混淆矩陣數字如表 \ref{tab:old-confusion-matrix} 所示（取自 \texttt{results/evaluation\_report.txt}，評估時間 2026-04-06，模型 \texttt{checkpoints/best.ckpt}）。
+舊版模型之完整混淆矩陣數字如表 \ref{tab:old-confusion-matrix} 所示。
 
 \begin{table}[H]
 \centering
@@ -879,13 +879,13 @@ F 失敗品   & 0 & 0 & 0 & 0 & 2 & \textbf{4} & 6 \\
 
 ## 改良版模型評估（MobileNetV3-Large，1110 張資料，隨機切分原完整策略） {#sec:results-new-model}
 
-> **讀者提示**：本節為**隨機切分版本**（version\_21）之結果，作為歷史對照與資料擬合度觀察用途；本研究之策略比較以 \ref{sec:results-supplemental} 節之 Group Split、多 seed 與消融結果為準，seed=7 簡化設定 86.31\% 則作為詳細混淆矩陣與校準分析案例。
+> **讀者提示**：本節為**隨機切分版本**之結果，作為歷史對照與資料擬合度觀察用途；本研究之策略比較以 \ref{sec:results-supplemental} 節之 Group Split、多 seed 與消融結果為準，seed=7 簡化設定 86.31\% 則作為詳細混淆矩陣與校準分析案例。
 
 完成 1110 張有效樣本的重新整理並採用升級的 MobileNetV3-Large 模型後，**隨機切分獨立測試集（167 筆）整體準確率為 83.23\%（139/167）**，詳細各等級表現見 \ref{sec:results-new-model-testset} 節。作為訓練擬合度參考，全資料集回測整體準確率為 95.86\%（1064/1110），各等級全資料集辨識正確率分別為 A 級 98.7\%、B 級 92.0\%、C 級 96.7\%、D 級 90.6\%、E 級 88.9\%、F 級 93.8\%；但因此回測包含已參與訓練的樣本，**不能視為模型於未見過資料上的真實表現，僅供觀察模型對已標注資料的整體擬合與批量辨識完成度**。全資料集詳細結果如表 \ref{tab:new-model} 所示，獨立測試集結果見表 \ref{tab:new-model-testset}。
 
 \begin{table}[H]
 \centering
-\caption{隨機切分原完整策略模型（MobileNetV3-Large，version\_21）全資料集回測各等級表現（含訓練資料，僅供擬合度參考，非泛化指標）}
+\caption{隨機切分原完整策略模型（MobileNetV3-Large）全資料集回測各等級表現（含訓練資料，僅供擬合度參考，非泛化指標）}
 \label{tab:new-model}
 \small
 \setlength{\tabcolsep}{3pt}
@@ -918,7 +918,7 @@ F 失敗品 & 32 & 30 & 93.8\% & 28.5 分 & 0 分 & $+28.5$ 分 \\
 
 \begin{table}[H]
 \centering
-\caption{隨機切分原完整策略模型（MobileNetV3-Large，version\_21）獨立測試集各等級表現}
+\caption{隨機切分原完整策略模型（MobileNetV3-Large）獨立測試集各等級表現}
 \label{tab:new-model-testset}
 \small
 \setlength{\tabcolsep}{3pt}
@@ -955,16 +955,16 @@ F 失敗品   & 5  & 80.0\%（4/5）  & 93.8\% & $-13.8$ \\
 
 ## 混淆矩陣深度分析 {#sec:results-confusion}
 
-以下以隨機切分 version\_21 模型之混淆矩陣作為主要分析依據，說明各品質等級的辨識穩定性與主要混淆來源（Group Split 嚴格切分之簡化設定混淆矩陣詳見 \ref{sec:results-supplemental-classes} 節）。
+以下以隨機切分基準模型之混淆矩陣作為主要分析依據，說明各品質等級的辨識穩定性與主要混淆來源（Group Split 嚴格切分之簡化設定混淆矩陣詳見 \ref{sec:results-supplemental-classes} 節）。
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,height=0.7\textheight,keepaspectratio]{images/new-model-confusion-matrix.png}
-\caption{隨機切分 version\_21 模型混淆矩陣（1110 張全資料集回測，含訓練樣本）}
+\caption{隨機切分基準模型混淆矩陣（1110 張全資料集回測，含訓練樣本）}
 \label{fig:new-confusion}
 \end{figure}
 
-由圖 \ref{fig:new-confusion} 之 version\_21 評估結果可觀察到以下趨勢：
+由圖 \ref{fig:new-confusion} 之評估結果可觀察到以下趨勢：
 
 1. A 等級共 546 張，準確率 98.7\%，完美品辨識最穩定。
 2. B 等級共 87 張，準確率 92.0\%，與 A/C 邊界仍為主要混淆來源。
@@ -993,7 +993,7 @@ F 失敗品   & 5  & 80.0\%（4/5）  & 93.8\% & $-13.8$ \\
 
 ## 品質評分系統分析 {#sec:results-quality-score}
 
-品質評分輔助頭的輸出如表 \ref{tab:new-model} 所示（隨機切分 version\_21 之全資料集回測；簡化設定品質分校準另見表 \ref{tab:plain-quality-score}）。表 \ref{tab:grading-criteria} 中的目標分數為人工定義之等級基準，表 \ref{tab:new-model} 則為模型回歸頭輸出的預測平均分，兩者尚未經校準，因此數值不必完全相同。version\_21 全資料集平均品質分為 66.0 分；各等級平均分依 A 至 F 呈現遞減趨勢，分別為 A 級 79.4 分、B 級 69.7 分、C 級 57.5 分、D 級 49.8 分、E 級 37.4 分、F 級 28.5 分。預測平均分可作為比六等級分類更細緻的品質量化工具，例如以品質分 65 分為門檻，低於此值的列印件建議重新列印或進行後處理。比較結果如圖 \ref{fig:quality-score} 所示。
+品質評分輔助頭的輸出如表 \ref{tab:new-model} 所示（隨機切分基準之全資料集回測；簡化設定品質分校準另見表 \ref{tab:plain-quality-score}）。表 \ref{tab:grading-criteria} 中的目標分數為人工定義之等級基準，表 \ref{tab:new-model} 則為模型回歸頭輸出的預測平均分，兩者尚未經校準，因此數值不必完全相同。隨機切分基準全資料集平均品質分為 66.0 分；各等級平均分依 A 至 F 呈現遞減趨勢，分別為 A 級 79.4 分、B 級 69.7 分、C 級 57.5 分、D 級 49.8 分、E 級 37.4 分、F 級 28.5 分。預測平均分可作為比六等級分類更細緻的品質量化工具，例如以品質分 65 分為門檻，低於此值的列印件建議重新列印或進行後處理。比較結果如圖 \ref{fig:quality-score} 所示。
 
 \begin{figure}[H]
 \centering
@@ -1004,7 +1004,7 @@ F 失敗品   & 5  & 80.0\%（4/5）  & 93.8\% & $-13.8$ \\
 
 ## 批量辨識系統實測 {#sec:results-batch}
 
-本研究將訓練完成的隨機切分 version\_21 之最佳 checkpoint（對應 \texttt{辨識資料夾.py} 預設載入之 \texttt{checkpoints/best-v15.ckpt}）整合至批量辨識腳本，對 1110 支魚骨樣本進行自動辨識，結果如表 \ref{tab:batch-result} 及圖 \ref{fig:batch-result} 所示。執行時 \texttt{辨識資料夾.py} 之輸入路徑為開發端固定資料夾（未讀取專案內 \texttt{待辨識/} 目錄之 105 張外部照片），系統將辨識結果依等級分類存入 \texttt{results/graded/A} 至 \texttt{F} 各資料夾，並在每張裁切圖右上角標示等級，同時產生統計圖。本批量辨識輸出分布為 A 級 544 張、B 級 89 張、C 級 215 張、D 級 156 張、E 級 72 張、F 級 34 張；該腳本以原圖 2 欄 $\times$ 3 列裁切後再推論，故與 \ref{sec:results-new-model} 節之全資料集回測（已標注樣本逐張輸入）流程不同，預測分布略有差異。
+本研究將訓練完成的隨機切分基準模型整合至批量辨識流程，對 1110 支魚骨樣本進行自動辨識，結果如表 \ref{tab:batch-result} 及圖 \ref{fig:batch-result} 所示。此次批量辨識的輸入為既有的已標注資料集（未納入 105 張外部未標注照片），系統將辨識結果依等級分類整理，並在每張裁切圖右上角標示等級，同時產生統計圖。本批量辨識輸出分布為 A 級 544 張、B 級 89 張、C 級 215 張、D 級 156 張、E 級 72 張、F 級 34 張；該流程以原圖 2 欄 $\times$ 3 列裁切後再推論，故與 \ref{sec:results-new-model} 節之全資料集回測（已標注樣本逐張輸入）流程不同，預測分布略有差異。
 
 \begin{table}[H]
 \centering
@@ -1045,7 +1045,7 @@ F & 失敗品 & 34 & 3.1\% & 失敗品樣本數較少 \\
 
 ### 實驗設計動機 {#sec:results-supplemental-design}
 
-\ref{sec:results-new-model-testset} 節指出 B、D、E 三個少數類別於隨機切分測試集準確率僅 50\% 左右，並懷疑同源樣本相關性使模型藉由共享背景／光線取得偏高分數。為驗證此風險並補強審查上常被質疑的 baseline 與 ablation 缺口，本研究以 \texttt{sklearn.model\_selection.GroupShuffleSplit}（以原圖時間戳為 group 鍵，\texttt{random\_state=7}）重新切分資料，並補做三組對照實驗。共識別 185 個獨立原圖組，切分結果如表 \ref{tab:group-split-dist} 所示。
+\ref{sec:results-new-model-testset} 節指出 B、D、E 三個少數類別於隨機切分測試集準確率僅 50\% 左右，並懷疑同源樣本相關性使模型藉由共享背景／光線取得偏高分數。為驗證此風險並補強審查上常被質疑的 baseline 與 ablation 缺口，本研究以分組隨機切分（Group Shuffle Split，以原圖為分組鍵，seed=7）重新切分資料，並補做三組對照實驗。共識別 185 個獨立原圖組，切分結果如表 \ref{tab:group-split-dist} 所示。
 
 \begin{table}[H]
 \centering
@@ -1090,7 +1090,7 @@ F & 失敗品   & 4  & 5  & $-1$ \\
 \hline
 \end{tabular}
 
-\TableNote{註：訓練時間取自 \texttt{results\_todo/20260525\_experiments/training\_results.csv}，含資料載入與 Early Stopping。完整策略主要額外成本來自 Weighted Random Sampler、Mixup 與較重的資料增強。}
+\TableNote{註：訓練時間含資料載入與 Early Stopping。完整策略主要額外成本來自 Weighted Random Sampler、Mixup 與較重的資料增強。}
 \end{table}
 
 \begin{table}[H]
@@ -1113,7 +1113,7 @@ F & 失敗品   & 4  & 5  & $-1$ \\
 
 ### Group Split 測試結果 {#sec:results-supplemental-results}
 
-seed=7 之 Group Split checkpoint 測試結果整理於表 \ref{tab:supplemental-experiment-results}。其中「MobileNetV3-Large 原完整 checkpoint」對應先前 \texttt{train\_group\_split.py} 所得之歷史 checkpoint；其餘列由 \texttt{tools/run\_todo\_remaining.py} 在同一 Group Split 切分與 25 epoch 預算下重新訓練取得。
+seed=7 之 Group Split 測試結果整理於表 \ref{tab:supplemental-experiment-results}。其中「MobileNetV3-Large 原完整」對應先前完整策略 Group Split 所得之歷史模型；其餘列在同一 Group Split 切分與 25 epoch 預算下重新訓練取得。
 
 \begin{table}[H]
 \centering
@@ -1136,7 +1136,7 @@ seed=7 之 Group Split checkpoint 測試結果整理於表 \ref{tab:supplemental
 \end{tabular}
 \end{adjustbox}
 
-\TableNote[0.96\textwidth]{註：等預算完整設定與簡化設定皆由 \texttt{tools/run\_todo\_remaining.py} 產生。MobileNetV3-Large 原完整 checkpoint 保留為歷史對照，因訓練腳本與 early stopping 設定不同，不納入策略優劣判定。}
+\TableNote[0.96\textwidth]{註：等預算完整設定與簡化設定為同一批補充實驗產生。MobileNetV3-Large 原完整模型保留為歷史對照，因訓練流程與 early stopping 設定不同，不納入策略優劣判定。}
 \end{table}
 
 以二項分布近似估計（Wilson 信賴區間），四組模型之測試準確率與 95\% 信賴區間如表 \ref{tab:ci-wilson} 所示。
@@ -1392,7 +1392,7 @@ F 失敗品   & 22/32   & 0.688 & 0.880 & 0.772 & 16.2 & 0 \\
 \TableNote[0.96\textwidth]{$^*$ weighted average。註：B、E 兩等級 recall 較低（54.0\%、54.2\%）顯示「精度高、召回低」之模式 — 模型在預測為 B 或 E 時通常正確，但實際 B / E 樣本常被誤判為相鄰等級（B 多誤判為 A、E 多誤判為 D）。141 筆誤判中相鄰誤判 124 筆（11.2\%）、跨等級誤判僅 17 筆（1.5\%），QWK 0.953 高於 accuracy 87.30\% 即反映此分布。}
 \end{table}
 
-需特別強調：此回測包含已參與訓練的樣本，**不可解讀為部署準確率**；其與 95.86\%（version\_21）、94.50\%（原完整 GS checkpoint）並列時，**三者並非「同條件下的策略優劣比較」**。三者僅作擬合度量級比較，真正可比較泛化能力之指標仍須來自同一 Group Split 測試集與相同訓練預算下的實驗。
+需特別強調：此回測包含已參與訓練的樣本，**不可解讀為部署準確率**；其與 95.86\%（隨機切分基準）、94.50\%（原完整 Group Split）並列時，**三者並非「同條件下的策略優劣比較」**。三者僅作擬合度量級比較，真正可比較泛化能力之指標仍須來自同一 Group Split 測試集與相同訓練預算下的實驗。
 
 ### 多 seed 穩定性與顯著性檢定 {#sec:results-supplemental-multiseed}
 
@@ -1536,7 +1536,7 @@ ResNet18 完整 & -0.36 pp & 0.745 & +0.052 & \textbf{0.0363} & -0.006 & 0.604 \
 
 ### 外部未標注影像 sanity check {#sec:results-supplemental-ood}
 
-專案內 \texttt{待辨識/} 目錄包含 105 張外部照片；本研究將其切成 630 支魚骨後，以 seed=7 簡化模型推論並統計預測分布，如圖 \ref{fig:external-unlabeled-distribution}。預測數量為 A/B/C/D/E/F = 417/14/82/75/30/12，平均 confidence 為 0.920，其中 confidence $<0.7$ 者有 74 支。由於此批資料沒有人工標籤，**不能**據此計算 OOD accuracy；它的用途是檢查外部未標注照片是否出現大量低信心或異常輸出分布，並作為未來建立具標注 OOD 測試集的前置檢查。
+本研究另蒐集 105 張外部照片，將其切成 630 支魚骨後，以 seed=7 簡化模型推論並統計預測分布，如圖 \ref{fig:external-unlabeled-distribution}。預測數量為 A/B/C/D/E/F = 417/14/82/75/30/12，平均 confidence 為 0.920，其中 confidence $<0.7$ 者有 74 支。由於此批資料沒有人工標籤，**不能**據此計算 OOD accuracy；它的用途是檢查外部未標注照片是否出現大量低信心或異常輸出分布，並作為未來建立具標注 OOD 測試集的前置檢查。
 
 \begin{figure}[H]
 \centering
@@ -1554,7 +1554,7 @@ ResNet18 完整 & -0.36 pp & 0.745 & +0.052 & \textbf{0.0363} & -0.006 & 0.604 \
 3. **Weighted Random Sampler 對跨等級錯誤控制最重要**：移除 sampler 後 QWK 與跨等級誤判明顯惡化，代表少數類別採樣仍是此資料集的核心問題。
 4. **校準與 confidence 可轉化為實務流程**：低 confidence 子集準確率明顯較低，適合設計人工複核門檻。
 
-仍未完成的關鍵限制包括：具人工標籤的 OOD 測試集、多位標注者一致性、ordinal-aware loss（如 CORAL / CORN）、以及 ResNet18 / EfficientNet-B0 在簡化策略下的全因子比較。換言之，本研究目前足以作為可重現基準與輔助原型，但仍不應宣稱可在跨機型、跨材料或跨拍攝條件下直接部署。
+仍未完成的關鍵限制包括：具人工標籤的 OOD 測試集、多位標注者一致性、ordinal-aware loss（如 CORAL [@caoRankConsistentOrdinal2020]、CORN [@shiDeepNeuralNetworks2023]）、以及 ResNet18 / EfficientNet-B0 在簡化策略下的全因子比較。換言之，本研究目前足以作為可重現基準與輔助原型，但仍不應宣稱可在跨機型、跨材料或跨拍攝條件下直接部署。
 
 ## 新舊版模型綜合比較 {#sec:results-comparison}
 
@@ -1573,43 +1573,43 @@ ResNet18 完整 & -0.36 pp & 0.745 & +0.052 & \textbf{0.0363} & -0.006 & 0.604 \
 \caption{多次訓練結果比較}
 \label{tab:multi-versions}\\
 \hline
-\textbf{版本} & \mvcell{\textbf{指標與說明}} \\
+\textbf{訓練紀錄} & \mvcell{\textbf{指標與說明}} \\
 \hline
 \endfirsthead
 \multicolumn{2}{c}{\textit{表 \ref{tab:multi-versions}（續）}} \\
 \hline
-\textbf{版本} & \mvcell{\textbf{指標與說明}} \\
+\textbf{訓練紀錄} & \mvcell{\textbf{指標與說明}} \\
 \hline
 \endhead
 \noalign{\vskip 6pt}
 \hline
 \endfoot
-version\_4 & \mvcell{資料量 214\\全資料 98.60\%\\測試 93.94\%\\驗證 96.88\%\\說明：早期二元分類器訓練紀錄\\（非六分類），資料量小\\結果易受資料切分影響} \\[3pt]
-version\_5 & \mvcell{資料量 214\\全資料 86.9\%\\測試 78.79\%\\驗證 84.38\%\\說明：舊版基準結果\\對應初期 214 張資料階段} \\[3pt]
-version\_9 & \mvcell{資料量 624\\全資料 89.90\%\\測試 79.79\%\\驗證 80.85\%\\說明：資料擴充至 624 張後\\早期訓練結果} \\[3pt]
-version\_10 & \mvcell{資料量 624\\全資料 93.75\%\\測試 82.98\%\\驗證 84.04\%\\說明：624 張資料階段\\整體準確率明顯提升} \\[3pt]
-version\_11 & \mvcell{資料量 624\\全資料 94.39\%\\測試 86.17\%\\驗證 82.98\%\\說明：624 張資料階段\\最佳完整紀錄之一} \\[3pt]
-version\_13 & \mvcell{資料量 984\\全資料 92.38\%\\測試 82.43\%\\驗證 72.97\%\\說明：984 張資料初期訓練\\驗證表現仍不穩定} \\[3pt]
-version\_17 & \mvcell{資料量 984\\全資料 95.02\%\\測試 87.16\%\\驗證 87.84\%\\說明：984 張資料階段最佳紀錄} \\[3pt]
-version\_18 & \mvcell{資料量 1110\\全資料 92.07\%\\測試 87.16\%\\驗證 87.84\%\\說明：資料擴充至 1110 張後\\過渡版本} \\[3pt]
-version\_19 & \mvcell{資料量 1110\\全資料 91.44\%\\測試 82.63\%\\驗證 86.14\%\\說明：1110 張資料階段\\中期訓練紀錄} \\[3pt]
-version\_21 & \mvcell{資料量 1110\\全資料 95.86\%\\測試 83.23\%\\驗證 90.96\%\\說明：隨機切分正式基準\\全資料集回測最高} \\[3pt]
+\makecell{二元分類\\（早期）} & \mvcell{資料量 214\\全資料 98.60\%\\測試 93.94\%\\驗證 96.88\%\\說明：早期二元分類器訓練紀錄\\（非六分類），資料量小\\結果易受資料切分影響} \\[3pt]
+舊版基準 & \mvcell{資料量 214\\全資料 86.9\%\\測試 78.79\%\\驗證 84.38\%\\說明：舊版基準結果\\對應初期 214 張資料階段} \\[3pt]
+擴充早期 & \mvcell{資料量 624\\全資料 89.90\%\\測試 79.79\%\\驗證 80.85\%\\說明：資料擴充至 624 張後\\早期訓練結果} \\[3pt]
+擴充提升 & \mvcell{資料量 624\\全資料 93.75\%\\測試 82.98\%\\驗證 84.04\%\\說明：624 張資料階段\\整體準確率明顯提升} \\[3pt]
+擴充最佳 & \mvcell{資料量 624\\全資料 94.39\%\\測試 86.17\%\\驗證 82.98\%\\說明：624 張資料階段\\最佳完整紀錄之一} \\[3pt]
+中量初期 & \mvcell{資料量 984\\全資料 92.38\%\\測試 82.43\%\\驗證 72.97\%\\說明：984 張資料初期訓練\\驗證表現仍不穩定} \\[3pt]
+中量最佳 & \mvcell{資料量 984\\全資料 95.02\%\\測試 87.16\%\\驗證 87.84\%\\說明：984 張資料階段最佳紀錄} \\[3pt]
+全量過渡 & \mvcell{資料量 1110\\全資料 92.07\%\\測試 87.16\%\\驗證 87.84\%\\說明：資料擴充至 1110 張後\\過渡版本} \\[3pt]
+全量中期 & \mvcell{資料量 1110\\全資料 91.44\%\\測試 82.63\%\\驗證 86.14\%\\說明：1110 張資料階段\\中期訓練紀錄} \\[3pt]
+\makecell{隨機切分\\基準} & \mvcell{資料量 1110\\全資料 95.86\%\\測試 83.23\%\\驗證 90.96\%\\說明：隨機切分正式基準\\全資料集回測最高} \\[3pt]
 \hline
 \multicolumn{2}{>{\centering\arraybackslash}p{10.6cm}}{\textit{＝＝ Group Split 補充實驗\newline（測試集 168 筆，與訓練集零原圖重疊）＝＝}} \\
 \hline
-GS-best\_gs & \mvcell{資料量 1110\\全資料 95.59\%\\測試 84.52\%\\驗證 86.9\%\\說明：\texttt{train\_group\_split.py}\\完整策略首輪 checkpoint\\測試集 142/168} \\[3pt]
-GS-best\_gs-v1 & \mvcell{資料量 1110\\全資料 94.50\%\\測試 82.74\%\\驗證 87.5\%\\說明：\texttt{train\_group\_split.py}\\後續 checkpoint（同 seed）\\原完整策略主要對照\\測試集 139/168} \\[3pt]
-GS-plain（簡化） & \mvcell{資料量 1110\\全資料 87.30\%\\測試 \textbf{86.31\%}\\驗證 85.12\%\\說明：MobileNetV3-Large 簡化設定\\測試集 145/168} \\[3pt]
-GS-full-equal & \mvcell{資料量 1110\\全資料 ---\\測試 \textbf{89.88\%}\\驗證 ---\\說明：MobileNetV3-Large 完整設定\\等預算重跑，seed=7\\測試集 151/168\\五 seed 後 accuracy 差異不顯著} \\[3pt]
-GS-resnet18 & \mvcell{資料量 1110\\全資料 ---\\測試 84.52\%\\驗證 86.31\%\\說明：ResNet18 完整設定 baseline\\測試集 142/168} \\[3pt]
-GS-efficientnet & \mvcell{資料量 1110\\全資料 ---\\測試 82.14\%\\驗證 86.31\%\\說明：EfficientNet-B0 完整設定 baseline\\測試集 138/168} \\[3pt]
+\makecell{分組切分\\完整首輪} & \mvcell{資料量 1110\\全資料 95.59\%\\測試 84.52\%\\驗證 86.9\%\\說明：完整策略首輪結果\\測試集 142/168} \\[3pt]
+\makecell{分組切分\\完整對照} & \mvcell{資料量 1110\\全資料 94.50\%\\測試 82.74\%\\驗證 87.5\%\\說明：完整策略後續結果（同 seed）\\原完整策略主要對照\\測試集 139/168} \\[3pt]
+\makecell{分組切分\\簡化（主要）} & \mvcell{資料量 1110\\全資料 87.30\%\\測試 \textbf{86.31\%}\\驗證 85.12\%\\說明：MobileNetV3-Large 簡化設定\\測試集 145/168} \\[3pt]
+\makecell{分組切分\\完整等預算} & \mvcell{資料量 1110\\全資料 ---\\測試 \textbf{89.88\%}\\驗證 ---\\說明：MobileNetV3-Large 完整設定\\等預算重跑，seed=7\\測試集 151/168\\五 seed 後 accuracy 差異不顯著} \\[3pt]
+\makecell{分組切分\\ResNet18} & \mvcell{資料量 1110\\全資料 ---\\測試 84.52\%\\驗證 86.31\%\\說明：ResNet18 完整設定 baseline\\測試集 142/168} \\[3pt]
+\makecell{分組切分\\EfficientNet} & \mvcell{資料量 1110\\全資料 ---\\測試 82.14\%\\驗證 86.31\%\\說明：EfficientNet-B0 完整設定 baseline\\測試集 138/168} \\[3pt]
 \hline
 \end{longtable}
-\TableNote{註：version\_4 至 version\_21 為原訓練腳本之隨機切分結果，其「測試準確率」為隨機切分獨立測試集；GS- 開頭五列為 Group Split 補充實驗結果，其「測試準確率」為 168 筆嚴格測試集。兩類測試集之原圖切分方式不同，不可直接視為同一指標。}
+\TableNote{註：上半部各列為原隨機切分結果，其「測試準確率」為隨機切分獨立測試集；下半部分組切分各列為補充實驗結果，其「測試準確率」為 168 筆嚴格測試集。兩類測試集之原圖切分方式不同，不可直接視為同一指標。}
 \endgroup
 \end{center}
 
-由表 \ref{tab:multi-versions} 可知，資料集由 214 張逐步擴充至 1110 張後，模型在不同版本間呈現整體改善趨勢。早期 version\_4 雖有較高數值，但屬二元分類器（非六分類）階段，資料量僅 214 張，結果易受切分方式與樣本分布影響，不宜與 1110 張完整資料集直接等量比較；在隨機切分版本中 version\_21 的全資料集回測準確率 95.86\% 為最高，最高驗證準確率亦提升至 90.96\%。Group Split 補充實驗進一步顯示，seed=7 的模型排序會隨訓練預算與 checkpoint 來源而改變，因此本文不再以單一列作為策略優劣定論，而是以 \ref{tab:multiseed-results} 之五 seed 結果作為穩定性判斷。
+由表 \ref{tab:multi-versions} 可知，資料集由 214 張逐步擴充至 1110 張後，模型在不同訓練紀錄間呈現整體改善趨勢。早期 214 張之二元分類紀錄雖有較高數值，但屬二元分類（非六分類）階段，資料量小，結果易受切分方式與樣本分布影響，不宜與 1110 張完整資料集直接等量比較；在隨機切分各紀錄中，隨機切分基準的全資料集回測準確率 95.86\% 為最高，最高驗證準確率亦提升至 90.96\%。Group Split 補充實驗進一步顯示，seed=7 的模型排序會隨訓練預算與模型來源而改變，因此本文不再以單一列作為策略優劣定論，而是以 \ref{tab:multiseed-results} 之五 seed 結果作為穩定性判斷。
 
 \begin{center}
 \begingroup
@@ -1641,14 +1641,14 @@ GS-efficientnet & \mvcell{資料量 1110\\全資料 ---\\測試 82.14\%\\驗證 
 資料增強 & \mccell{舊版：基礎翻轉旋轉\\改良版簡化：標準增強，無 Mixup\\改良版原完整：標準增強 + Mixup $\alpha=0.3$} \\[3pt]
 過採樣 & \mccell{舊版：Weighted Random Sampler\\改良版簡化：無\\改良版原完整：Weighted Random Sampler（0.75 次方反比）} \\[3pt]
 \textbf{Group Split 測試集} & \mccell{舊版：---（舊版未做 Group Split）\\改良版 seed=7：86.31\%（145/168，簡化）\\改良版五 seed 平均：81.19\%（簡化 / EfficientNet-B0 並列）} \\[3pt]
-隨機切分測試集 & \mccell{舊版：78.79\%（version\_5）\\改良版：83.23\%（139/167，version\_21 歷史對照）} \\[3pt]
-全資料集回測 & \mccell{舊版：86.9\%（186/214，含訓練樣本）\\改良版：95.86\%（1064/1110，version\_21）\\改良版簡化：87.30\%（969/1110）} \\[3pt]
+隨機切分測試集 & \mccell{舊版：78.79\%（舊版基準）\\改良版：83.23\%（139/167，隨機切分基準歷史對照）} \\[3pt]
+全資料集回測 & \mccell{舊版：86.9\%（186/214，含訓練樣本）\\改良版：95.86\%（1064/1110，隨機切分基準）\\改良版簡化：87.30\%（969/1110）} \\[3pt]
 D 等級表現 & \mccell{舊版：Recall 77.8\%（Precision 僅 30.4\%）\\改良版：Group Split 測試集 82.1\%（23/28）} \\[3pt]
 Macro F1 & \mccell{舊版：0.708（全資料估算）\\改良版：seed=7 簡化 0.791\\改良版五 seed：完整 MobileNet / ResNet18 較高} \\[3pt]
 主要問題 & \mccell{舊版：A$\to$D 誤判 16 張\\改良版：B、E、F 測試樣本仍少（16、8、4 張）\\改良版：跨條件 OOD 尚缺人工標籤} \\[3pt]
 \hline
 \end{longtable}
-\TableNote{註：Group Split 測試集為與訓練集零原圖重疊的嚴格測試集（168 筆）；隨機切分測試集為 version\_21 歷史對照；全資料集回測包含訓練樣本，僅作為擬合度參考。三者不可互換解讀。}
+\TableNote{註：Group Split 測試集為與訓練集零原圖重疊的嚴格測試集（168 筆）；隨機切分測試集為隨機切分基準歷史對照；全資料集回測包含訓練樣本，僅作為擬合度參考。三者不可互換解讀。}
 \endgroup
 \end{center}
 
@@ -1658,11 +1658,11 @@ Macro F1 & \mccell{舊版：0.708（全資料估算）\\改良版：seed=7 簡�
 
 本研究建立了一套以深度學習影像辨識為核心的 3D 列印件瑕疵自動辨識與品質評分系統，以 FDM 列印魚骨件的拉絲瑕疵為研究標的，實現六等級（A 至 F）自動分類與品質評分輸出。主要研究成果總結如下：
 
-1. **單一標注者下之可重複品質等級制度**：以拉絲面積佔比為主要判斷依據，建立了六個明確的品質等級定義，並配合 A 至 F 六張範例圖。**惟需特別說明**：本研究全部 1110 張樣本由單一標注者依固定準則完成，現階段無法取得第二位以上標注者重新標注，因此未進行 Cohen's Kappa、Fleiss' Kappa 或 ICC 等多人一致性測試。故本研究主張的是「模型可學習並重現此套固定標注準則」，可降低批量檢查負擔並提供人工複核輔助；但尚不能宣稱已建立多人共識下的客觀品質標準，也不能宣稱完全消除人工主觀差異。
+1. **單一標注者下之可重複品質等級制度**：以拉絲面積佔比為主要判斷依據，建立六個明確的品質等級定義並配合 A 至 F 範例圖。本研究主張的是「模型可學習並重現此套固定標注準則」，可降低批量檢查負擔並提供人工複核輔助；惟全部樣本由單一標注者完成、尚未進行多人一致性測試，故不宣稱已建立多人共識下的客觀品質標準（標注一致性限制詳見 \ref{sec:results-supplemental-interpretation} 節）。
 2. **系統性資料蒐集與標注**：透過多批次列印與拍攝，配合 Label Studio 工具完成全部樣本的人工標注，建立含 1110 張有效樣本的六等級分類資料集。從 214 張嚴重不平衡的舊資料擴充至 1110 張後，**隨機切分獨立測試集整體準確率由 78.79\% 提升至 83.23\%**；進一步以 Group Split 嚴格切分重新訓練，seed=7 詳細案例可達 **86.31\%（145/168）**，五 seed 平均約 80\% 至 81\%，顯示模型已具備初步輔助分級能力，但單次切分結果不應過度外推。
-3. **深度學習模型主要效能與限制**：採用 MobileNetV3-Large（ImageNet V2 預訓練）進行遷移學習，並補做完整策略、簡化策略、ResNet18 與 EfficientNet-B0 對照。五 seed 結果顯示，MobileNetV3-Large 簡化、MobileNetV3-Large 完整、ResNet18 完整、EfficientNet-B0 完整之平均 accuracy 分別為 81.19\%、80.12\%、80.83\%、81.19\%，accuracy 與 QWK 之 paired t-test 均未達顯著差異；但 MobileNetV3-Large 完整與 ResNet18 完整之 macro-F1 顯著高於簡化設定。單變因消融顯示 Weighted Random Sampler 對 QWK 與跨等級誤判控制最重要。模型校準方面，temperature scaling 將 ECE 由 0.0576 降至 0.0435，且低 confidence 子集準確率僅 46.4\%，適合設計人工複核門檻。實際部署仍需人工複核，系統定位為「品質管控輔助原型」而非「可獨立判定之自動分級系統」。
-4. **端對端自動化流程**：整合自動裁切（\texttt{tools/crop\_fish.py}）、批量辨識（\texttt{辨識資料夾.py}）、分級輸出及 HTML 可視化報告等功能，形成由原始照片輸入到品質等級報告輸出的離線批量處理流程。**主要簡化模型於 NVIDIA GeForce RTX 3050 Laptop GPU 上單張推論時間約 6.90 ms（約 144.9 張/秒），原完整 Group Split checkpoint 約 7.05 ms（約 141.8 張/秒）**；惟此量測僅為單機離線推論條件，系統部署於實際產線前仍需在固定硬體與批次條件下補做完整吞吐量、人工複核成本與現場穩定性評估。
-5. **品質評分量化（未經人工校準）**：模型同時輸出 0 至 100 的連續品質分數。以 A=100、B=80、C=60、D=40、E=20、F=0 作為目標分數時，MobileNetV3-Large 簡化設定在 Group Split 測試集之各等級平均分約為 A 99.6 分、B 89.0 分、C 58.8 分、D 54.5 分、E 23.5 分、F 12.5 分；全資料回測平均則為 A 99.5 分、B 88.3 分、C 60.5 分、D 50.9 分、E 30.8 分、F 16.2 分。此結果顯示品質分大致呈現由 A 至 F 遞減的趨勢，但**因目標分數採等級編號之線性轉換、未經多位操作人員主觀評分校準**，B、D、E、F 等級之預測平均仍偏高，現階段僅作為分類結果之輔助連續指標，不宜作為絕對品質量化依據。
+3. **深度學習模型效能與不確定性**：以 MobileNetV3-Large（ImageNet V2 預訓練）為主，並補做完整 / 簡化策略、ResNet18 與 EfficientNet-B0 對照。五 seed 重複後，各模型平均 accuracy 均落在 80\% 至 81\%，accuracy 與 QWK 之 paired t-test 未達顯著差異；惟完整策略與 ResNet18 之 macro-F1 顯著高於簡化設定（詳見 \ref{sec:results-supplemental-multiseed} 節）。單變因消融顯示 Weighted Random Sampler 對 QWK 與跨等級誤判控制最關鍵；模型校準後低 confidence 子集準確率明顯偏低，適合作為人工複核門檻（詳見 \ref{sec:results-supplemental-calibration} 節）。故系統定位為「品質管控輔助原型」，而非可獨立判定之自動分級系統。
+4. **端對端自動化流程**：整合自動裁切、批量辨識、分級輸出與 HTML 可視化報告，形成由原始照片到品質等級報告的離線批量處理流程；主要簡化模型於 RTX 3050 Laptop GPU 單張推論約 6.90 ms，驗證離線批量部署之可行性。惟此為單機離線量測，產線部署前仍需補做完整吞吐量、人工複核成本與現場穩定性評估。
+5. **品質評分量化（未經人工校準）**：模型同時輸出 0 至 100 的連續品質分數。各等級平均分在 Group Split 測試集與全資料回測下均呈 A $>$ B $>$ C $>$ D $>$ E $>$ F 之單調遞減（數值詳見表 \ref{tab:plain-quality-score}），具輔助排序價值；惟目標分數採等級編號之線性轉換、未經多人主觀評分校準，B、D、E、F 等級之預測平均偏高，現階段僅作為分類結果之輔助連續指標，不宜作為絕對品質量化依據。
 
 \vspace{0.5em}
 
@@ -1678,7 +1678,7 @@ Macro F1 & \mccell{舊版：0.708（全資料估算）\\改良版：seed=7 簡�
 
    * **【未完成】具人工標籤的 OOD 測試集**：目前外部 105 張照片僅完成未標注推論分布與 confidence 檢查，不能計算 OOD accuracy。建議補拍並人工標注不同光源、背景、角度、相機之 30 至 50 張照片，量化模型對未見拍攝條件的退化幅度。
    * **【目前受限，保留為未來工作】標注一致性 Cohen's Kappa**：由於現階段無法取得第二位以上標注者重新標注，本文不計算也不推估 $\kappa$。若未來具備人力，建議重新標注 100 張涵蓋 A 至 F 之樣本並計算 Cohen's $\kappa$ / Fleiss' $\kappa$；若 $\kappa < 0.7$，需重新檢視標注準則並補充邊界判斷規則。
-   * **【未完成】Ordinal-aware loss 對照**：本研究已補充 QWK、Cohen's $\kappa$ 與跨等級誤判率，但訓練目標仍是 nominal classification + MSE auxiliary regression。建議補做 CORAL、CORN 等 ordinal-aware loss，並以 QWK 與跨等級誤判率作為主要評估指標。
+   * **【未完成】Ordinal-aware loss 對照**：本研究已補充 QWK、Cohen's $\kappa$ 與跨等級誤判率，但訓練目標仍是 nominal classification + MSE auxiliary regression。建議補做 CORAL [@caoRankConsistentOrdinal2020]、CORN [@shiDeepNeuralNetworks2023] 等 ordinal-aware loss，並以 QWK 與跨等級誤判率作為主要評估指標。
    * **【未完成】Baseline 架構 × 策略全因子設計**：目前尚缺 ResNet18 簡化、EfficientNet-B0 簡化等組合；若要分離「架構差異」與「訓練策略差異」，仍需完整 3 $\times$ 2 因子設計。
 2. **持續補充少數等級訓練資料**。雖然本研究資料集中 D 級已達 160 張、E 級 72 張，但 F 級仍僅 32 張，且 B 級 87 張相較 A 級仍偏少，未來建議優先補充 B 級邊界樣本與 F 級失敗樣本，並將 F 等級資料補充至 50 張以上，使各等級樣本分布更平均，進一步降低 B/C 與 E/F 邊界的誤判，提高結果的統計可信度。
 3. **擴充至翹曲與裂痕瑕疵的辨識**。本研究因翹曲和裂痕的現有樣本不足，聚焦於拉絲瑕疵的六等級分類。未來可系統性地蒐集翹曲及裂痕樣本，建立涵蓋三種瑕疵類型的多標籤分類系統（Multi-label Classification），更全面地反映 FDM 列印件的品質狀態。
@@ -1714,33 +1714,33 @@ Macro F1 & \mccell{舊版：0.708（全資料估算）\\改良版：seed=7 簡�
 
 # 列印過程代表性照片 {#sec:appendix-photos}
 
-本附錄保留列印過程中四張代表性照片，分別對應「正常列印中」、「正常列印完成」、「輕微拉絲」、「列印失敗」四種典型狀態，作為前文等級定義之列印現場佐證。原始完整紀錄（16 張）保存於專案資料夾 `ntsc/images/`（`print-process-01.jpg`\~`print-process-16.jpg`）供需要時查閱。
+本附錄保留列印過程中四張代表性照片，分別對應「正常列印中」、「正常列印完成」、「輕微拉絲」、「列印失敗」四種典型狀態，作為前文等級定義之列印現場佐證。原始完整紀錄（共 16 張）一併保存於專案附件中供需要時查閱。
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,height=0.65\textheight,keepaspectratio]{images/print-process-01-normal.jpg}
-\caption{典型「列印中、結構完整」狀態（2025/11/22，灰色 PLA 魚骨）}
+\caption{典型「列印中、結構完整」狀態（灰色 PLA 魚骨）}
 \label{fig:photo-print-normal}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,height=0.65\textheight,keepaspectratio]{images/print-process-05-good.jpg}
-\caption{典型「列印完成、整齊」狀態（2025/11/26，藍綠色 PLA 魚骨，對應 A 級樣本來源）}
+\caption{典型「列印完成、整齊」狀態（藍綠色 PLA 魚骨，對應 A 級樣本來源）}
 \label{fig:photo-print-good}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,height=0.65\textheight,keepaspectratio]{images/print-process-10-light-stringing.jpg}
-\caption{典型「列印中、輕微拉絲」狀態（2025/12/06，藍色 PLA 魚骨，對應 C 級樣本來源）}
+\caption{典型「列印中、輕微拉絲」狀態（藍色 PLA 魚骨，對應 C 級樣本來源）}
 \label{fig:photo-print-light-stringing}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,height=0.65\textheight,keepaspectratio]{images/print-process-15-failed.jpg}
-\caption{典型「列印失敗、嚴重拉絲」狀態（2025/12/10，黃綠色 PLA 魚骨，對應 F 級樣本來源）}
+\caption{典型「列印失敗、嚴重拉絲」狀態（黃綠色 PLA 魚骨，對應 F 級樣本來源）}
 \label{fig:photo-print-failed}
 \end{figure}
 
