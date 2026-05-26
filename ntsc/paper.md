@@ -184,6 +184,8 @@ toc: false
 
 本研究以魚骨形狀 PLA 列印件為對象，建立涵蓋 A 至 F 共六等級拉絲嚴重程度之影像分類資料集，採用 MobileNetV3-Large 為骨幹進行遷移學習，並附加品質評分輔助頭以輸出 0 至 100 之連續品質分數；同時以 ResNet18、EfficientNet-B0 為對照基準，於原圖層級 Group Split 與多種子重複實驗下評估模型穩定性，並補做單變因消融、模型校準、Grad-CAM 與外部影像檢查，以區分單次最佳結果與可重複之結論。
 
+<!-- 待修正(學長標註B4)：品質評分頭(0–100)在本摘要與結論第5點被當成「研究成果」陳述，但它僅是等級編號的線性轉換 + MSE 輔助頭，且 D/E/F 系統性偏高（F 目標 0、預測平均 28.5），定位上更接近限制而非貢獻。建議將摘要與貢獻處的語氣降一格（明確標為「輔助排序指標、未經人工校準」）。屬語氣調整、不涉數據，學長暫不更動，待原作者修。 -->
+
 實驗在嚴格 Group Split 測試集（原圖零重疊）上，主要設定之最佳種子達 86\% 之整體準確率，多種子重複後平均仍維持約 81\%，顯示在小樣本工業視覺任務下具一定可行性。本研究貢獻在於提供 FDM 魚骨拉絲瑕疵之可重現基準與端對端批量辨識原型，並指出受限於單一機型、單一材料、單一形狀、單一瑕疵類型與標注一致性未驗證等條件，現階段仍應定位為品質管控之輔助工具，後續需擴充至跨機型、跨材料與多人標注以提升泛化與客觀性。
 
 \vspace{0.5cm}
@@ -261,7 +263,7 @@ toc: false
 1. **單一硬體條件**：僅使用 Bambu Lab A1 印表機與標準 PLA 線材，未驗證其他機型（如 Prusa、Creality）或材料（如 PETG、ABS、TPU）之表現。
 2. **單一幾何條件**：僅使用魚骨形狀樣本，模型對其他幾何形狀（如盒體、齒輪、有機曲面）之泛化能力未經驗證。
 3. **單一瑕疵類型**：僅針對拉絲（Stringing）嚴重程度分類；翹曲與裂痕雖於文獻回顧介紹，但因樣本不足未納入訓練與測試。
-4. **資料相關性與分組切分**：1110 張樣本係由 185 張原始照片各裁切出約 6 支魚骨而來，同一原圖切出之多支樣本在光線、背景與列印批次上高度相關。為避免同源樣本造成過度樂觀的評估，本研究以原圖 ID 為分組鍵，採用分組隨機切分（Group Shuffle Split，seed=7），並在零原圖重疊之嚴格測試集（168 筆）上評估；惟 B、E、F 測試樣本數偏少（16、8、4 張），相關結果詳見 \ref{sec:results-supplemental} 節。
+4. **資料相關性與分組切分**：1110 張樣本係由 185 張原始照片各裁切出 6 支魚骨而來，同一原圖切出之多支樣本在光線、背景與列印批次上高度相關。為避免同源樣本造成過度樂觀的評估，本研究以原圖 ID 為分組鍵，採用分組隨機切分（Group Shuffle Split，seed=7），並在零原圖重疊之嚴格測試集（168 筆）上評估；惟 B、E、F 測試樣本數偏少（16、8、4 張），相關結果詳見 \ref{sec:results-supplemental} 節。
 
 上述為本研究之主要邊界條件。其餘較技術性之限制，包含標注一致性未驗證（單一標注者，未做 Cohen's / Fleiss' Kappa）、品質分數未經多人主觀評分校準、基準模型比較與消融研究之範圍、ordinal 任務以 nominal classification 近似處理、模型可解釋性僅完成 Grad-CAM 定性檢查，以及外部影像僅完成未標注 sanity check、文獻與市場資料來源之準確性等；此類限制因需搭配方法與實驗結果方能完整說明，統一於 \ref{sec:results-supplemental-interpretation} 節與第 \ref{sec:conclusion} 章之結論中討論。
 
@@ -329,7 +331,7 @@ toc: false
 
 ## 相關文獻探討 {#sec:literature-related}
 
-本節依「通用影像分類 → 小樣本遷移學習 → 類別不平衡處理 → 與本研究最相近之 FDM 領域研究」的順序，逐步收斂至本研究的問題情境。
+本節依「通用影像分類 $\rightarrow$ 小樣本遷移學習 $\rightarrow$ 類別不平衡處理 $\rightarrow$ 與本研究最相近之 FDM 領域研究」的順序，逐步收斂至本研究的問題情境。
 
 Jogin 等人[@joginFeatureExtractionUsing2018]在 CIFAR-10 上以六層 Conv2D--ReLU--MaxPooling 架構對 10 類、50,000 張 32 × 32 像素彩色影像分類，達到 85.97\% 準確率，明顯優於同期的支援向量機（SVM）、決策樹與隨機森林等傳統方法。此結果說明 CNN 自動學得的深度特徵在多類別影像分類上具系統性優勢，為本研究以 CNN 取代人工特徵工程提供基本依據；惟此屬通用影像分類任務，與 FDM 表面瑕疵之關聯僅屬間接。
 
@@ -649,7 +651,7 @@ F & 失敗品 & \makecell{極度拉絲\\幾乎看不出魚骨結構} & 0 分 & �
 
 #### 雙輸出架構 {#sec:method-model-dualhead}
 
-本研究採用 MobileNetV3-Large[@howardSearchingMobileNetV32019]（ImageNet V2 預訓練）作為骨幹網路，以遷移學習方式進行六分類微調。模型修改如下：將分類頭最後一個全連接層（原 1000 類輸出）替換為含 Dropout（p = 0.4）的六分類線性層；同時在 pooling 後的特徵向量上接品質評分輔助頭，其結構為 Dropout（p = 0.2）→ Linear → ReLU → Linear → Sigmoid，輸出範圍 0 至 1 的連續品質分，乘以 100 即得 0 至 100 分。訓練時分類頭與評分頭同步優化。
+本研究採用 MobileNetV3-Large[@howardSearchingMobileNetV32019]（ImageNet V2 預訓練）作為骨幹網路，以遷移學習方式進行六分類微調。模型修改如下：將分類頭最後一個全連接層（原 1000 類輸出）替換為含 Dropout（p = 0.4）的六分類線性層；同時在 pooling 後的特徵向量上接品質評分輔助頭，其結構為 Dropout（p = 0.2）$\rightarrow$ Linear $\rightarrow$ ReLU $\rightarrow$ Linear $\rightarrow$ Sigmoid，輸出範圍 0 至 1 的連續品質分，乘以 100 即得 0 至 100 分。訓練時分類頭與評分頭同步優化。
 
 需特別說明的是，現行品質分輔助頭以「等級編號之線性轉換」（A=100, B=80, ..., F=0）作為迴歸目標，**隱含假設等級間距相等且 ordinal 關係由 MSE loss 隱式建模**。嚴格而言，本研究將 ordinal classification 任務以「nominal classification + auxiliary regression」近似處理，未採用 ordinal-aware loss（如 CORAL [@caoRankConsistentOrdinal2020]、CORN [@shiDeepNeuralNetworks2023]）或 ordinal regularization。此為方法層級之簡化，列入 \ref{sec:conclusion-future} 節後續研究方向。
 
@@ -764,6 +766,8 @@ F & 失敗品 & 32 & 2.9\% & \makecell{樣本基數最小\\仍建議持續補充
 
 為方便讀者快速掌握本研究最關鍵之泛化指標，茲將主要結果集中呈現於表 \ref{tab:results-overview}。本論文之主要結果分為兩層：seed=7 嚴格 Group Split 作為詳細分析案例（後續混淆矩陣、校準、Grad-CAM 均以此案例展開）；五 seed mean $\pm$ std 則作為策略比較之穩定性判斷依據。**須提醒讀者：seed=7 簡化設定之 macro-F1（0.791）明顯高於其五 seed 平均（0.661 $\pm$ 0.079），屬偏樂觀的單次個案；選用 seed=7 僅為提供一致的詳細分析對象，其絕對數值不應視為簡化設定的代表水準，凡策略優劣判斷一律以五 seed 統計為準。**
 
+<!-- 待修正(學長標註B1)：全文定性分析（混淆矩陣、ECE 校準、Grad-CAM、PR/ROC、t-SNE、品質分校準）皆只在 seed=7 上計算，而 seed=7 之 macro-F1(0.791) 高於五 seed 平均(0.661±0.079) 約 1.6 個標準差，屬樂觀離群個案。這是本文最易被審查者攻擊處：等於拿全場最好那次展示細節。建議改用最接近五 seed 平均之 seed 作為詳細分析代表案例，或重跑後明確論證 seed=7 並非挑選最佳。需重跑實驗，學長無數據，暫不更動，待原作者修。 -->
+
 \clearpage
 
 \begin{table}[H]
@@ -800,7 +804,7 @@ F & 失敗品 & 32 & 2.9\% & \makecell{樣本基數最小\\仍建議持續補充
 
 ### 實驗設計動機 {#sec:results-supplemental-design}
 
-本研究 1110 張樣本由 185 張原始照片各裁切出約 6 支魚骨而成，同一原圖切出之多支魚骨在背景、光線與列印批次上高度相關。若採隨機切分，這些同源魚骨會同時落入訓練與測試集，使模型得以藉共享背景／光線「記憶」而非真正泛化，造成過度樂觀的評估（此風險在後文 \ref{sec:results-new-model-testset} 節之隨機切分版本中確有顯現：B、D、E 三個少數類別測試準確率僅 50\% 左右）。為從源頭杜絕此種資料洩漏，並補強審查上常被質疑的 baseline 與 ablation 缺口，本研究以分組隨機切分（Group Shuffle Split，以原圖為分組鍵，seed=7）以原圖為單位重新切分資料，確保同一原圖之魚骨不跨越訓練／測試集，並補做三組對照實驗。共識別 185 個獨立原圖組，切分結果如表 \ref{tab:group-split-dist} 所示。
+本研究 1110 張樣本由 185 張原始照片各裁切出 6 支魚骨而成，同一原圖切出之多支魚骨在背景、光線與列印批次上高度相關。若採隨機切分，這些同源魚骨會同時落入訓練與測試集，使模型得以藉共享背景／光線「記憶」而非真正泛化，造成過度樂觀的評估（此風險在後文 \ref{sec:results-new-model-testset} 節之隨機切分版本中確有顯現：B、D、E 三個少數類別測試準確率僅 50\% 左右）。為從源頭杜絕此種資料洩漏，並補強審查上常被質疑的 baseline 與 ablation 缺口，本研究以分組隨機切分（Group Shuffle Split，以原圖為分組鍵，seed=7）以原圖為單位重新切分資料，確保同一原圖之魚骨不跨越訓練／測試集，並補做三組對照實驗。共識別 185 個獨立原圖組，切分結果如表 \ref{tab:group-split-dist} 所示。
 
 \begin{table}[H]
 \centering
@@ -922,7 +926,9 @@ EfficientNet-B0 完整 & 82.14\% (138/168) & [75.7\%, 87.2\%] & 11.5 pp \\
 
 #### Ordinal-aware 指標下之結論轉變 {#sec:results-supplemental-ordinal}
 
-由於本研究為**有序等級分類任務**（A 至 F 為 ordinal label），accuracy 與 macro-F1 將「A→B」與「A→F」誤判視為等價懲罰，不反映 ordinal 任務本質。為補強此缺口，本研究從各模型混淆矩陣計算 Quadratic Weighted Kappa（QWK）、Cohen's Kappa 與「±1 等級容差」三項 ordinal-aware 指標，整理於表 \ref{tab:ordinal-metrics}。
+<!-- 待修正(學長標註B3)：本節結構先立後破——先以整段（「具體而言：簡化策略 23 筆誤判中…」起）建立「完整策略跨等級誤判較低、對品控重要」之論述，再於下一段（「惟須特別強調…」起）整段推翻為「此僅見於 seed=7，五 seed 平均反而簡化的跨等級誤判最低、QWK 最高」。讀者投入理解一個論點後被收回，做白工。建議改為先講五 seed 之穩定結論，再把 seed=7 當插圖呈現。屬段落順序/敘事結構調整、不涉數據，學長暫不更動，待原作者修。 -->
+
+由於本研究為**有序等級分類任務**（A 至 F 為 ordinal label），accuracy 與 macro-F1 將「A$\rightarrow$B」與「A$\rightarrow$F」誤判視為等價懲罰，不反映 ordinal 任務本質。為補強此缺口，本研究從各模型混淆矩陣計算 Quadratic Weighted Kappa（QWK）、Cohen's Kappa 與「±1 等級容差」三項 ordinal-aware 指標，整理於表 \ref{tab:ordinal-metrics}。
 
 \begin{table}[H]
 \centering
@@ -956,7 +962,7 @@ MobileNetV3-Large 簡化 (full) & 87.30\% & 0.779 & 0.953 & 0.812 & 11.2\% & 1.5
 * **QWK 排序**：MobileNetV3-Large 完整等預算 (0.967) > ResNet18 完整 (0.954) $\approx$ EfficientNet-B0 完整 (0.951) > 簡化 (0.932)
 * **跨等級誤判排序**：MobileNetV3-Large 完整等預算、ResNet18 完整、EfficientNet-B0 完整皆為 1.2\%，低於簡化設定的 3.0\%
 
-具體而言：**簡化策略 23 筆誤判中有 5 筆為跨等級誤判**（其中 D→A 屬於「將中度拉絲誤判為完美品」之高成本錯誤），而三組完整策略之跨等級誤判皆為 2 筆。這顯示完整正則化策略（Focal Loss + Label Smoothing + Mixup + Weighted Sampler）在 seed=7 下較能抑制「跨大幅度誤判」；此特性對品質管控應用尤為重要，因為將 D 級（建議重印）誤判為 A 級（直接使用）的成本，遠高於將 D 級誤判為 C 級的成本。
+具體而言：**簡化策略 23 筆誤判中有 5 筆為跨等級誤判**（其中 D$\rightarrow$A 屬於「將中度拉絲誤判為完美品」之高成本錯誤），而三組完整策略之跨等級誤判皆為 2 筆。這顯示完整正則化策略（Focal Loss + Label Smoothing + Mixup + Weighted Sampler）在 seed=7 下較能抑制「跨大幅度誤判」；此特性對品質管控應用尤為重要，因為將 D 級（建議重印）誤判為 A 級（直接使用）的成本，遠高於將 D 級誤判為 C 級的成本。
 
 惟須特別強調：**此「完整策略跨等級誤判較低」之現象僅見於 seed=7，並非穩定結論**。在後文 \ref{sec:results-supplemental-multiseed} 節之五 seed 平均下，簡化設定反而擁有全場最低的跨等級誤判率（3.10\% $\pm$ 0.27）與最高的 QWK（0.921 $\pm$ 0.009），完整策略並未保有此優勢。因此跨等級誤判成本之高低不應據單一 seed 定論；完整策略經多 seed 驗證後真正穩定的優勢僅在 macro-F1（見表 \ref{tab:paired-ttest}），而非跨等級誤判或 QWK。
 
@@ -986,7 +992,7 @@ F 失敗品   & 3/4   & 75.0\%  & 0.750 & 0.750 & 0.750 \\
 
 A 級於 Group Split 測試集達 100.0\%（77/77），相較隨機切分 98.8\% 略升，且未受同源樣本影響；D 級由隨機切分的 54.2\% 大幅提升至 82.1\%（23/28），E 級由 54.5\% 升至 75.0\%（6/8），E 與 D 之間的混淆明顯緩解。但 B 級僅 9/16（56.3\%），與隨機切分的 53.8\% 相近，仍為主要弱點；C 級由 87.5\% 降至 77.1\%，反映 C/D 邊界仍不穩定。E、F 類測試樣本各僅 8 與 4 張，單一樣本誤判即會造成顯著百分比變化，故百分比應與樣本數共同解讀。
 
-#### 三模型各等級 F1-score 對照
+#### 三模型各等級 F1-score 對照 {#sec:results-supplemental-classes-f1}
 
 \begin{table}[H]
 \centering
@@ -1012,7 +1018,7 @@ Macro-F1   & 168 & \textbf{0.791} & 0.783         & 0.729          \\
 
 由表 \ref{tab:three-model-class-f1} 可觀察三項細節：(1) 在列入混淆矩陣細節的三組模型中，**MobileNet 簡化在多數等級（A、C、D、E、F）F1 最高**，但 B 級則由 EfficientNet-B0 完整領先（0.757 vs 簡化 0.692），反映完整策略之 Weighted Random Sampler 與 Focal Loss 對 B 類少數樣本提供額外幫助；(2) **EfficientNet-B0 完整於 E 級僅 0.500、D 級僅 0.667**，顯示其對中重度瑕疵之辨識能力較弱，可能與 compound scaling 對小樣本任務不利有關；(3) 結合表 \ref{tab:ordinal-metrics} 可知，完整策略對「跨等級誤判」更穩健，不能只依單一 accuracy 或 macro-F1 判斷最佳模型。
 
-#### 三模型混淆矩陣對照
+#### 三模型混淆矩陣對照 {#sec:results-supplemental-classes-confusion}
 
 \begin{table}[H]
 \centering
@@ -1032,7 +1038,7 @@ E & 0 & 0 & 0 & 1 & \textbf{6} & 1 \\
 F & 0 & 0 & 0 & 0 & 1 & \textbf{3} \\
 \hline
 \end{tabular}
-\TableNote{註：accuracy = 86.31\%，QWK = 0.932，跨等級誤判 5 筆；底線標示「D→A」之高成本跨等級誤判。}
+\TableNote{註：accuracy = 86.31\%，QWK = 0.932，跨等級誤判 5 筆；底線標示「D$\rightarrow$A」之高成本跨等級誤判。}
 \end{table}
 
 \begin{table}[H]
@@ -1075,14 +1081,14 @@ F & 0 & 0 & 0 & 0 & 1 & \textbf{3} \\
 \hline
 \end{tabular}
 
-\TableNote{註：對角線為正確分類數（粗體）；底線標示 MobileNet 簡化「D→A」之高成本跨等級誤判（將中度拉絲誤判為完美品 2 筆），此類錯誤在 ResNet18 / EfficientNet 完整策略中完全消失，是 QWK 反轉的主要原因。}
+\TableNote{註：對角線為正確分類數（粗體）；底線標示 MobileNet 簡化「D$\rightarrow$A」之高成本跨等級誤判（將中度拉絲誤判為完美品 2 筆），此類錯誤在 ResNet18 / EfficientNet 完整策略中完全消失，是 QWK 反轉的主要原因。}
 \end{table}
 
 \noindent**跨模型誤判模式比較**：
 
-* **MobileNet 簡化**：誤判集中於「B→A」5 筆、「C→D」7 筆、「D→A」2 筆。**D→A 為跨等級高成本錯誤**（將需重印之中度拉絲誤判為可直接使用之完美品），共 2 筆。
-* **ResNet18 完整**：誤判集中於「A→B」8 筆、「D→C」5 筆、「D→E」3 筆，皆為相鄰等級誤判。**「A→B」反映 Label Smoothing 與 Mixup 使模型對完美品也保留一定的「可能稍有瑕疵」機率**，是完整策略 accuracy 略低之主因，但此類「過度保守」之誤判**不會造成嚴重品質決策錯誤**。
-* **EfficientNet-B0 完整**：誤判模式類似 ResNet18，但「D→E」誤判增加為 8 筆（將中度拉絲誤判為嚴重拉絲），顯示其對中重度等級邊界較不穩定。
+* **MobileNet 簡化**：誤判集中於「B$\rightarrow$A」5 筆、「C$\rightarrow$D」7 筆、「D$\rightarrow$A」2 筆。**D$\rightarrow$A 為跨等級高成本錯誤**（將需重印之中度拉絲誤判為可直接使用之完美品），共 2 筆。
+* **ResNet18 完整**：誤判集中於「A$\rightarrow$B」8 筆、「D$\rightarrow$C」5 筆、「D$\rightarrow$E」3 筆，皆為相鄰等級誤判。**「A$\rightarrow$B」反映 Label Smoothing 與 Mixup 使模型對完美品也保留一定的「可能稍有瑕疵」機率**，是完整策略 accuracy 略低之主因，但此類「過度保守」之誤判**不會造成嚴重品質決策錯誤**。
+* **EfficientNet-B0 完整**：誤判模式類似 ResNet18，但「D$\rightarrow$E」誤判增加為 8 筆（將中度拉絲誤判為嚴重拉絲），顯示其對中重度等級邊界較不穩定。
 
 **結論**：在上述三組混淆矩陣中，簡化策略在「正確分類數」最多，但**犧牲了完整策略對「A 級嚴格性」的保守判定**。從品質管控觀點，「將 A 級誤判為 B 級」（建議用於略低品質要求）的成本，遠低於「將 D 級誤判為 A 級」（直接使用瑕疵品）的成本；因此完整策略的誤判分布更貼近實務需求。等預算 MobileNetV3-Large 完整設定之彙總指標另見表 \ref{tab:supplemental-experiment-results} 與 \ref{tab:ordinal-metrics}。
 
@@ -1197,6 +1203,8 @@ ResNet18 完整 & -0.36 pp & 0.745 & +0.052 & \textbf{0.0363} & -0.006 & 0.604 \
 \end{table}
 
 多 seed 結果顯示，MobileNetV3-Large 簡化與 EfficientNet-B0 完整的平均 accuracy 皆為 81.19\%，且所有模型相對簡化設定之 accuracy / QWK 差異皆未達統計顯著。相較之下，MobileNetV3-Large 完整與 ResNet18 完整在 macro-F1 上顯著高於簡化設定，表示完整策略對少數類別或類別邊界較有幫助。換言之，**本文不再將「簡化策略最佳」視為穩定結論**；較合理的結論是：簡化策略成本最低且 QWK 平均略高，完整策略與 ResNet18 則在 macro-F1 上較佳。
+
+<!-- 待修正(學長標註B2)：macro-F1「顯著較高」(p=0.0246 / 0.0363) 係基於 n=5 之 paired t-test，檢定力低；且本研究同時做了 3 模型 × 3 指標 = 9 次比較而未做多重比較校正（此 p 值過不了 Bonferroni）。此為全文唯一的正向「穩定」結論，目前論述偏強。建議補一句「未校正多重比較、n=5 檢定力有限，此 macro-F1 差異仍需更多 seed 確認」，或增加 seed 數重做檢定。需補統計、學長無數據，暫不更動，待原作者修。 -->
 
 ### 單變因消融與等預算檢查 {#sec:results-supplemental-ablation}
 
@@ -1399,7 +1407,7 @@ F 失敗品   & 0 & 0 & 0 & 0 & 2 & \textbf{4} & 6 \\
 \hline
 \end{tabular}
 
-\TableNote{註：對角線為正確分類數（粗體），底線標示主要錯誤（A→D 16 張，佔 A 級 8.8\%）。整體準確率 86.9\%（186/214），但 D 級 23 筆預測中僅 7 筆正確（Precision 0.304）；模型實質上將 16 張 A 級樣本誤判為 D 級，導致 D 級預測膨脹。}
+\TableNote{註：對角線為正確分類數（粗體），底線標示主要錯誤（A$\rightarrow$D 16 張，佔 A 級 8.8\%）。整體準確率 86.9\%（186/214），但 D 級 23 筆預測中僅 7 筆正確（Precision 0.304）；模型實質上將 16 張 A 級樣本誤判為 D 級，導致 D 級預測膨脹。}
 \end{table}
 
 由表 \ref{tab:old-confusion-matrix} 與圖 \ref{fig:old-confusion} 可看出，舊版混淆矩陣中 A 等級有 16 張（8.8\%）被誤判為 D 等級，是最主要的錯誤來源。分析其根本原因：D 等級的訓練樣本僅 9 張，模型無法從如此有限的樣本中學習到 D 等級的穩定特徵表示，導致模型將 D 等級的高置信度預測閾值設定得極低，許多 A 等級樣本因特徵向量與 D 等級過度重疊而被誤分。此外，B 等級（5 張）和 C 等級（4 張）的樣本數同樣嚴重不足，其 F1-score 分別僅 0.615 和 0.667。這些結果明確說明：在嚴重資料不平衡的條件下，即使採用 WeightedRandomSampler 等過採樣技術，若少數類別的樣本數低於臨界值（本研究估計約 20 至 30 張），模型效能仍無法有效提升，補充實際樣本才是根本解決之道。
@@ -1871,7 +1879,7 @@ Macro F1 & \mccell{舊版：0.708（全資料估算）\\改良版：seed=7 簡�
 \hline
 \end{tabular}
 \end{adjustbox}
-\TableNote[0.96\textwidth]{註：以上數值為 Bambu Studio「耗材絲設置」頁 Polymaker PolyTerra PLA \@BBL A1 預設值，全研究期間未做調整。此設計使噴嘴溫度、熱床溫度、冷卻風扇策略等可能影響拉絲嚴重程度之變因全部固定，使列印件之拉絲差異主要反映 FDM 過程之自然變動，而非人為參數差異。}
+\TableNote[0.96\textwidth]{註：以上數值為 Bambu Studio「耗材絲設置」頁 Polymaker PolyTerra PLA \texttt{@BBL A1} 預設值，全研究期間未做調整。此設計使噴嘴溫度、熱床溫度、冷卻風扇策略等可能影響拉絲嚴重程度之變因全部固定，使列印件之拉絲差異主要反映 FDM 過程之自然變動，而非人為參數差異。}
 \end{table}
 
 \begin{figure}[H]
