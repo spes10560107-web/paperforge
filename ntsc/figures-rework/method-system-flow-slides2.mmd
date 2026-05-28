@@ -1,0 +1,56 @@
+%%{init: {
+  'theme': 'neutral',
+  'themeVariables': {
+    'fontSize': '26px',
+    'fontFamily': 'Microsoft JhengHei, Arial, sans-serif',
+    'primaryColor': '#cfe8ff',
+    'primaryBorderColor': '#1f6feb',
+    'primaryTextColor': '#1f2328',
+    'secondaryColor': '#fff8b3',
+    'secondaryBorderColor': '#9a6700',
+    'tertiaryColor': '#d4f7d4',
+    'tertiaryBorderColor': '#2da44e'
+  },
+  'flowchart': {
+    'nodeSpacing': 45,
+    'rankSpacing': 80,
+    'padding': 20,
+    'htmlLabels': true,
+    'useMaxWidth': false
+  }
+}}%%
+flowchart LR
+
+    subgraph S1["　① 資料蒐集與標注　"]
+        direction TB
+        A1["Bambu Lab A1\n3D 列印魚骨件\n（PLA，多批次）"]
+        A2["手機俯拍 → 固定 2×3 裁切\n185 張原圖 → 1110 支樣本"]
+        A3["Label Studio 人工標注\nA–F 六等級（單一標注者）"]
+        A1 --> A2 --> A3
+    end
+
+    subgraph S2["　② 模型訓練與評估　"]
+        direction TB
+        B1["MobileNetV3-Large\nImageNet V2 預訓練遷移學習"]
+        B2["Group Split 原圖零重疊\n五 seed 重複 × 4 組設定\n= 20 筆訓練紀錄"]
+        B3["雙輸出頭\n六等級分類 ＋ 品質分（0–100）"]
+        B1 --> B2 --> B3
+    end
+
+    subgraph S3["　③ 整批推論與報告　"]
+        direction TB
+        C1["批次推論\n6.90 ms／張\n（RTX 3050 Laptop）"]
+        C2["HTML 品質報告\n等級分布 ＋ 縮圖\n＋ 低信心複核清單"]
+        C1 --> C2
+    end
+
+    S1 -->|"資料集\n（1110 張）"| S2
+    S2 -->|"最佳模型\nbest.ckpt"| S3
+
+    classDef snode fill:#cfe8ff,stroke:#1f6feb,color:#1f2328
+    classDef dnode fill:#fff8b3,stroke:#9a6700,color:#1f2328
+    classDef onode fill:#d4f7d4,stroke:#2da44e,color:#1f2328
+
+    class A1,A2,B1,B2,B3,C1 snode
+    class A3 dnode
+    class C2 onode

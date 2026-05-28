@@ -48,8 +48,8 @@ build/
 .vscode/*.local.json
 .vscode/.ropeproject/
 
-# Claude Code local overrides
-.claude/settings.local.json
+# Claude Code local overrides (memory & session data should not be in VCS)
+.claude/
 
 # Install logs
 install.log
