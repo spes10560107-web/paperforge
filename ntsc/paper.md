@@ -184,13 +184,13 @@ toc: false
 
 本研究以魚骨形狀 PLA 列印件為標的，建立 1110 張、六等級（A 至 F）拉絲嚴重程度影像分類資料集（185 個原圖群組，單一標注者）。採 MobileNetV3-Large 為主要骨幹進行遷移學習，以 ResNet18、EfficientNet-B0 為對照；以原圖層級 Group Split 確保訓練、驗證與測試集原圖零重疊，並以五組 seed 重複實驗量化結果穩定性。
 
-五 seed 結果顯示四組模型 / 策略平均 accuracy 80.12\%--81.19\%、平均 QWK 約 0.91，各項統計檢定（Bonferroni 校正後）均未達顯著差異，本研究\textbf{不宣稱任何單一設定為穩定最佳}。A/B 邊界（B 級召回率 56.3\%）為最主要效能瓶頸；品質分輔助頭維持單調排序，但因監督目標為等級編號線性轉換，僅作為輔助排序訊號，不宜視為絕對品質量化指標（詳見 §3.7.1.2）。
+五 seed 結果顯示四組模型 / 策略平均 accuracy 80.12\%--81.19\%、平均 QWK 約 0.91，各項統計檢定（Bonferroni 校正後）均未達顯著差異，故本研究不宣稱任一設定為穩定最佳。A/B 邊界（B 級召回率 56.3\%）為最主要效能瓶頸；品質分提供等級內排序參考，非絕對量化指標。
 
-本研究受限於單一機型（Bambu Lab A1）、單一材料（PLA）、單一幾何（魚骨）、單一瑕疵類型（拉絲）及單一標注者等條件，現階段定位為此特定條件下之輔助辨識原型，提供可重現之評估基準；應用前仍需完成多人標注一致性驗證、跨機型泛化測試及具標籤外部驗證集評估。
+本研究受限於單一機型、材料、幾何、瑕疵類型與標注者，定位為此條件下可重現的輔助辨識原型；外部應用前需補多人標注一致性與跨機型驗證。
 
 \vspace{0.5cm}
 
-\noindent\textbf{關鍵詞：3D 列印、熔融沉積成型（FDM）、瑕疵檢測、深度學習、MobileNetV3、遷移學習、序數分類、資料不平衡、分組切分（Group Split）、多 seed 評估、模型校準}
+\noindent\textbf{關鍵詞：3D 列印、熔融沉積成型（FDM）、拉絲瑕疵檢測、深度學習、序數分類、遷移學習}
 
 \newpage
 
@@ -229,34 +229,34 @@ toc: false
 
 ## 研究背景 {#sec:intro-background}
 
-3D 列印技術（Three-Dimensional Printing），又稱積層製造（Additive Manufacturing, AM），係指透過電腦輔助設計（CAD）軟體建立三維數位模型後，依據切片軟體產生的路徑指令，將材料逐層堆積成形的製造技術[@ISOASTM52900]。自 1980 年代問世以來，已由工業快速原型逐步擴展至航太、汽車與醫療等領域[@gibsonAdditiveManufacturingTechnologies2021; @OurStory3D2017; @marketsandmarkets3DPrintingMarket]。
+3D 列印技術（Three-Dimensional Printing），又稱積層製造（Additive Manufacturing, AM），係指透過電腦輔助設計（CAD）軟體建立三維數位模型後，依據切片軟體產生的路徑指令，將材料逐層堆積成形的製造技術[@ISOASTM52900]。自 1980 年代問世以來，已從工業快速原型擴展至航太、汽車與醫療等領域[@gibsonAdditiveManufacturingTechnologies2021]。
 
 在眾多 3D 列印技術中，FDM 因設備成本低廉、支援多種熱塑性材料而廣受桌上型與教育場域採用，其製程原理與主要影響參數詳見第 \ref{sec:literature-fdm} 節；FDM 品質管控目前仍多依賴人工目視，缺乏系統化自動化機制[@gibsonAdditiveManufacturingTechnologies2021; @InventorFDM3D2017]。
 
-以卷積神經網路（CNN）為代表的深度學習影像辨識技術，已用於工業視覺檢測[@WhatIndustry40; @WhatIndustrie40]。本研究聚焦於列印**完成後**的離線辨識（成品分級與品質追溯），與工業 4.0 強調的即時連網監控屬互補方向。選擇離線辨識，是因其資料蒐集、標注與評估流程在實驗室規模下較為可行；此離線結果亦可作為日後即時監控的基準（即時監控之延伸見 \ref{sec:conclusion-future} 節）。
+以卷積神經網路（CNN）為代表的深度學習影像辨識技術，已用於工業視覺檢測[@WhatIndustry40; @WhatIndustrie40]。本研究聚焦於列印完成後的離線辨識（成品分級與品質追溯），與工業 4.0 強調的即時連網監控互補；即時監控之延伸見 \ref{sec:conclusion-future} 節。
 
 ## 研究動機 {#sec:intro-motivation}
 
 在實際的 3D 列印生產場景中，品質管控主要面臨三項困難。其一是效率：人工目視在列印批量增加時逐件檢視耗時過長，成為產線瓶頸。其二是一致性：不同操作人員對同一成品的評估常有差異，在瑕疵程度接近等級邊界時尤其明顯，降低品質數據的可信度。其三是可追溯性：傳統目視結果不易形成可比較、可留存的數值化紀錄，不利於品質趨勢分析與製程改善。
 
-深度學習可從樣本中自動學習視覺特徵，在固定標注準則下提供一致的瑕疵嚴重度預測，彌補人工目視的不足。然而，3D 列印拉絲瑕疵的嚴重程度判定具有明顯的序數特性：少量短絲仍屬可接受範圍，大範圍絲狀殘留則需重新列印，等級邊界常受光線、角度與標注者主觀判斷影響。此外，在小批量研究場景中，取得大量具多人一致性標注的資料往往成本高昂，資料集的類別不平衡問題亦難以避免。在上述挑戰條件下，如何建立一套嚴格且可重現的評估框架，以確認深度學習模型是否真正具備作為品質管控輔助工具的潛力，是本研究的核心動機。
+深度學習可從樣本中自動學習視覺特徵，在固定標注準則下提供一致的瑕疵嚴重度預測，彌補人工目視的不足。然而，3D 列印拉絲瑕疵的嚴重程度判定具有明顯的序數特性：少量短絲仍屬可接受範圍，大範圍絲狀殘留則需重新列印，等級邊界常受光線、角度與標注者主觀判斷影響。此外，在小批量研究場景中，取得大量具多人一致性標注的資料往往成本高昂，資料集的類別不平衡問題亦難以避免。本研究的核心動機，是在上述限制下建立嚴格且可重現的評估框架，檢驗深度學習模型能否作為品質管控的輔助工具。
 
 ## 研究目的與貢獻 {#sec:intro-purpose}
 
 本研究的核心貢獻有以下四項：
 
 1. **FDM 魚骨拉絲六等級資料集**：建立包含 1110 張魚骨影像、依目視估計拉絲覆蓋比例定義之六等級（A 至 F）資料集，供後續 FDM 拉絲瑕疵小樣本影像分類研究比較（單一標注者之限制詳見 \ref{sec:method-grading} 節）。
-2. **嚴格分組切分與多 seed 泛化評估**：以原圖為單位進行 Group Split（原圖零重疊），避免同源樣本造成過度樂觀的評估，並透過五組 seed 重複實驗提供比單次切分更保守的小樣本工業視覺基準；本研究亦明確報告 seed 間之 std，避免單次最佳結果被誤解為穩定效能。
-3. **模型策略初步比較、診斷性消融與不確定性分析**：初步比較 MobileNetV3-Large、ResNet18、EfficientNet-B0 三種骨幹與簡化／完整兩組訓練策略，並以 seed=7 進行 Focal Loss、Label Smoothing、Mixup、Weighted Random Sampler 等單變因診斷性消融分析，評估各因素對少數類別分類的影響趨勢（消融結果僅有單一 seed，不作穩定性結論）；並進行模型校準分析，確認低置信度樣本可納入人工複核流程。
+2. **嚴格分組切分與多 seed 泛化評估**：以原圖為單位進行 Group Split（原圖零重疊），避免同源樣本造成過度樂觀的評估；並以五組 seed 重複實驗、報告 seed 間 std，提供比單次切分更保守的小樣本工業視覺基準。
+3. **模型策略比較、診斷性消融與不確定性分析**：比較 MobileNetV3-Large、ResNet18、EfficientNet-B0 三種骨幹與簡化／完整兩組訓練策略，並以 seed=7 對 Focal Loss、Label Smoothing、Mixup、Weighted Random Sampler 做單變因消融，評估各因素對少數類別分類的影響趨勢；並進行模型校準分析，確認低置信度樣本可納入人工複核流程。
 4. **整批照片自動處理流程**：整合自動裁切、逐張前向推論、分級輸出與 HTML 可視化報告，形成由原始照片到品質等級報告之離線處理流程；並於 RTX 3050 Laptop GPU 上量測純模型前向延遲作為部署參考基準（量測條件與端到端吞吐量限制詳見 \ref{sec:results-batch} 節）。
 
-附帶產出包含具明確判斷規則的六等級評分準則、各等級範例圖、Label Studio 標注流程，以及雙輸出（六分類 + 0 至 100 連續品質分）模型架構。品質分輔助頭的監督目標為等級編號之線性轉換，未經多人主觀評分校準，僅作排序輔助訊號，不宜視為絕對品質指標。
+附帶產出包含具明確判斷規則的六等級評分準則、各等級範例圖、Label Studio 標注流程，以及雙輸出（六分類 + 0 至 100 連續品質分）模型架構（品質分之使用限制見 \ref{sec:method-model-dualhead} 節）。
 
 ## 研究範圍 {#sec:intro-scope}
 
-本研究以 FDM 列印之魚骨形狀 PLA 件為研究對象（選用原因詳見第 \ref{sec:method-sample-design} 節）。研究題目中「單面」係指本研究以**單一俯拍角度、單一 2D 影像**作為模型輸入，不涉及多視角影像、3D 掃描或點雲重建；完整 3D 幾何資訊的檢測屬互補方向，不在本研究範圍內。本研究聚焦於拉絲瑕疵的嚴重程度分類，不包含翹曲及裂痕瑕疵的深入分析（因現有樣本中此兩類瑕疵數量不足）。實驗設備限定為 Bambu Lab A1 3D 印表機，耗材為標準 PLA 線材，拍攝環境為固定背景的室內自然光環境，因此模型的泛化能力主要針對此特定設備與材料條件。資料規模方面，本研究資料集共取得 1110 筆有效魚骨樣本，分屬六個品質等級，各等級樣本數差異明顯（最多與最少約相差 17 倍，詳見 \ref{sec:results-dataset} 節）。
+本研究以 FDM 列印之魚骨形狀 PLA 件為研究對象（選用原因詳見第 \ref{sec:method-sample-design} 節）。研究題目中「單面」係指以**單一俯拍角度、單一 2D 影像**作為模型輸入，不涉及多視角影像、3D 掃描或點雲重建；完整 3D 幾何資訊的檢測屬互補方向，不在本研究範圍內。本研究聚焦於拉絲瑕疵的嚴重程度分類，不包含翹曲及裂痕瑕疵（現有樣本中此兩類數量不足）。
 
-本研究適用範圍受單一硬體（Bambu Lab A1）、單一幾何（魚骨件）、單一瑕疵類型（拉絲）與同源資料相關性等條件所限，完整邊界條件詳見第 \ref{sec:conclusion} 章結論。
+實驗設備限定為 Bambu Lab A1、耗材為標準 PLA 線材、拍攝環境為固定背景的室內自然光，模型泛化能力主要針對此特定設備與材料條件。資料集共 1110 筆有效魚骨樣本，分屬六個品質等級，各等級樣本數差異明顯（最多與最少約相差 17 倍，詳見 \ref{sec:results-dataset} 節）。完整邊界條件詳見第 \ref{sec:conclusion} 章結論。
 
 ## 研究流程 {#sec:intro-flow}
 
@@ -285,7 +285,7 @@ toc: false
 
 ## 3D 列印常見瑕疵類型 {#sec:literature-defects}
 
-根據現有 FDM 文獻與設備廠商 troubleshooting 文件，FDM 列印常見的表面瑕疵主要包含以下三類，如圖 \ref{fig:defects-overview} 所示。需注意，廠商文件主要用於補充實務現象與調參經驗；本文實驗僅將拉絲瑕疵納入模型訓練與測試，翹曲與裂痕因樣本不足僅作背景說明。
+根據現有 FDM 文獻與設備廠商 troubleshooting 文件，FDM 列印常見的表面瑕疵主要包含以下三類，如圖 \ref{fig:defects-overview} 所示。本文實驗僅將拉絲瑕疵納入模型訓練與測試，翹曲與裂痕因樣本不足僅作背景說明。
 
 \begin{figure}[H]
 \centering
@@ -322,13 +322,13 @@ toc: false
 
 **裂痕（Cracking）或層間分離（Layer Separation）**：層與層之間因冷卻速率差異、黏結不足或翹曲應力過大而分離出裂縫，會降低列印件的結構完整性與機械強度[@LayerSeparationSplitting2024]。
 
-從影像辨識的角度而言，拉絲在影像中呈現細線狀、高頻率的局部紋理，通常以明亮細絲出現在較暗背景（如黑色熱床）或魚骨間隙中，形成與正常平滑表面明顯不同的對比特徵。相較於顏色直方圖等全域描述子，CNN 的局部感受野更能捕捉這類高頻細線紋理；拉絲嚴重程度反映在細絲密度與分布面積，正可由 CNN 對多尺度局部紋理的感知加以區分。第四章 Grad-CAM 分析結果將驗證此推論：模型正確預測的案例中，熱力圖高亮區域集中於魚骨間隙的拉絲細絲區域；詳見 \ref{sec:results-supplemental-calibration} 節。
+從影像辨識的角度而言，拉絲在影像中呈現細線狀、高頻率的局部紋理，通常以明亮細絲出現在較暗背景（如黑色熱床）或魚骨間隙中，形成與正常平滑表面明顯不同的對比特徵。相較於顏色直方圖等全域描述子，CNN 的局部感受野更能捕捉拉絲的高頻細線紋理，其密度與分布面積正適合用以區分嚴重程度。此推論在第四章 Grad-CAM 分析中獲得部分佐證（詳見 \ref{sec:results-supplemental-calibration} 節）。
 
 ## 電腦視覺與深度學習於工業瑕疵檢測 {#sec:literature-cv-dl}
 
-電腦視覺（Computer Vision）技術在工業品質檢測領域的應用已有數十年歷史，早期方法以傳統影像處理技術為主，包括邊緣偵測、閾值分割、形態學運算及特徵工程等，需要領域專家手動設計特徵提取規則。此類方法在受控環境下（固定光源、背景及目標位置）表現尚可，但對光線變化、姿態變化及背景干擾的魯棒性較差，且難以應對複雜的多類別瑕疵辨識任務。
+電腦視覺技術應用於工業品質檢測已有數十年歷史。早期方法以傳統影像處理為主（邊緣偵測、閾值分割、形態學運算、特徵工程等），需領域專家手動設計特徵；此類方法在受控環境下表現尚可，但對光線、姿態與背景干擾的魯棒性較差，也難以應對複雜的多類別瑕疵辨識。
 
-深度學習則改變了電腦視覺的特徵設計方式[@DeepLearning; @lecunGradientbasedLearningApplied1998]。卷積神經網路（CNN）以端到端的方式自動學習影像的層次化特徵表示，從底層的邊緣和紋理特徵到高層的語義特徵，無需人工設計特徵，且在充足資料的支持下，其辨識精度通常優於傳統人工特徵方法[@dengImageNetLargescaleHierarchical2009; @heDeepResidualLearning2016]。近年來，CNN 已廣泛應用於半導體晶圓、紡織品、鋼板表面與 PCB 焊接等工業瑕疵檢測任務，並在多項公開基準上取得高辨識率[@bhattImageBasedSurfaceDefect2021]。在 3D 列印領域，已有研究將影像技術用於列印過程的即時瑕疵偵測[@holzmondSituRealTime2017]，以及以多頭神經網路進行即時錯誤偵測與跨機型校正[@brionGeneralisable3DPrinting2022]；這些工作多聚焦列印中（in-process）的逐層或即時監控，與本研究的列印後成品分級屬不同偵測時機。
+深度學習則改變了電腦視覺的特徵設計方式[@DeepLearning; @lecunGradientbasedLearningApplied1998]。卷積神經網路（CNN）以端到端方式自動學習影像的層次化特徵，從底層邊緣、紋理到高層語義，無需人工設計特徵，在充足資料下辨識精度通常優於傳統人工特徵方法[@dengImageNetLargescaleHierarchical2009; @heDeepResidualLearning2016]，並已應用於半導體晶圓、鋼板、紡織品與 PCB 等工業瑕疵檢測[@bhattImageBasedSurfaceDefect2021]。在 3D 列印領域，已有研究將影像技術用於列印過程的即時瑕疵偵測[@holzmondSituRealTime2017]，以及以多頭神經網路進行即時錯誤偵測與跨機型校正[@brionGeneralisable3DPrinting2022]，多聚焦列印中（in-process）的逐層或即時監控。
 
 工業瑕疵檢測文獻中另有一類基於**異常偵測（Anomaly Detection）**的無監督或半監督方法，如以自動編碼器（Autoencoder）的重建誤差判斷是否異常，或以正常樣本建立特徵分布、測試時以馬氏距離偵測偏離[@bhattImageBasedSurfaceDefect2021]。此類方法的優勢在於訓練時僅需正常樣本，不必對每種瑕疵類型逐一標注；但其輸出為「正常/異常」的二元判斷，無法直接輸出瑕疵嚴重程度等級。本研究的核心目標是對拉絲嚴重程度進行 A 至 F 六等級的**序數分級**，需要每張樣本帶有等級標籤才能訓練分類或迴歸模型，因此選擇有監督分類路線，而非無監督異常偵測。
 
@@ -336,11 +336,11 @@ toc: false
 
 ## 相關文獻探討 {#sec:literature-related}
 
-Jogin 等人[@joginFeatureExtractionUsing2018]的 CIFAR-10 實驗（85.97\% 準確率，顯著優於 SVM 與隨機森林）提供了一個具體的多類別分類參照，說明 CNN 學得的深度特徵在非工業影像分類任務上的系統性優勢；惟此屬通用影像分類，與 FDM 表面瑕疵視覺特徵之關聯僅屬間接，主要用途是為本研究採用 CNN 骨幹提供方法論背景。
+Jogin 等人[@joginFeatureExtractionUsing2018]的 CIFAR-10 實驗（85.97\% 準確率，顯著優於 SVM 與隨機森林）說明 CNN 學得的深度特徵在多類別影像分類上的系統性優勢，為本研究採用 CNN 骨幹提供方法論背景。
 
-Varshni 等人[@varshniPneumoniaDetectionUsing2019]以 DenseNet-169、ResNet-50、VGG-16、Xception 等預訓練模型對 ChestX-ray14 肺炎 X 光影像做特徵提取並接 SVM 分類，其中 DenseNet-169+SVM 在 AUC 達 0.8002。醫學 X 光影像與工業表面拉絲影像在視覺頻譜與標注性質上差異甚大，本文引用此研究的意義在於其**方法論層面**的相似性：同樣在「標注樣本有限（約千張量級）」的條件下，以 ImageNet 預訓練模型進行特徵遷移並取得有效結果，為本研究採用 MobileNetV3-Large 遷移學習策略提供支持依據。
+Varshni 等人[@varshniPneumoniaDetectionUsing2019]以 DenseNet-169、ResNet-50、VGG-16、Xception 等預訓練模型對 ChestX-ray14 肺炎 X 光影像做特徵提取並接 SVM 分類，其中 DenseNet-169+SVM 之 AUC 達 0.8002。其價值在方法論層面：同樣在標注樣本有限（約千張量級）的條件下，以 ImageNet 預訓練模型遷移特徵即取得有效結果，支持本研究採用 MobileNetV3-Large 的遷移學習策略。
 
-Lin 等人[@linFocalLossDense2017]提出之 Focal Loss 原用於**目標偵測**中前景與背景之極端類別不平衡（原始論文情境下比例可達 1000:1 以上），其在標準交叉熵的基礎上引入調焦因子 $(1-p_t)^\gamma$，降低模型已正確分類之高信心樣本的損失權重，使訓練聚焦於困難樣本（Hard Example）。本研究六個等級中最大不平衡比例約為 17:1（A 級 546 張對 F 級 32 張），屬相對溫和的失衡，與原論文情境有別；本研究引入 Focal Loss 是作為多重不平衡處理手段之一（配合 Weighted Sampler、Label Smoothing），而非針對極端比例失衡的主要解法（本研究實際採用之不平衡處理組合詳見 \ref{sec:method-model} 節）。
+Lin 等人[@linFocalLossDense2017]提出之 Focal Loss 原用於目標偵測中前景與背景的極端不平衡（比例可達 1000:1 以上），以調焦因子 $(1-p_t)^\gamma$ 降低高信心樣本的損失權重，使訓練聚焦於困難樣本。本研究六等級最大不平衡約 17:1（A 級 546 張對 F 級 32 張）屬相對溫和，故將 Focal Loss 作為多重不平衡處理手段之一（配合 Weighted Sampler、Label Smoothing），而非主要解法（組合詳見 \ref{sec:method-model} 節）。
 
 與本研究最直接相關者為 Brion 與 Pattinson[@brionGeneralisable3DPrinting2022]，其以多頭神經網路對 FDM 列印過程進行**即時**錯誤偵測與參數校正，並在多種印表機、材料與幾何形狀上展現泛化能力，屬「列印中（in-process）」的閉迴路監控。相較之下，本研究著眼於「列印後（post-print）」的成品表面品質評級：將拉絲瑕疵依嚴重度劃分為 A 至 F 六個**序數**等級並輸出連續品質分，且採用保留未來邊緣部署彈性的輕量模型，於小規模且不平衡的資料上以嚴格切分重複評估。兩者在偵測時機、輸出粒度與應用情境上互補，而後者正是本研究欲補足之處（詳見 \ref{sec:literature-gap} 節）。
 
@@ -373,9 +373,9 @@ MobileNetV3-Large 與 EfficientNet-B0 參數量相近，但 MobileNetV3-Large �
 
 遷移學習（Transfer Learning）在電腦視覺領域的核心假設是：在大規模資料集（如 ImageNet）上預訓練的模型，已學習到豐富的底層視覺特徵（邊緣、紋理、形狀等），這些特徵可以遷移至目標任務，即使目標任務的資料量遠少於預訓練資料集。常用的遷移學習策略包括：（a）**特徵提取（Feature Extraction）**：凍結預訓練模型的全部或大部分層，僅訓練新增的任務特定層；（b）**微調（Fine-tuning）**：以較小的學習率對全部或部分層進行更新，使模型特徵更好地適應目標任務。本研究兩組設定（簡化與完整）均採用全層微調（Full Fine-tuning）策略；兩者的差異主要在於損失函數、資料增強（有無 Mixup）與過採樣設定的組合，詳見 \ref{sec:method-model} 節。
 
-資料不平衡（Class Imbalance）是小樣本瑕疵分類常見的難題，文獻上的處理手段大致可分為三類：（1）**資料採樣層面**的重採樣，如對少數類別過採樣（oversampling）或加權抽樣，平衡各類別在訓練過程中的曝光機會；（2）**損失函數層面**的成本敏感法，包括前述 Focal Loss[@linFocalLossDense2017]（對困難樣本加重懲罰）與 **Label Smoothing**（將分類目標由硬標籤替換為軟標籤，分配小量機率 $\epsilon$ 給非目標類），後者有助於避免模型對多數類別樣本產生過度自信，並在少數類別邊界保留更多梯度訊號；（3）**資料增強層面**的方法，如 Mixup[@zhangMixupEmpiricalRisk2018]在批次中對任意兩筆樣本進行線性混合，擴充訓練分布的多樣性並抑制模型對邊界樣本的過度自信。三類手段彼此正交、可組合使用。本研究完整設定採用 Focal Loss + Label Smoothing（$\epsilon=0.1$）+ Mixup（$\alpha=0.3$）+ Weighted Sampler 之組合，簡化設定僅保留標準 Cross Entropy。其中同時啟用 Focal Loss 與 Label Smoothing 的理論張力、Mixup 用於序數分類的限制，以及 MixFocal 偏離原始設計等實作取捨，詳見 \ref{sec:method-model} 節。
+資料不平衡（Class Imbalance）是小樣本瑕疵分類常見的難題，文獻上的處理手段大致可分為三類：（1）**資料採樣層面**的重採樣，如對少數類別過採樣（oversampling）或加權抽樣，平衡各類別在訓練過程中的曝光機會；（2）**損失函數層面**的成本敏感法，包括前述 Focal Loss[@linFocalLossDense2017]（對困難樣本加重懲罰）與 **Label Smoothing**（將分類目標由硬標籤替換為軟標籤，分配小量機率 $\epsilon$ 給非目標類），後者有助於避免模型對多數類別樣本產生過度自信，並在少數類別邊界保留更多梯度訊號；（3）**資料增強層面**的方法，如 Mixup[@zhangMixupEmpiricalRisk2018]在批次中對任意兩筆樣本進行線性混合，擴充訓練分布的多樣性並抑制模型對邊界樣本的過度自信。三類手段彼此正交、可組合使用。本研究完整設定採用 Focal Loss + Label Smoothing（$\epsilon=0.1$）+ Mixup（$\alpha=0.3$）+ Weighted Sampler 之組合，簡化設定僅保留標準 Cross Entropy；此組合的實作取捨詳見 \ref{sec:method-model} 節。
 
-此外，本研究的 A 至 F 等級並非彼此完全獨立的名目類別，而具有由良品到嚴重瑕疵的序數關係。若僅以一般多類別交叉熵訓練模型，仍需在評估階段額外檢查模型是否尊重等級距離，例如相鄰等級誤判與跨等級誤判的差異、加權 Kappa 指標是否維持穩定，以及低信心樣本是否應交由人工複核。序數分類文獻亦提出以排序一致性約束處理等級輸出的方法，例如 CORAL 與 CORN 將類別順序納入模型學習目標[@caoRankConsistentOrdinal2020; @shiDeepNeuralNetworks2023]；模型信心校準則可用於檢查 softmax confidence 是否能反映預測可靠度，temperature scaling 為常見的後處理方法之一[@guoCalibrationModernNeural2017]。本文目前仍以 nominal classification 作為主要訓練方式，因此在結果章中特別回報 Quadratic Weighted Kappa（QWK）、跨等級誤判率（即預測等級與真實等級差距 $\geq 2$ 的樣本佔比，等效於「未達 $\pm 1$ 容忍」之比例）與校準分析，避免只用 accuracy 解讀序數分級任務。
+此外，本研究的 A 至 F 等級並非彼此獨立的名目類別，而具有由良品到嚴重瑕疵的序數關係。序數分類文獻提出以排序一致性約束處理等級輸出，例如 CORAL 與 CORN 將類別順序納入學習目標[@caoRankConsistentOrdinal2020; @shiDeepNeuralNetworks2023]；模型信心校準則可檢查 softmax confidence 是否反映預測可靠度，temperature scaling 為常見後處理方法[@guoCalibrationModernNeural2017]。本文仍以名目分類（nominal classification）為主要訓練方式，故在結果章額外回報 Quadratic Weighted Kappa（QWK）、跨等級誤判率（預測與真實等級差距 $\geq 2$ 的樣本佔比）與校準分析，避免只用 accuracy 解讀序數分級任務。
 
 ## 研究缺口與本研究定位 {#sec:literature-gap}
 
@@ -435,7 +435,7 @@ MobileNetV3-Large 與 EfficientNet-B0 參數量相近，但 MobileNetV3-Large �
 
 ### 列印參數設定 {#sec:method-equipment-params}
 
-列印參數非本研究的操控變因，固定採用 Bambu Studio 預設，代表性設定彙整於附錄二表 \ref{tab:param-summary}。惟因未逐批匯出完整設定檔，這些數值僅為背景製程紀錄，無法保證各批次完全一致。參數控制重點分為以下四類：
+列印參數非本研究的操控變因，固定採用 Bambu Studio 預設。惟未逐批匯出完整設定檔，無法保證各批次完全一致。參數控制重點分為以下四類：
 
 1. **品質設定**：固定層高、線寬與外殼品質，使拉絲差異主要來自列印狀態而非幾何尺寸變動。
 2. **強度設定**：控制填充密度與壁厚，避免樣本因結構強度不足而產生非拉絲類破壞。
@@ -500,11 +500,11 @@ PyTorch & 2.6.0+cu124 \\
 
 資料蒐集採分批列印方式進行：以 Bambu Lab A1 分批列印魚骨件後集中拍攝（各批張數見表 \ref{tab:batch-stats}）。標準批次以 2 欄 × 3 列拍攝，**每支列印件均納入資料集**、不遺漏，每張原始照片裁切出 6 筆有效樣本（拍攝與裁切規範詳見 \ref{sec:method-sample-capture} 節）。同一列印批次的魚骨件共享相同列印條件（溫度、速度、材料批號），批次內樣本之間具高階相關性（其對切分的影響詳見 \ref{sec:method-model} 節 Group Split 說明）。
 
-此外，另行補充少數等級樣本，使各等級資料更為完整；此批補樣以單支或少量方式個別拍攝，每張原圖裁切數不一定為標準批次的 6 筆，其中 E 級來自 61 組獨立拍攝原圖（共 72 張裁切），F 級來自 28 組獨立拍攝原圖（共 32 張裁切）。所有 F 級樣本均來自同時包含其他等級樣本的原始照片，即 F 級多與其他等級樣本同板出現。最後整理為 1110 筆有效資料。完整列印過程照片改列於附錄一。
+此外，另行補充少數等級樣本，使各等級資料更為完整；此批補樣以單支或少量方式個別拍攝，每張原圖裁切數不一定為標準批次的 6 筆，其中 E 級來自 61 組獨立拍攝原圖（共 72 張裁切），F 級來自 28 組獨立拍攝原圖（共 32 張裁切），且 F 級樣本皆與其他等級同板拍攝（非單獨成板）。最後整理為 1110 筆有效資料，完整列印過程照片改列於附錄一。
 
 ### 影像拍攝規範 {#sec:method-sample-capture}
 
-影像拍攝採固定角度與固定背景：從累積的列印成品中隨機取 6 支，平鋪於**黑色背景板**上排列成 2 欄 $\times$ 3 列，以 Redmi Note 14 5G 智慧型手機（搭載 MediaTek Camera Application）俯拍一張原始照片，重複此流程直至全部成品完成拍攝。相機採全自動曝光（AE 與 AWB 均未鎖定，ISO 與快門由系統決定；室內光源與鏡頭至背景板距離未紀錄），拍攝位置與室內環境盡量維持一致。黑色背景板與各色 PLA 魚骨形成良好明暗對比，有助於後續裁切與辨識。由於未鎖定曝光、白平衡與 ISO，各批次的亮度與色調略有差異；此變異在資料增強中由 ColorJitter 部分吸收（見 \ref{sec:method-preprocessing-aug} 節），但無法取代拍攝端的嚴格控制。各批次拍攝資料統計如表 \ref{tab:batch-stats} 所示。
+影像拍攝採固定角度與固定背景：從累積的列印成品中隨機取 6 支，平鋪於**黑色背景板**上排列成 2 欄 $\times$ 3 列，以 Redmi Note 14 5G 智慧型手機（搭載 MediaTek Camera Application）俯拍一張原始照片，重複此流程直至全部成品完成拍攝。相機採全自動曝光，AE、AWB、ISO 與快門均未鎖定，室內光源與拍攝距離亦未紀錄，僅盡量維持拍攝位置與環境一致。黑色背景板與各色 PLA 魚骨形成良好明暗對比，有助於後續裁切與辨識。上述未鎖定使各批次亮度與色調略有差異，部分由 ColorJitter 吸收（見 \ref{sec:method-preprocessing-aug} 節），但不能取代拍攝端的嚴格控制。各批次拍攝資料統計如表 \ref{tab:batch-stats} 所示。
 
 \begin{table}[H]
 \centering
@@ -534,7 +534,7 @@ PyTorch & 2.6.0+cu124 \\
 
 ### 魚骨自動裁切 {#sec:method-preprocessing-crop}
 
-本研究依列印與拍攝完成後整理之實驗照片進行魚骨樣本自動裁切。裁切採用固定網格方式：將每張照片等分為 2 欄 × 3 列，各格切出一支魚骨，並在後續訓練前統一縮放為 224 × 224 pixels 以符合預訓練模型輸入。本研究整理後共取得 1110 張有效單支魚骨樣本。由於拍攝時維持相近角度與位置，固定網格裁切的錯位風險偏低；惟未逐張人工 QC，個別批次仍可能因拍攝偏移出現邊界不齊。
+本研究依列印與拍攝完成後整理之實驗照片進行魚骨樣本自動裁切。裁切採用固定網格方式：將每張照片等分為 2 欄 × 3 列，各格切出一支魚骨，並在後續訓練前統一縮放為 224 × 224 pixels 以符合預訓練模型輸入。由於拍攝時維持相近角度與位置，固定網格裁切的錯位風險偏低；惟未逐張人工 QC，個別批次仍可能因拍攝偏移出現邊界不齊。
 
 圖 \ref{fig:crop-fish01} 至圖 \ref{fig:crop-fish03} 為自動裁切輸出的範例，每支魚骨被完整切割、背景一致。
 
@@ -563,9 +563,9 @@ PyTorch & 2.6.0+cu124 \\
 
 ### 資料增強策略 {#sec:method-preprocessing-aug}
 
-訓練階段對輸入影像施加表 \ref{tab:augmentation} 所列的多種隨機增強變換，以擴充有效訓練樣本多樣性，提升模型泛化能力；驗證與測試階段僅保留 Resize 與 Normalize 等確定性前處理，不施加隨機增強，確保評估流程一致。增強步驟的執行順序如表所示：Resize 至 RandomPerspective 皆在 PIL 影像空間執行；ToTensor 後進行 Normalize，最後的 RandomErasing 在 Tensor 空間執行（直接對張量數值作隨機遮蔽）。Mixup 屬批次層級增強，在 DataLoader 回傳 mini-batch 後才執行，與前述樣本層級增強互相獨立。
+訓練階段對輸入影像施加表 \ref{tab:augmentation} 所列的多種隨機增強，以擴充樣本多樣性、提升泛化能力；驗證與測試階段僅保留 Resize 與 Normalize 等確定性前處理，不施加隨機增強，確保評估流程一致。表中除 Mixup 屬批次層級增強（在 DataLoader 回傳 mini-batch 後才執行）外，其餘皆為樣本層級增強，依表列順序在 PIL 影像或 Tensor 空間執行。
 
-垂直翻轉（RandomVerticalFlip）以低機率（$p=0.3$）使用：魚骨雖具方向性（尾部在下），但拉絲等級以覆蓋比例為準、與方向無關，且拍攝時偶有上下顛倒放置，故以低機率翻轉增加方向多樣性、減少模型對固定方向的依賴。
+垂直翻轉以低機率（$p=0.3$）使用，因拍攝時偶有上下顛倒放置；低機率翻轉可增加方向多樣性而不過度偏離魚骨原始方向。
 
 \begin{table}[H]
 \centering
@@ -591,13 +591,13 @@ Mixup（批次層級）& $\alpha=0.3$ & \makecell{線性混合兩筆樣本\\提�
 \end{tabular}
 \end{table}
 
-需特別指出，本研究資料集雖使用 ColorJitter 與 RandomGrayscale 增加色彩變化，以降低模型對特定材料顏色的依賴，但仍**無法完全排除模型利用材料顏色、列印批次或拍攝條件批次作為捷徑特徵（Shortcut Feature）的可能性**。例如，不同批次的 PLA 線材顏色不同，若某批次恰好以特定顏色對應特定等級，模型可能學到「顏色→等級」的捷徑而非「拉絲細絲紋理→等級」。此風險在缺乏跨批次驗證集的情形下無法量化（與 \ref{sec:method-model} 節 Group Split 之批次相關性限制相關）。
+本研究雖以 ColorJitter 與 RandomGrayscale 增加色彩變化、降低對材料顏色的依賴，仍無法完全排除模型利用材料顏色或拍攝批次作為捷徑特徵（Shortcut Feature）：若某批次的 PLA 顏色恰好對應特定等級，模型可能學到「顏色→等級」而非「拉絲紋理→等級」。此風險在缺乏跨批次驗證集時無法量化（參見 \ref{sec:method-model} 節 Group Split 之批次相關性限制）。
 
 ## 品質等級定義 {#sec:method-grading}
 
 本研究依目視估計之拉絲覆蓋比例與魚骨結構可辨識程度，制定六個品質等級（A 至 F），如表 \ref{tab:grading-criteria} 所示。等級定義以覆蓋比例區間作為標注準則，而非透過影像分割演算法量測實際面積；並配合各等級範例圖（圖 \ref{fig:grade-a} 至圖 \ref{fig:grade-f}），以提升單一標注者在整批資料中的前後一致性。
 
-本研究現階段僅有單一標注者，無法計算 Cohen's Kappa、Fleiss' Kappa 或人類基準表現。因此，本文所有模型準確率均應解讀為「相對於本研究固定標注準則與單一標注者標籤」的表現，而非相對多人共識品質標準的表現。模型能學習並重現此套固定分級準則，可降低批量檢查負擔並輔助人工複核，但尚未消除人工主觀差異。
+本研究現階段僅單一標注者，無法計算標注者間一致性（如 Cohen's、Fleiss' Kappa）或人類基準；故所有準確率均應理解為相對此固定標注準則，而非多人共識標準。模型能重現此套準則以降低批量檢查負擔、輔助人工複核，但尚未消除人工主觀差異。
 
 \begin{table}[H]
 \centering
@@ -709,9 +709,9 @@ F & 失敗品 & \makecell{極度拉絲\\幾乎看不出魚骨結構} & 0 分 & �
 
 此等距假設在感知品質層面未必成立：A→B（幾乎無拉絲至 1～2 根短絲）的差異，未必等同於 E→F（大量拉絲至結構幾乎難以辨識）的差異，主觀品質曲線在嚴重端（D/E/F）可能較陡、在輕微端（A/B/C）較平緩；惟缺乏多人連續評分校準資料，此偏差暫無法量化。
 
-此外，Mixup 啟用時評分目標 $\text{score\_gt}$ 僅以混合前第一個樣本的標籤（$y_a$）計算，未對第二個樣本標籤（$y_b$）做線性插值，在跨等級混合樣本上會引入輕微的監督不一致。整體而言，本研究將 ordinal classification 以「nominal classification + auxiliary regression」近似處理，未採用 ordinal-aware loss（如 CORAL [@caoRankConsistentOrdinal2020]、CORN [@shiDeepNeuralNetworks2023]）或 ordinal regularization。
+此外，Mixup 啟用時評分目標 $\text{score\_gt}$ 僅以混合前第一個樣本的標籤（$y_a$）計算，未對第二個樣本標籤（$y_b$）做線性插值，在跨等級混合樣本上會引入輕微的監督不一致。整體而言，本研究以「名目分類＋輔助迴歸」近似序數分類（ordinal classification），未採用序數感知損失（如 CORAL [@caoRankConsistentOrdinal2020]、CORN [@shiDeepNeuralNetworks2023]）。
 
-本研究依不同的資料切分與策略組合進行多組訓練（如表 \ref{tab:training-scripts} 所示）。本文的「多 seed」指在同一份 1110 張資料、相同 Group Split 流程與相同模型／設定下，更換\textbf{亂數種子值（seed，隨機數生成器的初始化數值）}後重複訓練與測試；資料逐步擴充產生的歷史版本不列入多 seed 統計。五個種子值為 \textbf{7、42、123、1234、2024}，與訓練執行順序無關。
+本研究依不同的資料切分與策略組合進行多組訓練（如表 \ref{tab:training-scripts} 所示）。本文的「多 seed」指在同一份 1110 張資料、相同 Group Split 流程與相同模型／設定下，更換亂數種子值後重複訓練與測試；資料逐步擴充產生的歷史版本不列入多 seed 統計。五個種子值為 7、42、123、1234、2024。
 
 \begin{table}[H]
 \centering
@@ -731,7 +731,7 @@ F & 失敗品 & \makecell{極度拉絲\\幾乎看不出魚骨結構} & 0 分 & �
 \end{tabular}
 \end{table}
 
-\noindent 表 \ref{tab:training-scripts} 中，正式五 seed 比較僅包含 MobileNetV3-Large 簡化、MobileNetV3-Large 完整、ResNet18 完整與 EfficientNet-B0 完整四組；單變因消融與 100 epoch 檢查僅在 seed=7 下完成，因此本文將其定位為診斷實驗，而非穩定性結論。
+\noindent 如表 \ref{tab:training-scripts}，四組正式比較（MobileNetV3-Large 簡化／完整、ResNet18 完整、EfficientNet-B0 完整）跑滿五 seed，而單變因消融與 100 epoch 檢查僅在 seed=7 完成，故定位為診斷實驗而非穩定性結論。
 
 **Group Split 切分比例**：以 GroupShuffleSplit 兩步切割，先取 15\% 原圖群組為測試集，再從其餘樣本切出驗證集，最終近似 70/15/15。seed=7 案例的切分結果為訓練 774 張、驗證 168 張、測試 168 張，三者原圖群組零重疊；另以 seed=42、123、1234、2024 依相同流程各重複一次，以評估小樣本切分與模型初始化對結果的影響。Group Split 可避免同一原圖的裁切樣本同時落入訓練與測試集，但**尚未排除列印批次、材料顏色與拍攝條件造成的高階相關性**：若特定批次的 PLA 顏色或列印條件在各 split 中分布不均，仍可能使測試集結果偏樂觀。
 
@@ -745,11 +745,11 @@ L_{\text{plain}} &= L_{\text{CE}} + 0.3 \times L_{\text{MSE}}
 \label{eq:total-loss}
 \end{equation}
 
-\noindent 其中 $L_{\text{full}}$ 對應完整設定，$L_{\text{plain}}$ 對應簡化設定。係數 0.3 為經驗設定：初步實驗中 $L_{\text{Focal}}$ 與 $L_{\text{MSE}}$ 在訓練初期量級相近（均在 $0.5 \sim 2.0$ 區間），取 0.3 可使評分輔助頭提供穩定梯度而不壓過分類損失；若兩損失量級差異較大，此係數應重新調整。
+\noindent 其中 $L_{\text{full}}$ 對應完整設定，$L_{\text{plain}}$ 對應簡化設定。係數 0.3 為經驗設定：初步實驗中 $L_{\text{Focal}}$ 與 $L_{\text{MSE}}$ 在訓練初期量級相近（均在 $0.5 \sim 2.0$ 區間），取 0.3 可使評分輔助頭提供穩定梯度而不壓過分類損失。
 
 Mixup 啟用時，Focal Loss 以混合比例 $\lambda$ 線性組合兩個硬標籤的 CE，再套用焦點加權 $(1-p_t)^\gamma$，其中 $p_t = \exp(-(\lambda \cdot \text{CE}_a + (1-\lambda) \cdot \text{CE}_b))$。此做法等效於 MixFocal，技術上偏離 Focal Loss 針對固定硬標籤的原始設計，屬本研究的簡化取捨。
 
-完整設定同時啟用 Focal Loss 與 Label Smoothing 還存在一項理論張力。Focal Loss 的加權因子 $(1-p_t)^\gamma$ 依賴模型對正確類別的預測機率 $p_t$：$p_t$ 愈高代表樣本愈「容易」，其損失權重被降低，訓練因而聚焦於困難樣本；但 Label Smoothing 將目標由硬標籤 1.0 軟化至 $1-\epsilon=0.9$，人為限制了 $p_t$ 的上限，使模型即便對多數類別「幾乎確定」也無法觸發 Focal Loss 應有的強降權，削弱了 Hard Example Mining 的效果。本研究未對「FL only」「LS only」與「FL+LS」做單獨消融，無法量化此組合是否優於單獨使用任一機制。
+完整設定同時啟用 Focal Loss 與 Label Smoothing 有一處衝突。Focal Loss 的加權因子 $(1-p_t)^\gamma$ 依賴模型對正確類別的預測機率 $p_t$：$p_t$ 愈高代表樣本愈「容易」、損失權重愈低，訓練因而聚焦於困難樣本。但 Label Smoothing 將目標由硬標籤 1.0 軟化至 $1-\epsilon=0.9$，人為限制 $p_t$ 上限，使模型即便對多數類別「幾乎確定」也無法觸發 Focal Loss 的強降權，削弱了困難樣本挖掘的效果。本研究未對「僅 FL」「僅 LS」與「FL+LS」做單獨消融，無法量化此組合是否優於單獨使用。
 
 seed=7 詳細分析中，簡化設定於同一 Group Split 測試集取得 86.31\%（145/168），可作為後續混淆矩陣、校準與可視化的代表案例；但五 seed 重複後，簡化設定與完整設定在 accuracy / QWK 上未呈現顯著差異，因此本文不再將單次 86.31\% 解讀為策略穩定勝出，而是將其定位為可重現的嚴格切分基準。兩組設定之超參數整理於表 \ref{tab:hyperparameters}。
 
@@ -780,13 +780,13 @@ Mixup Alpha & 0.3 & 0.0 & 批次層級線性混合 \\
 \end{tabular}
 \end{table}
 
-\par\noindent\small\textit{正式五 seed 比較與 seed=7 單變因消融皆使用 25 epoch、patience=7；僅 MobileNetV3-Large 簡化設定另做 100 epoch、patience=35 檢查，用來觀察較長訓練預算下結果是否改變。}
+\par\noindent\small\textit{100 epoch 檢查僅針對 MobileNetV3-Large 簡化設定，用來觀察較長訓練預算下結果是否改變。}
 
 # 實驗結果與分析 {#sec:results}
 
 ## 資料集統計分析 {#sec:results-dataset}
 
-本研究有效樣本共 1110 張，依品質等級分布如表 \ref{tab:dataset-dist} 及圖 \ref{fig:dataset-dist} 所示。A 等級（完美品）佔比最高，共 546 張；B 級 87 張、C 級 213 張、D 級 160 張、E 級 72 張、F 級 32 張。此分布反映資料仍具明顯類別不平衡，尤其 B、E、F 等級樣本數偏少，故後續以 macro-F1、QWK、跨等級誤判與各等級 support 等多指標綜合評估，不單看整體 accuracy。
+本研究有效樣本共 1110 張，各等級分布如表 \ref{tab:dataset-dist} 及圖 \ref{fig:dataset-dist} 所示：A 等級（完美品）佔近半（546 張），B、E、F 三級樣本數偏少（87/72/32 張），類別不平衡明顯。故後續以 macro-F1、QWK、跨等級誤判與各等級 support 等多指標綜合評估，不單看整體 accuracy。
 
 \begin{table}[H]
 \centering
@@ -838,13 +838,13 @@ F & 失敗品 & 32 & 2.9\% & \makecell{樣本基數最小\\仍建議持續補充
 \end{adjustbox}
 \end{table}
 
-表 \ref{tab:seed7-results} 整理 seed=7、同一 Group Split 測試集下四組主要模型／設定之結果。最佳單次結果為 MobileNetV3-Large 完整設定，accuracy 89.88\%（151/168），但這僅是單一 seed、單一切分下的結果，穩定性以五 seed 為準（見 \ref{sec:results-supplemental-multiseed} 節）。另需注意，完整設定因 WeightedRandomSampler 每 epoch 訓練步數（145 步）約為簡化設定（24 步）的六倍，兩者在 seed=7 的差距（89.88\% vs 86.31\%）同時包含策略差異與累積計算量差異，無法單獨歸因；詳見 \ref{sec:results-supplemental-ablation} 節。
+表 \ref{tab:seed7-results} 整理 seed=7、同一 Group Split 測試集下四組主要模型／設定之結果。最佳單次結果為 MobileNetV3-Large 完整設定，accuracy 89.88\%（151/168）。但完整與簡化設定的差距（89.88\% vs 86.31\%）同時含策略差異與約 6 倍訓練量差異，無法單獨歸因（詳見 \ref{sec:results-supplemental-ablation} 節）；單一 seed 結果的穩定性仍以五 seed 為準（見 \ref{sec:results-supplemental-multiseed} 節）。
 
 由於 seed=7 測試集中 B、E、F 等級分別只有 16、8、4 張，少數類別的 precision、recall 與 macro-F1 易受少量樣本變動影響，本節因此將 seed=7 視為檢查混淆矩陣、校準與視覺化的詳細案例，而非模型排序依據。
 
 \begin{table}[H]
 \centering
-\caption{seed=7 主要模型／設定於同一 Group Split 測試集之結果（單次案例；完整 vs 簡化之差異含策略與約 6 倍訓練量兩項因素，穩定性以表 \ref{tab:multiseed-results} 五 seed 為準）}
+\caption{seed=7 主要模型／設定於同一 Group Split 測試集之結果（單次案例，穩定性見表 \ref{tab:multiseed-results} 五 seed）}
 \label{tab:seed7-results}
 \small
 \setlength{\tabcolsep}{3pt}
@@ -862,7 +862,7 @@ EfficientNet-B0 完整 & 82.14\% & 0.729 & 0.951 & 1.19\% & 21.2 分 \\
 \end{adjustbox}
 \end{table}
 
-表 \ref{tab:seed7-perclass} 為 MobileNetV3-Large 簡化設定於 seed=7 測試集之各等級精確率、召回率與 F1 分數。**B 等級召回率僅 56.3\%（9/16），為六等級中最低**：5 張 B 等級樣本被誤判為 A 等級（良品誤判為完美品）。此方向誤判在「合格/不合格篩選」情境下風險相對較低（漏判輕微瑕疵影響有限）；但若系統用於細粒度品質評分，B 等級樣本被誤判為 A 將導致品質分系統性偏高，仍屬需注意的失效模式。上述混淆亦反映 A/B 邊界在少量細絲辨識上存在困難，與 \ref{sec:results-quality-score} 節 B 等級品質分偏高（89.0 分 vs 目標 80 分）的觀察相互印證，說明 A/B 邊界是本系統最薄弱環節。
+表 \ref{tab:seed7-perclass} 為 MobileNetV3-Large 簡化設定於 seed=7 測試集之各等級精確率、召回率與 F1 分數。**B 等級召回率僅 56.3\%（9/16），為六等級中最低**：5 張 B 等級樣本被誤判為 A 等級（良品誤判為完美品）。此方向誤判在「合格/不合格篩選」情境下風險相對較低（漏判輕微瑕疵影響有限）；但若用於細粒度品質評分，B 被誤判為 A 將導致品質分系統性偏高，仍屬需注意的失效模式。上述誤判顯示 A/B 邊界為本系統最薄弱環節（品質分佐證見 \ref{sec:results-quality-score} 節）。
 
 C/D 邊界混淆同樣顯著（C→D 有 7/35、D→C 有 2/28）；D→A 出現 2 次跨等級誤判（詳見後段 Grad-CAM 回溯分析）。E、F 各 8、4 張，統計解讀須謹慎。
 
@@ -888,13 +888,13 @@ Macro avg     & 0.823 & 0.776 & 0.791 & 168 \\
 \end{tabular}
 \end{table}
 
-\par\noindent\small\textit{\textbf{$^{\dagger}$ E（Support=8）與 F（Support=4）兩列樣本數過小，P/R/F1 僅供觀察、不具統計意義（F 等級任一張誤判即造成 Recall 變動 25\%）。}}
+\par\noindent\small\textit{\textbf{$^{\dagger}$ E、F 兩列樣本數過小，F 等級任一張誤判即造成 Recall 變動 25\%。}}
 
 圖 \ref{fig:confusion-matrix} 為 seed=7 MobileNetV3-Large 簡化設定之混淆矩陣。對角線代表正確分類；非對角線誤判集中於相鄰等級（A/B、C/D、E/F），符合序數分類的預期行為；D→A 的 2 次跨等級誤判為本研究最需注意的誤判模式。
 
-進一步回溯定位：2 筆 D→A 誤判均來自同一張原始照片（`IMG_20251206_163641_1`），對應裁切圖 fish02 與 fish04。其中 fish02 之模型信心度高達 0.941（品質分 96.7），屬**高信心誤判**；fish04 信心度為 0.565（品質分 85.0），處於分類邊界。兩筆均來自同一批次同一原圖，可能與該次拍攝角度使 D 級樣本的拉絲對比度降低有關，導致模型以高信心誤判為無拉絲的 A 級。惟此僅基於 2 筆案例，不作為系統性結論。
+進一步回溯定位：2 筆 D→A 誤判均來自同一張原始照片（`IMG_20251206_163641_1`），對應裁切圖 fish02 與 fish04。其中 fish02 之模型信心度高達 0.941（品質分 96.7），屬**高信心誤判**；fish04 信心度為 0.565（品質分 85.0），處於分類邊界。兩筆均來自同一批次同一原圖，可能與該次拍攝角度使 D 級樣本的拉絲對比度降低有關，導致模型以高信心誤判為無拉絲的 A 級。
 
-圖 \ref{fig:gradcam-da} 為此兩筆 D→A 誤判樣本之 Grad-CAM 可視化。fish02（信心度 0.941）之熱力圖高亮區域集中於魚骨結構而非拉絲間隙，顯示模型激活點偏離瑕疵區域；fish04（信心度 0.565）熱力圖較分散，反映模型在邊界樣本上的激活不確定性。兩者均呈現模型未能有效激活拉絲細絲區域之特徵。
+圖 \ref{fig:gradcam-da} 為此兩筆 D→A 誤判樣本之 Grad-CAM 可視化。fish02（信心度 0.941）之熱力圖高亮區域集中於魚骨結構而非拉絲間隙，顯示模型激活點偏離瑕疵區域；fish04（信心度 0.565）熱力圖較分散，反映模型在邊界樣本上的激活不確定性。
 
 \begin{figure}[H]
 \centering
@@ -935,17 +935,17 @@ EfficientNet-B0 完整 & 81.19 $\pm$ 2.25\% & 0.698 $\pm$ 0.031 & 0.910 $\pm$ 0.
 \end{adjustbox}
 \end{table}
 
-表 \ref{tab:multiseed-results} 中，MobileNetV3-Large 完整設定的 accuracy std 達 **5.98\%**，為四組中最大，約為 EfficientNet-B0 完整（2.25\%）與 ResNet18 完整（2.16\%）的 2.6 倍；macro-F1 與 QWK 的 std 也同步偏高（0.070 與 0.039）。在 1110 張的小樣本規模下，對 seed（Group Split 切分與權重初始化）較敏感的設定，其單次結果的外推性遠不如方差小的設定。
+表 \ref{tab:multiseed-results} 中，MobileNetV3-Large 完整設定的 accuracy std（5.98\%）為四組最大，約為其餘兩者的 2.6 倍，macro-F1 與 QWK 的 std 也同步偏高。在 1110 張小樣本規模下，對 seed（Group Split 切分與權重初始化）較敏感的設定，其單次結果的外推性遠不如方差小的設定。
 
-完整設定雖在 seed=7 達 89.88\%（四組中該 seed 最高），五 seed 平均卻是四組最低（80.12\%）；這代表 seed=7 的高分主要反映「該次切分剛好對完整設定有利」，而非策略穩定優越。由於實際部署只會看到單次訓練結果，完整設定同時落入「平均最低」與「方差最大」，其高方差應視為負面訊號。簡化設定亦有類似現象：其 seed=7 的 86.31\% 高於五 seed 平均（81.19\%），可見 seed=7 對兩種設定都偏寬鬆，單一 seed 結果均不宜外推。
+完整設定雖在 seed=7 達 89.88\%（該 seed 最高），五 seed 平均卻是四組最低（80.12\%）且方差最大，可見其高分屬該次切分之利而非策略穩定優越；由於實際部署只看單次訓練結果，此高方差應視為負面訊號。簡化設定亦然（seed=7 86.31\% 高於平均 81.19\%），可見 seed=7 對兩種設定都偏寬鬆，單一 seed 結果均不宜外推。
 
 以 MobileNetV3-Large 簡化設定作為比較基準之 paired t-test 如表 \ref{tab:paired-ttest} 所示。五 seed 結果顯示，其他模型／設定相對簡化設定的 accuracy 與 QWK 差異皆未達統計顯著；MobileNetV3-Large 完整與 ResNet18 完整在 macro-F1 上較高，且探索性檢定達 \(p<0.05\)，表面上意味完整策略或 ResNet18 對少數類別與類別邊界可能較有幫助。
 
-然而此推論有兩點警語。其一，檢定 power 偏低：n=5 的 paired t-test 對中等效應量的 power 通常低於 0.4，「未達顯著」不可解讀為「兩設定等效」，僅表示在此樣本量下無法區分。其二，多重比較應涵蓋全部 9 個比較（3 個模型 × Accuracy／Macro-F1／QWK），而非僅 macro-F1 的 3 個；以 9 個比較的 Bonferroni 校正（$\alpha \approx 0.0056$），macro-F1 的兩個 p 值（0.0246、0.0363）均超出門檻（約為門檻的 4.4 與 6.5 倍），即使僅以 3 個比較校正（$\alpha \approx 0.0167$）亦不顯著。
+然而此推論有兩點警語。其一，檢定 power 偏低：n=5 的 paired t-test 對中等效應量的 power 通常低於 0.4，「未達顯著」不可解讀為「兩設定等效」，僅表示在此樣本量下無法區分。其二，多重比較應涵蓋全部 9 個比較（3 個模型 × Accuracy／Macro-F1／QWK），而非僅 macro-F1 的 3 個；以 9 個比較的 Bonferroni 校正（$\alpha \approx 0.0056$），macro-F1 的兩個 p 值（0.0246、0.0363）均超出門檻，即使僅以 3 個比較校正（$\alpha \approx 0.0167$）亦不顯著。
 
 綜上，本文將 macro-F1 的差異定位為**探索性趨勢**；加上 accuracy 與 QWK 未同步顯著、完整設定 std 偏大，本文**不宣稱任何單一設定為穩定最佳模型**。
 
-**骨幹選擇之取捨**：五 seed 結果中 ResNet18 完整之 macro-F1 平均（0.712）與 MobileNetV3-Large 完整（0.713）相當，皆略高於 MobileNetV3-Large 簡化（0.661）。但此差異不足以改變骨幹選擇：（1）ResNet18 之 macro-F1 探索性 p 值（0.0363）經 Bonferroni 校正後不顯著，差異強度有限；（2）ResNet18 之 FLOPs（約 1.8 GFLOPs）為 MobileNetV3-Large（約 219 MFLOPs）的 8 倍以上，部署成本顯著較高，與本研究納入「未來邊緣部署彈性」之骨幹選擇考量（見 \ref{sec:method-model-rationale} 節）相衝突。因此本研究仍以 MobileNetV3-Large 為主要骨幹；若後續研究以「最大化 macro-F1」為單一目標且不受部署成本限制，ResNet18 之表現值得以更大樣本與多 seed 進一步驗證。
+**骨幹選擇之取捨**：五 seed 中 ResNet18 與 MobileNetV3-Large 完整之 macro-F1（0.712／0.713）略高於簡化（0.661），但兩點理由使本研究仍選 MobileNetV3-Large：（1）ResNet18 之 macro-F1 探索性 p 值（0.0363）經 Bonferroni 校正後不顯著，差異強度有限；（2）ResNet18 之 FLOPs（約 1.8 GFLOPs）為 MobileNetV3-Large（約 219 MFLOPs）的 8 倍以上，部署成本顯著較高，與本研究「未來邊緣部署彈性」之骨幹考量（見 \ref{sec:method-model-rationale} 節）相衝突。若後續以「最大化 macro-F1」為單一目標且不受部署成本限制，ResNet18 值得以更大樣本與多 seed 進一步驗證。
 
 \begin{table}[H]
 \centering
@@ -968,7 +968,7 @@ ResNet18 完整 & -0.36 pp & 0.745 & +0.052 & \textbf{0.0363} & -0.006 & 0.604 \
 
 ## seed=7 單變因消融與 100 epoch 檢查 {#sec:results-supplemental-ablation}
 
-表 \ref{tab:ablation-results} 整理 seed=7 下之消融與 100 epoch 檢查。每列「移除 X」代表**僅移除 X，其餘訓練元件（Focal Loss、Label Smoothing、Mixup、Weighted Sampler）均保留**。此表用來診斷完整策略中各訓練元件的影響，但因僅有單一 seed，不能作為穩定性結論。從此單次結果看，移除 Weighted Random Sampler 時 accuracy 為 83.33\%，QWK 為 0.910，跨等級誤判為 4.17\%；相較之下，移除 label smoothing 在此 seed 下得到 88.10\% accuracy。此現象只能說明 seed=7 下 label smoothing 未帶來改善，不能推論所有 seed 皆如此。
+表 \ref{tab:ablation-results} 整理 seed=7 下之消融與 100 epoch 檢查。每列「移除 X」代表**僅移除 X，其餘訓練元件（Focal Loss、Label Smoothing、Mixup、Weighted Sampler）均保留**。此表用來診斷各訓練元件的影響，但僅單一 seed，不能作為穩定性結論。此單次結果中，移除 Weighted Sampler 使跨等級誤判升至 4.17\%（表中最高），移除 Label Smoothing 反而 accuracy 較高（88.10\%），但僅說明 seed=7 下的現象，不能推論所有 seed。
 
 訓練時間欄位有兩點須特別注意：
 
@@ -1001,7 +1001,7 @@ ResNet18 完整 & -0.36 pp & 0.745 & +0.052 & \textbf{0.0363} & -0.006 & 0.604 \
 
 ## 品質分數與已標注資料擬合檢查 {#sec:results-quality-score}
 
-品質分輔助頭之設計原則與等距假設限制詳見第 \ref{sec:method-model-dualhead} 節。表 \ref{tab:plain-quality-score} 整理 seed=7 測試集與全資料回測之各等級平均分；兩者均呈 A $>$ B $>$ C $>$ D $>$ E $>$ F 的單調遞減排序，可作為分類結果之外的輔助排序訊號，但全資料回測包含訓練集樣本，不代表泛化能力。其中偏差較大者為：B 等級測試集均分 89.0 分（目標 80 分，偏高 9.0 分）、D 等級 54.5 分（目標 40 分，偏高 14.5 分）、F 等級 12.5 分（目標 0 分，偏高 12.5 分）。這些偏差並非隨機分散，而呈現方向性的系統偏高：B 等級偏高與其低召回率（56.3\%）直接相關，被誤判為 A 的樣本以接近 100 分輸出，拉高 B 的預測均分；D 等級偏高則對應 C/D 邊界混淆，部分 D 樣本被誤判為 C 而輸出 60 分附近，使 D 均分上移。這反映品質分偏差主要來自邊界分類的不確定性。
+品質分輔助頭之設計原則與等距假設限制詳見第 \ref{sec:method-model-dualhead} 節。表 \ref{tab:plain-quality-score} 整理 seed=7 測試集與全資料回測之各等級平均分；兩者均呈 A $>$ B $>$ C $>$ D $>$ E $>$ F 的單調遞減排序，可作為分類之外的輔助排序訊號（全資料回測含訓練集，僅供觀察）。其中 B、D、F 三級系統性偏高（最大偏差 D 級 +14.5 分），且非隨機分散：B 偏高與其低召回率（56.3\%）直接相關，被誤判為 A 的樣本以接近 100 分輸出，拉高 B 的均分；D 偏高則對應 C/D 邊界混淆，部分 D 被誤判為 C 而輸出 60 分附近。可見品質分偏差主要來自邊界分類的不確定性。
 
 \begin{table}[H]
 \centering
@@ -1025,9 +1025,11 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 \par\noindent\small\textit{測試集平均分來自 seed=7 Group Split 測試紀錄（無原圖洩漏）；\textsuperscript{$\ddagger$} 全資料回測為 1110 張樣本（**包含 774 張訓練集樣本**）之回測平均分，僅供觀察模型對已標注資料之擬合與品質分排序，不可作為泛化能力指標。}
 
-已標注資料擬合檢查之整體準確率為 87.30\%（969/1110），macro-F1 為 0.779。由於此結果包含訓練資料，本文僅將其作為擬合度與批量流程檢查，不作為未見資料泛化能力的主要指標。此外，品質分雖維持 A $>$ B $>$ C $>$ D $>$ E $>$ F 的單調排序，但 B、D、F 等類別存在系統性偏高現象，現階段不適合作為絕對品質門檻使用。
+已標注資料擬合檢查之整體準確率為 87.30\%（969/1110），macro-F1 為 0.779；此結果含訓練資料，僅作擬合度與批量流程檢查。品質分雖維持單調排序，但 B、D、F 類存在系統性偏高，現階段不適合作為絕對品質門檻。
 
 ## 校準分析與視覺化診斷 {#sec:results-supplemental-calibration}
+
+本節之校準、PR/ROC、Grad-CAM 與 t-SNE 均為 seed=7 單次之診斷工具，用於理解模型行為，不取代 \ref{sec:results-supplemental-multiseed} 節五 seed 統計。
 
 **模型校準**：以 seed=7 MobileNetV3-Large 簡化模型進行 confidence calibration。溫度縮放（Temperature Scaling）的溫度參數 $T$ 以**驗證集**（168 張，與訓練集原圖零重疊）最小化 NLL 損失方式擬合，ECE 計算採用 15 個等距 confidence bins。未校準 ECE 為 0.0576；temperature scaling[@guoCalibrationModernNeural2017]（\(T=1.525\)）後 ECE 降至 0.0435。圖 \ref{fig:calibration-reliability} 為校準前後之 reliability diagram：校準後信心分布更接近對角線（理想校準），尤其在高信心區間的過信問題有所改善。高信心樣本（confidence \(>0.9\)）共有 112/168 張，準確率 95.5\%；低信心樣本（confidence \(<0.7\)）共有 28/168 張，準確率 46.4\%，落差顯著。因此，confidence 可作為人工複核流程的分流門檻：低信心預測不宜直接自動通過，建議進入人工確認。
 
@@ -1038,7 +1040,7 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 \label{fig:calibration-reliability}
 \end{figure}
 
-**PR 曲線分析**：One-vs-rest PR 曲線如圖 \ref{fig:pr-curves}。各等級 AP 如下：A 級 0.997、B 級 0.863、C 級 0.959、D 級 0.840、E 級 0.797、F 級 0.788。B、D、E、F 等少數類別或邊界類別 AP 均低於 0.90，其中 E、F AP 最低（分別為 0.797、0.788），反映樣本稀少與等級邊界模糊的雙重挑戰。One-vs-rest ROC 分析中，各等級 AUC 均超過 0.96（A：0.998、B：0.968、C：0.986、D：0.963、E：0.987、F：0.989），顯示模型在二元區分上的整體辨識力良好，但精確率與召回率之間的取捨仍是少數類別的主要瓶頸。此類曲線分析用於診斷模型行為，不取代正式五 seed 統計。
+**PR 曲線分析**：One-vs-rest PR 曲線如圖 \ref{fig:pr-curves}。少數或邊界類別（B、D、E、F）AP 均低於 0.90，其中 E、F 最低（0.797、0.788），反映樣本稀少與等級邊界模糊的雙重挑戰；各等級 ROC AUC 則均超過 0.96，顯示二元區分的整體辨識力良好，但精確率與召回率的取捨仍是少數類別的主要瓶頸。
 
 \begin{figure}[H]
 \centering
@@ -1047,7 +1049,9 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 \label{fig:pr-curves}
 \end{figure}
 
-**Grad-CAM 視覺解釋**：圖 \ref{fig:gradcam-correct} 與圖 \ref{fig:gradcam-wrong} 分別為預測正確與預測錯誤樣本的 Grad-CAM 熱力圖。本研究以手動掛載 forward/backward hook 的方式，對 MobileNetV3-Large \texttt{feature\_net[0][-1]}（features 模組末段最後一個 InvertedResidual block）之卷積輸出執行 Grad-CAM；熱力圖以 Jet colormap 生成後依 $0.55 \times \text{原圖} + 0.45 \times \text{熱力圖}$ 疊加顯示。展示樣本取各等級中「第一個」正確或錯誤預測樣本（依資料集索引順序，非隨機抽樣或人工精選），讀者解讀時應注意樣本選取並非追求最佳視覺效果。正確預測案例中，部分樣本之熱力圖高亮區域集中於魚骨間隙的拉絲細絲區域，顯示模型在這些案例中可能以拉絲密度與分布特徵作為判斷依據；惟 Grad-CAM 屬事後解釋工具，不能排除模型同時利用背景顏色、邊緣或其他非拉絲特徵。錯誤預測案例中（多為 A/B 或 C/D 邊界樣本），熱力圖出現分散或集中於非拉絲區域的情形，提示邊界樣本的特徵歧義性為誤判的主要來源之一，與 \ref{sec:results-seed7} 節 B 等級低召回率的觀察一致：B 等級中被誤判為 A 的樣本，拉絲細絲區域之激活強度明顯偏低。
+**Grad-CAM 視覺解釋**：圖 \ref{fig:gradcam-correct} 與圖 \ref{fig:gradcam-wrong} 分別為預測正確與錯誤樣本的 Grad-CAM 熱力圖。本研究以手動掛載 forward/backward hook，對 MobileNetV3-Large \texttt{feature\_net[0][-1]}（features 模組末段最後一個 InvertedResidual block）之卷積輸出執行 Grad-CAM，熱力圖以 Jet colormap 生成後依 $0.55 \times \text{原圖} + 0.45 \times \text{熱力圖}$ 疊加。展示樣本取各等級中「第一個」正確或錯誤預測樣本（依資料集索引順序，非隨機或人工精選），解讀時應注意樣本選取並非追求最佳視覺效果。
+
+正確預測案例中，部分樣本之熱力圖高亮集中於魚骨間隙的拉絲細絲區域，顯示模型可能以拉絲密度與分布作為判斷依據；惟 Grad-CAM 屬事後解釋工具，不能排除模型同時利用背景顏色、邊緣等非拉絲特徵。錯誤案例（多為 A/B 或 C/D 邊界樣本）熱力圖分散或集中於非拉絲區域，提示邊界樣本的特徵歧義為誤判主因之一，與 \ref{sec:results-seed7} 節 B 等級低召回的觀察一致。
 
 \begin{figure}[H]
 \centering
@@ -1074,11 +1078,11 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 ## 外部未標注影像診斷 {#sec:results-supplemental-ood}
 
-外部未標注資料共 105 張照片，裁切為 630 支魚骨後進行推論。預測分布如圖 \ref{fig:external-dist} 所示：A/B/C/D/E/F = 417/14/82/75/30/12，A 等級佔 66.2\%，整體偏向良品側，較訓練集 A 等級 49.2\% 更為集中。平均 confidence 為 0.919，其中 confidence \(<0.7\) 者 74 支（11.7\%），低於測試集的低信心比例（28/168 = 16.7\%），顯示模型輸出分布正常，未出現崩潰或全部集中單一類別的異常。
+外部未標注資料共 105 張照片，裁切為 630 支魚骨後進行推論，預測分布如圖 \ref{fig:external-dist} 所示。A 等級佔 66.2\%，較訓練集（49.2\%）更偏向良品側。平均 confidence 為 0.919，其中 confidence \(<0.7\) 者 11.7\%，低於測試集的低信心比例（16.7\%），顯示模型輸出分布正常，未出現崩潰或集中單一類別的異常。
 
-由於此批資料沒有人工標籤，本文不計算也不宣稱 OOD accuracy；其用途僅是確認模型對外部照片不會產生明顯異常輸出，並作為未來建立具人工標籤 OOD 測試集的前置檢查。預測偏向良品側有兩種可能：外部照片中良品比例確實較高，或模型在拍攝條件略有差異的樣本上傾向以高信心輸出 A 等級（即高信心誤判），兩者在缺乏人工標籤時無法區分。
+由於此批資料沒有人工標籤，本文不計算也不宣稱 OOD accuracy；其用途僅是確認模型對外部照片不會產生明顯異常輸出，並作為未來建立具人工標籤 OOD 測試集的前置檢查。預測偏向良品側有兩種可能：外部良品比例確實較高，或模型在拍攝條件略有差異的樣本上傾向以高信心輸出 A 等級（即高信心誤判），缺乏人工標籤時無法區分。
 
-須強調，「預測分布正常、未崩潰」是模型可用性的\textbf{必要條件而非充分條件}：高信心誤判不會表現為分布崩潰，卻是工業應用中更危險的失效模式（誤判為通過但實際為瑕疵品）。因此本節結果不能推論模型在外部拍攝條件下具備泛化能力，建議後續優先取得人工標籤以區分上述兩種解釋。
+「分布正常、未崩潰」只是模型可用的\textbf{必要而非充分條件}：高信心誤判不會表現為分布崩潰，卻是工業應用中更危險的失效模式（誤判為通過但實際為瑕疵品）。故本節結果不能推論外部拍攝條件下的泛化能力，建議後續優先取得人工標籤以區分上述兩種解釋。
 
 \begin{figure}[H]
 \centering
@@ -1089,7 +1093,7 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 ## 整批處理流程之推論延遲量測 {#sec:results-batch}
 
-以 seed=7 MobileNetV3-Large 簡化模型於 168 張測試樣本量測，平均單張模型推論時間為 6.90 ms，約 144.9 張/秒；完整 Group Split 模型約 7.05 ms，約 141.8 張/秒（兩者 0.15 ms 差異在量測雜訊範圍內）。量測條件為：推論以 \textbf{batch\_size=1} 逐張送入 GPU，影像張量\textbf{預先載入記憶體}（不含磁碟讀取、裁切、resize/normalize 等前處理），並以 20 張 warm-up 後計時 168 張，所得為\textbf{純模型前向傳播延遲}。實際部署時，前處理（影像讀取、裁切）與後處理（分級排序、報告生成）的耗時可能與推論本身相當，評估系統吞吐量時應一併納入。因此此數字僅代表單機 GPU 上的純前向延遲屬毫秒級，不等同於整批流程的產線吞吐量。
+以 seed=7 MobileNetV3-Large 簡化模型於 168 張測試樣本量測，平均單張模型推論時間為 6.90 ms，約 144.9 張/秒；完整 Group Split 模型約 7.05 ms，約 141.8 張/秒（兩者 0.15 ms 差異在量測雜訊範圍內）。量測條件為：推論以 \textbf{batch\_size=1} 逐張送入 GPU，影像張量\textbf{預先載入記憶體}（不含磁碟讀取、裁切、resize/normalize 等前處理），並以 20 張 warm-up 後計時 168 張，所得為\textbf{純模型前向傳播延遲}。實際部署時，前處理（影像讀取、裁切）與後處理（分級排序、報告生成）的耗時可能與推論本身相當；此數字僅代表單機 GPU 的純前向延遲屬毫秒級，不等同於整批流程的產線吞吐量。
 
 # 結論與建議 {#sec:conclusion}
 
@@ -1097,11 +1101,11 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 本研究以 FDM 列印魚骨件為標的，建立一套基於深度學習影像辨識的拉絲瑕疵輔助辨識與品質評分原型，完成六等級（A 至 F）分類與評分輸出流程。主要研究成果總結如下：
 
-1. **單一標注者下的可重複品質等級制度**：以目視估計拉絲覆蓋比例為判斷依據，建立六個品質等級定義並配合 A 至 F 範例圖。模型在嚴格測試集上可部分重現此套固定準則，能降低批量檢查負擔並輔助人工複核；惟全部樣本由單一標注者完成，尚未做多人一致性驗證（限制詳見 \ref{sec:method-grading} 節）。
+1. **單一標注者下的可重複品質等級制度**：以目視估計拉絲覆蓋比例為判斷依據，建立六個品質等級定義並配合 A 至 F 範例圖；模型在嚴格測試集上可部分重現此套固定準則，能降低批量檢查負擔並輔助人工複核（單一標注者之限制詳見 \ref{sec:method-grading} 節）。
 2. **系統性資料蒐集與標注**：透過多批次列印與拍攝，配合 Label Studio 工具完成全部樣本的人工標注，建立含 1110 張有效樣本、185 個原圖群組的六等級分類資料集；以原圖層級 Group Split 確保訓練、驗證與測試集之原圖零重疊，為後續模型效能評估提供無洩漏基準。
-3. **深度學習模型效能與不確定性**：五 seed 正式比較結果顯示，四組模型 / 策略平均 accuracy 落在 80.12\%–81.19\%、平均 QWK 約 0.91，各項統計檢定均未達顯著差異（Bonferroni 校正後），**本研究不宣稱任何單一設定為穩定最佳**；MobileNetV3-Large 完整設定 std 最大（5.98\%）且訓練量約六倍不對等，其 seed=7 高分（89.88\%）不可外推為穩定效能。A/B 邊界（B 等級召回率 56.3\%）為最薄弱環節。詳見第 \ref{sec:results-supplemental-multiseed} 節。
+3. **深度學習模型效能與不確定性**：五 seed 正式比較顯示四組模型／策略平均 accuracy 80.12\%–81.19\%、平均 QWK 約 0.91，各項統計檢定（Bonferroni 校正後）均未達顯著差異，故不宣稱任一設定為穩定最佳；A/B 邊界（B 等級召回率 56.3\%）為最薄弱環節（詳見第 \ref{sec:results-supplemental-multiseed} 節）。
 4. **整批照片自動處理流程**：整合自動裁切、逐張前向推論、分級輸出與 HTML 可視化報告，形成由原始照片到品質等級報告之離線處理流程；於 RTX 3050 Laptop GPU 上量測純模型前向延遲約為 7 ms（量測條件詳見 \ref{sec:results-batch} 節），屬部署參考基準而非端到端產線吞吐量。
-5. **品質評分輸出**：模型同時輸出 0 至 100 的連續品質分，各等級平均分呈單調遞減（表 \ref{tab:plain-quality-score}），可作等級內排序參考；惟此分數未經多人主觀評分校準，設計原則與使用限制詳見 \ref{sec:method-model-dualhead} 節。
+5. **品質評分輸出**：模型同時輸出 0 至 100 的連續品質分，各等級平均分呈單調遞減（表 \ref{tab:plain-quality-score}），可作等級內排序參考（使用限制詳見 \ref{sec:method-model-dualhead} 節）。
 
 \vspace{0.5em}
 
@@ -1115,20 +1119,20 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 \noindent\textbf{第一優先（應用可信度前提）}
 
-1. **標注一致性驗證**：現有資料由單一標注者完成，應邀請第二位以上標注者重新標注 100 張涵蓋 A 至 F 之樣本，計算 Cohen's $\kappa$ / Fleiss' $\kappa$；若 $\kappa < 0.7$，需重新檢視標注準則並補充邊界判斷規則，再重新訓練評估。
+1. **標注一致性驗證**：邀請第二位以上標注者重新標注 100 張涵蓋 A 至 F 之樣本，計算 Cohen's $\kappa$ / Fleiss' $\kappa$；若 $\kappa < 0.7$，需重新檢視標注準則並補充邊界判斷規則，再重新訓練評估。
 2. **固定拍攝條件**：目前採半標準化拍攝（AE/AWB 未鎖定）；建議補拍涵蓋固定光源、固定曝光條件之標準化測試集，以量化拍攝條件變異對模型效能的影響。
 3. **具人工標籤的 OOD 測試集**：現有外部 105 張照片僅完成未標注推論的分布合理性檢查（sanity check），建議補充人工標籤，計算 OOD accuracy 與各等級召回率退化幅度，再評估是否具備部署條件。
 
 \noindent\textbf{第二優先（提升實驗嚴謹性）}
 
-4. **補充少數等級資料**：優先補充 B 級（87 張）邊界樣本、E 級（72 張）與 F 級（32 張）失敗樣本，目標各等級支撐穩定多 seed 估計；並補充 ResNet18 簡化與 EfficientNet-B0 簡化，完成 3 架構 $\times$ 2 策略之完整因子設計，以分離架構與訓練策略的獨立效果。
-5. **批次層級切分**：目前 Group Split 以原圖為單位，未排除批次高階相關；建議補做以列印批次為單位的 Batch Split，量化批次內相關性對效能估計的影響。
+4. **補充少數等級資料**：優先補充 B 級邊界樣本、E 級與 F 級失敗樣本，使各等級支撐穩定的多 seed 估計。
+5. **完整因子設計與批次切分**：補充 ResNet18 簡化與 EfficientNet-B0 簡化，完成 3 架構 $\times$ 2 策略之完整因子設計以分離架構與訓練策略的效果；並補做以列印批次為單位的 Batch Split，量化批次內相關性對效能估計的影響。
 6. **Ordinal-aware loss**：補做 CORAL [@caoRankConsistentOrdinal2020]、CORN [@shiDeepNeuralNetworks2023] 等序數感知損失函數之對照，以 QWK 與跨等級誤判率為主要評估指標。
 
 \noindent\textbf{第三優先（擴展應用範圍）}
 
 7. **跨機型 / 跨材料 / 跨幾何泛化驗證**：蒐集其他印表機（Prusa MK4、Creality K1）、材料（PETG、ABS）與幾何（盒體、齒輪）之樣本，量化域外退化幅度。
-8. **即時列印監控**：評估整合 Bambu Lab A1 內建攝影機或外接串流進行列印中即時品質監控，並另行評估即時影像品質與誤報成本。
+8. **即時列印監控**：評估整合 Bambu Lab A1 內建攝影機進行列印中即時監控，並評估即時影像品質與誤報成本。
 9. **品質評分校準**：邀請有經驗操作人員對樣本進行主觀連續評分（0 至 100），以人工共識分數作為監督標籤，計算 ICC 量化系統可信度。
 10. **模型輕量化與邊緣部署**：評估知識蒸餾、剪枝或 INT8 量化，向 Raspberry Pi 或 NVIDIA Jetson 等邊緣裝置部署；任何壓縮方案須在相同資料切分下重新驗證分類效能與推論時間。
 
@@ -1159,7 +1163,7 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 # 列印過程代表性照片 {#sec:appendix-photos}
 
-本附錄保留列印過程中四張代表性照片，分別對應「正常列印中」、「正常列印完成」、「輕微拉絲」、「列印失敗」四種狀態，作為前文等級定義之列印現場佐證。原始完整紀錄（共 16 張）保存於專案附件中。
+本附錄保留列印過程中四張代表性照片，分別對應「正常列印中」、「正常列印完成」、「輕微拉絲」、「列印失敗」四種狀態。原始完整紀錄（共 16 張）保存於專案附件中。
 
 \begin{figure}[H]
 \centering
@@ -1194,11 +1198,11 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 # Bambu Lab A1 列印參數彙整 {#sec:appendix-params}
 
-本附錄依現有 Bambu Studio 截圖整理本研究可追溯之代表性列印參數設定（基於 PolyTerra PLA 0.08 mm 預設設定檔）。由於未逐批匯出完整設定檔，以下數值為代表性背景設定，不代表各批次完全一致。表 \ref{tab:param-summary} 彙整影響列印品質之關鍵參數值，圖 \ref{fig:param-quality-representative} 為品質頁籤之代表畫面。
+本附錄依現有 Bambu Studio 截圖整理本研究可追溯之列印參數設定（基於 PolyTerra PLA 0.08 mm 預設設定檔）。表 \ref{tab:param-summary} 彙整影響列印品質之關鍵參數值，圖 \ref{fig:param-quality-representative} 為品質頁籤畫面。
 
 \begin{table}[H]
 \centering
-\caption{Bambu Lab A1 代表性列印參數彙整}
+\caption{Bambu Lab A1 列印參數彙整}
 \label{tab:param-summary}
 \small
 \setlength{\tabcolsep}{3pt}
@@ -1257,7 +1261,7 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth,height=0.7\textheight,keepaspectratio]{images/bambu-studio-quality-tab.png}
-\caption{Bambu Studio 品質頁籤代表截圖（層高 0.08 mm、線寬 0.42 mm）}
+\caption{Bambu Studio 品質頁籤截圖（層高 0.08 mm、線寬 0.42 mm）}
 \label{fig:param-quality-representative}
 \end{figure}
 
@@ -1266,11 +1270,11 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 # PLA 耗材與冷卻設定彙整 {#sec:appendix-material}
 
-本研究使用 Polymaker PolyTerra PLA 1.75 mm 線材；耗材物性、列印溫度與冷卻風扇策略依現有 Bambu Studio 截圖整理為代表性設定。表 \ref{tab:material-summary} 彙整關鍵設定值，圖 \ref{fig:cooling-representative} 為冷卻模式設定代表畫面。
+本研究使用 Polymaker PolyTerra PLA 1.75 mm 線材；耗材物性、列印溫度與冷卻風扇策略依現有 Bambu Studio 截圖整理。表 \ref{tab:material-summary} 彙整關鍵設定值，圖 \ref{fig:cooling-representative} 為冷卻模式設定畫面。
 
 \begin{table}[H]
 \centering
-\caption{PolyTerra PLA 代表性耗材與冷卻設定彙整}
+\caption{PolyTerra PLA 耗材與冷卻設定彙整}
 \label{tab:material-summary}
 \small
 \setlength{\tabcolsep}{3pt}
@@ -1296,6 +1300,6 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,height=0.7\textheight,keepaspectratio]{images/bambu-studio-cooling-mode.png}
-\caption{冷卻模式設定代表截圖（風扇 60\%$\sim$80\%、最小列印速度 20 mm/s、懸垂強制冷卻）}
+\caption{冷卻模式設定截圖（風扇 60\%$\sim$80\%、最小列印速度 20 mm/s、懸垂強制冷卻）}
 \label{fig:cooling-representative}
 \end{figure}
