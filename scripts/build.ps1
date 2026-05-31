@@ -381,6 +381,8 @@ function Invoke-Build {
             }
 
             # 用 Copy-Item（而非 Move-Item）避免雲端同步誤刪
+            $tmpPdfSize = (Get-Item $pdfPath).Length
+            Write-Info "暫存 PDF 大小：$tmpPdfSize bytes"
             Write-Info "複製 PDF 到輸出目錄：$Output"
             Copy-Item -Path $pdfPath -Destination (Join-Path $Output "$InputBasename.pdf") -Force
 
@@ -401,9 +403,10 @@ function Invoke-Build {
         }
     }
     finally {
-        if (Test-Path $tmpdir) {
-            Remove-Item -Path $tmpdir -Recurse -Force -ErrorAction SilentlyContinue
-        }
+        Write-Info "DEBUG: 保留暫存目錄供診斷：$tmpdir"
+        # if (Test-Path $tmpdir) {
+        #     Remove-Item -Path $tmpdir -Recurse -Force -ErrorAction SilentlyContinue
+        # }
     }
 }
 

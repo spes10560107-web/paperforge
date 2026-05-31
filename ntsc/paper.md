@@ -49,6 +49,7 @@ biblatex: true
 biblio-style: ieee
 suppress-bibliography: true
 header-includes:
+  - '\AtBeginDocument{\setcounter{biburlnumpenalty}{9000}\setcounter{biburlucpenalty}{9000}\setcounter{biburllcpenalty}{9000}}'
   - \usepackage{float}
   - \usepackage{adjustbox}
   - \usepackage{array}
@@ -264,13 +265,7 @@ toc: false
 
 \begin{figure}[H]
 \centering
-% TODO@學長：原 research-overall-flow.png 流程圖整體偏小，圖內方塊文字在 PDF 列印後字級過小、難以辨識，已暫時移除改為占位框。
-% 重新生圖需求：
-%   (1) 請放大整張圖或加大圖內字級，確保印出後每個流程方塊與箭頭標註（如「全數成品拍攝」「魚骨自動裁切」「7 ms/張」等）都清晰可讀；
-%   (2) 圖的三階段內容請對照本節正文（資料蒐集與前處理 → 模型訓練與評估 → 系統整合與應用）；
-%   (3) 命名為 images/research-overall-flow.png 覆蓋後，刪掉下方 \fbox 占位框、取消 \includegraphics 該行註解即可。
-%\includegraphics[width=0.9\textwidth,height=0.72\textheight,keepaspectratio]{images/research-overall-flow.png}
-\fbox{\parbox[c][4cm][c]{0.9\textwidth}{\centering\footnotesize 研究整體流程圖待重新繪製\\（TODO@學長，圖內文字過小須放大重生，詳見原始碼註解）}}
+\includegraphics[width=0.9\textwidth,height=0.72\textheight,keepaspectratio]{images/research-overall-flow.png}
 \caption{研究整體流程圖}
 \label{fig:overall-flow}
 \end{figure}
@@ -297,18 +292,12 @@ toc: false
 \hfill
 \begin{subfigure}[b]{0.32\textwidth}
   \includegraphics[width=\textwidth]{images/defect-warping.png}
-  \subcaption{翹曲（Warping）}
+  \subcaption{翹曲（Warping）示意}
   \label{fig:defect-warping}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.32\textwidth}
-  % TODO@學長：原 defect-cracking.png 解析度過低，且照片內嵌的紅色標註文字過小、無法辨識，已暫時移除。
-  % 補圖需求：
-  %   (1) 清晰度需與 (a) 拉絲、(b) 翹曲兩張子圖一致（同一拍攝距離、對焦清楚、無壓縮模糊）；
-  %   (2) 請勿在照片內嵌紅色標註文字；若要指出裂痕位置，改用箭頭或於 \caption 文字說明；
-  %   (3) 命名為 images/defect-cracking.png 覆蓋後，刪掉下方 \fbox 占位框、取消 \includegraphics 該行註解即可。
-  %\includegraphics[width=\textwidth]{images/defect-cracking.png}
-  \fbox{\parbox[c][3cm][c]{0.9\textwidth}{\centering\footnotesize 裂痕照片待補\\（TODO@學長，詳見原始碼註解）}}
+  \includegraphics[width=\textwidth]{images/defect-cracking.png}
   \subcaption{裂痕（Cracking）}
   \label{fig:defect-cracking}
 \end{subfigure}
@@ -320,7 +309,7 @@ toc: false
 
 **翹曲（Warping）**：列印件冷卻時因材料收縮與平台附著力不足，底層邊角上翹或脫離平台，通常與熱床溫度、第一層附著、環境溫度與材料熱收縮特性有關[@WarpingPrusaKnowledge2025]。
 
-**裂痕（Cracking）或層間分離（Layer Separation）**：層與層之間因冷卻速率差異、黏結不足或翹曲應力過大而分離出裂縫，會降低列印件的結構完整性與機械強度[@LayerSeparationSplitting2024]。
+**裂痕（Cracking）或層間分離（Layer Separation）**：層與層之間因冷卻速率差異、黏結不足、翹曲應力過大或使用後受力等因素，導致結構產生裂縫或層間分離，會降低列印件的結構完整性與機械強度[@LayerSeparationSplitting2024]。
 
 從影像辨識的角度而言，拉絲在影像中呈現細線狀、高頻率的局部紋理，通常以明亮細絲出現在較暗背景（如黑色熱床）或魚骨間隙中，形成與正常平滑表面明顯不同的對比特徵。相較於顏色直方圖等全域描述子，CNN 的局部感受野更能捕捉拉絲的高頻細線紋理，其密度與分布面積正適合用以區分嚴重程度。此推論在第四章 Grad-CAM 分析中獲得部分佐證（詳見 \ref{sec:results-supplemental-calibration} 節）。
 
@@ -391,13 +380,7 @@ MobileNetV3-Large 與 EfficientNet-B0 參數量相近，但 MobileNetV3-Large �
 
 \begin{figure}[H]
 \centering
-% TODO@學長：原 method-system-flow.png 流程圖整體偏小，圖內方塊文字與底部「※雙輸出頭…」註解在 PDF 列印後字級過小、閱讀吃力，已暫時移除改為占位框。
-% 重新生圖需求：
-%   (1) 請放大整張圖或加大圖內字級，特別是底部的小字註解，確保印出後每個方塊與資料流箭頭都清晰可讀；
-%   (2) 圖的內容請對照本節正文（列印製樣與影像蒐集 → 裁切前處理與人工標注 → MobileNetV3-Large 遷移學習 → 輸出混淆矩陣/品質分數/分級資料夾/HTML 報告）；
-%   (3) 命名為 images/method-system-flow.png 覆蓋後，刪掉下方 \fbox 占位框、取消 \includegraphics 該行註解即可。
-%\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{images/method-system-flow.png}
-\fbox{\parbox[c][4cm][c]{0.9\textwidth}{\centering\footnotesize 研究流程與資料流關係圖待重新繪製\\（TODO@學長，圖內文字過小須放大重生，詳見原始碼註解）}}
+\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{images/method-system-flow-slides2.png}
 \caption{研究流程與資料流關係圖}
 \label{fig:method-flow}
 \end{figure}
@@ -654,13 +637,7 @@ F & 失敗品 & \makecell{極度拉絲\\幾乎看不出魚骨結構} & 0 分 & �
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.30\textwidth}
-  % TODO@學長：原 grade-f-sample.jpg 右上角殘留標註工具的紅色「F 90%」UI 標籤，與其他五張乾淨樣本不一致，已暫時移除。
-  % 補圖需求：
-  %   (1) 重新裁切一張乾淨的 F 級（失敗品）魚骨樣本，畫面內不可有任何標註框、文字或浮水印；
-  %   (2) 拍攝/裁切條件與 A～E 五張一致（黑底俯拍、單支魚骨置中）；
-  %   (3) 命名為 images/grade-f-sample.jpg 覆蓋後，刪掉下方 \fbox 占位框、取消 \includegraphics 該行註解即可。
-  %\includegraphics[width=\textwidth]{images/grade-f-sample.jpg}
-  \fbox{\parbox[c][3cm][c]{0.9\textwidth}{\centering\footnotesize F 級樣本待補\\（TODO@學長，詳見原始碼註解）}}
+  \includegraphics[width=\textwidth]{images/grade-f-sample.jpg}
   \subcaption{F 失敗品}
   \label{fig:grade-f}
 \end{subfigure}
@@ -892,7 +869,7 @@ Macro avg     & 0.823 & 0.776 & 0.791 & 168 \\
 
 圖 \ref{fig:confusion-matrix} 為 seed=7 MobileNetV3-Large 簡化設定之混淆矩陣。對角線代表正確分類；非對角線誤判集中於相鄰等級（A/B、C/D、E/F），符合序數分類的預期行為；D→A 的 2 次跨等級誤判為本研究最需注意的誤判模式。
 
-進一步回溯定位：2 筆 D→A 誤判均來自同一張原始照片（`IMG_20251206_163641_1`），對應裁切圖 fish02 與 fish04。其中 fish02 之模型信心度高達 0.941（品質分 96.7），屬**高信心誤判**；fish04 信心度為 0.565（品質分 85.0），處於分類邊界——同樣被判為 A，品質分卻只有 85.0 而非 fish02 的 96.7，顯示低信心時品質分頭不必然隨分類頭給出接近滿分，兩頭在邊界樣本上可不一致。兩筆均來自同一批次同一原圖，可能與該次拍攝角度使 D 級樣本的拉絲對比度降低有關，導致模型以高信心誤判為無拉絲的 A 級。
+進一步回溯定位：2 筆 D→A 誤判均來自同一張原始照片，對應裁切圖 fish02 與 fish04。其中 fish02 之模型信心度高達 0.941（品質分 96.7），屬**高信心誤判**；fish04 信心度為 0.565（品質分 85.0），處於分類邊界——同樣被判為 A，品質分卻只有 85.0 而非 fish02 的 96.7，顯示低信心時品質分頭不必然隨分類頭給出接近滿分，兩頭在邊界樣本上可不一致。兩筆均來自同一批次同一原圖，可能與該次拍攝角度使 D 級樣本的拉絲對比度降低有關，導致模型以高信心誤判為無拉絲的 A 級。
 
 圖 \ref{fig:gradcam-da} 為此兩筆 D→A 誤判樣本之 Grad-CAM 可視化。fish02（信心度 0.941）之熱力圖高亮區域集中於魚骨結構而非拉絲間隙，顯示模型激活點偏離瑕疵區域；fish04（信心度 0.565）熱力圖較分散，反映模型在邊界樣本上的激活不確定性。
 
@@ -1198,7 +1175,7 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 
 # Bambu Lab A1 列印參數彙整 {#sec:appendix-params}
 
-本附錄整理本研究列印參數設定（基於 PolyTerra PLA 0.08 mm 預設設定檔）。表 \ref{tab:param-summary} 彙整影響列印品質之關鍵參數值，圖 \ref{fig:param-quality-representative} 為品質頁籤畫面。
+本附錄整理本研究列印參數設定（基於 PolyTerra PLA 0.08 mm 預設設定檔）。表 \ref{tab:param-summary} 彙整影響列印品質之關鍵參數值。
 
 \begin{table}[H]
 \centering
@@ -1259,19 +1236,12 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.75\textwidth,height=0.7\textheight,keepaspectratio]{images/bambu-studio-quality-tab.png}
-\caption{Bambu Studio 品質頁籤截圖（層高 0.08 mm、線寬 0.42 mm）}
-\label{fig:param-quality-representative}
-\end{figure}
-
 \setcounter{figure}{0}
 \setcounter{table}{0}
 
 # PLA 耗材與冷卻設定彙整 {#sec:appendix-material}
 
-本研究使用 Polymaker PolyTerra PLA 1.75 mm 線材。表 \ref{tab:material-summary} 彙整耗材物性、列印溫度與冷卻風扇策略之關鍵設定值，圖 \ref{fig:cooling-representative} 為冷卻模式設定畫面。
+本研究使用 Polymaker PolyTerra PLA 1.75 mm 線材。表 \ref{tab:material-summary} 彙整耗材物性、列印溫度與冷卻風扇策略之關鍵設定值。
 
 \begin{table}[H]
 \centering
@@ -1297,10 +1267,3 @@ F 失敗品 & 0 & 12.5 & 16.2 \\
 \hline
 \end{tabular}
 \end{table}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth,height=0.7\textheight,keepaspectratio]{images/bambu-studio-cooling-mode.png}
-\caption{冷卻模式設定截圖（風扇 60\%$\sim$80\%、最小列印速度 20 mm/s、懸垂強制冷卻）}
-\label{fig:cooling-representative}
-\end{figure}

@@ -1,7 +1,20 @@
+@misc{adornthemesWhyFDM3D2026,
+  title = {Why {{Do FDM 3D Prints Split Along Layer Lines}}?},
+  author = {AdornThemes},
+  year = 2026,
+  month = jan,
+  journal = {Hotean CNC},
+  urldate = {2026-05-31},
+  abstract = {Why Do FDM 3D Prints Split Along Layer Lines?Have you ever printed a functional part, only to watch it crack and peel apart along the layers when you actually tried to use it? This frustrating problem affects everyone from hobbyists to professional engineers working on~automotive and electronics manufacturing applications. The good news is that FDM 3D printing layer adhesion problems can be fixed once you understand what causes them.Quick Answer: Fix Your Layer Adhesion Problems NowProblemSolutionExpected ResultLayers split under loadIncrease nozzle temperature by 5-10{$^\circ$}CStronger bonding between layersLarge prints crack during coolingUse enclosed chamber or maintain constant ambient temperatureReduced thermal stress and warpingWeak Z-axis strengthReduce part cooling fan speed and increase layer contact timeBetter polymer chain diffusionParts peel like an onionCheck flow rate calibration and slow down print speedMore material contact and fusion timeDelamination on tall partsAdd enclosure and control draftsConsistent temperature throughout printWhen you're printing small decorative items, weak layers might not matter much. However, if you're creating functional parts for~rapid prototyping or production applications, poor layer adhesion can turn your project into expensive waste. Therefore, understanding and controlling the factors that affect FDM layer bonding strength becomes critical for success.Table of ContentsHow Does FDM Layer Adhesion Actually Work?What Nozzle Temperature Should You Use for Strong Layer Bonding?Why Does Chamber Temperature Matter for Large FDM Prints?Can Annealing FDM Parts Improve Layer Strength After Printing?ConclusionHow Does FDM Layer Adhesion Actually Work?Understanding the science behind layer bonding helps you make smarter decisions about your print settings. Consequently, you'll spend less time troubleshooting failed prints and more time creating parts that actually work.The key insight: When hot plastic from your nozzle contacts the layer below, the polymers at the surface temporarily melt together. During this brief window, the polymer chains from each layer diffuse across the boundary and entangle with each other. This process creates the bond that holds your layers together.                            Layer 1    FDM Layer Bonding: Polymer Chain Diffusion              Layer N   (Cooling)                                                       Bonding Zone   Polymer diffusion                                                                   Layer N+1   (Hot/Fresh)                                                 \textasciitilde 200-260{$^\circ$}C (Hot - Just extruded)         \textasciitilde 150-180{$^\circ$}C (Cooling down)          Key Factors for Strong Layer Adhesion:             Temperature:Both layers must be hot enough for polymer chains to move freely             Contact Time:Longer contact while hot allows more polymer diffusion across boundary             Contact Area:Greater surface contact = more polymer chains can entangle and bond                                  Print direction   The strength of this bond depends on three main factors: temperature, contact time, and contact area. First, both layers need to be hot enough for the polymer chains to move freely. Second, they need enough time in contact while hot for meaningful diffusion to occur. Third, the layers need good physical contact across a wide area to maximize the number of polymer chains that can entangle.Here's where the challenge comes in. Unlike the X and Y directions where your part is one continuous extrusion path, the Z direction consists of many individual layers stacked on top of each other. Each layer boundary represents a potential weak point. Moreover, as each new layer is deposited, the layer below has already started cooling down, which reduces the available bonding window.This explains why FDM Z axis strength is typically 20-50\% weaker than strength in the X-Y plane. The exact ratio depends on your material, settings, and environmental conditions. Materials with lower glass transition temperatures generally bond more easily because they stay soft longer. Similarly, settings that keep layers hotter for longer periods create stronger bonds.Temperature gradients within your part create additional challenges. As the bottom layers cool while new layers are still being deposited on top, internal stresses build up. These stresses can pull layers apart, especially in materials that shrink significantly when cooling. Understanding these fundamentals helps you see why the solutions in the following sections actually work.What Nozzle Temperature Should You Use for Strong Layer Bonding?Your nozzle temperature is the single most powerful lever you have to improve layer adhesion FDM prints. However, finding the right temperature requires balancing multiple factors that often work against each other.Start here: Most materials have a recommended temperature range printed on the spool or in the technical datasheet. For PLA, this typically ranges from 190{$^\circ$}C to 220{$^\circ$}C. PETG usually prints between 230{$^\circ$}C and 250{$^\circ$}C, while ABS works best between 240{$^\circ$}C and 260{$^\circ$}C. These ranges exist because different printers, environments, and part geometries need different settings.                Layer 1    Temperature Tower: Finding Your Optimal Nozzle Temperature  PLA Example (190{$^\circ$}C - 220{$^\circ$}C) - Each section prints at different temperature    Build Plate           220{$^\circ$}C   TOO HOT                                           215{$^\circ$}C   Minor stringing                                     210{$^\circ$}C   \ding{51} OPTIMAL   Clean surface, strong layers                                  205{$^\circ$}C   Slight under-extrusion                               190{$^\circ$}C   TOO COLD   Poor adhesion, gaps                                     Quality Indicators at Each Temperature              220{$^\circ$}C    \ding{55} Excessive stringing between features    \ding{55} Oozing and blobs on surface    \ding{55} Poor overhang quality (sagging)    \ding{51} Strong layer adhesion                 215{$^\circ$}C    \textasciitilde{} Minor stringing (acceptable)    \ding{51} Good layer adhesion    \ding{51} Decent surface quality                     210{$^\circ$}C ⭐ SWEET SPOT    \ding{51} No stringing or minimal cleanup needed    \ding{51} Excellent layer bonding strength    \ding{51} Clean surface finish    \ding{51} Good bridging and overhangs                 205{$^\circ$}C    \textasciitilde{} Slight under-extrusion visible    \textasciitilde{} Reduced layer adhesion    \ding{51} No stringing                 190{$^\circ$}C    \ding{55} Poor layer adhesion (weak Z-axis)    \ding{55} Visible gaps between layers    \ding{55} Risk of delamination under stress             💡 Use highest temperature with acceptable surface quality                                          Temperature   Higher temperatures improve layer bonding for several important reasons. First, hotter plastic stays molten longer after deposition, giving more time for polymer diffusion. Second, the increased heat partially re-melts the layer below, creating a larger bonding zone. Third, the lower viscosity of hotter plastic allows it to flow into microscopic gaps and create better surface contact.Nevertheless, pushing temperature too high creates its own problems. You'll start seeing stringing between parts, sagging on overhangs, and poor surface quality. The plastic may even start to degrade chemically, which actually weakens the final part. For 3D printing plastics, finding the sweet spot means testing and observation.Here's a practical approach to finding your ideal nozzle temperature for better adhesion: Print a temperature tower with your specific material and printer. Start at the middle of the recommended range and create sections at 5{$^\circ$}C intervals going both up and down. Look for the highest temperature that still gives you acceptable surface quality and minimal stringing. This temperature will usually give you the strongest layer bonds.Additionally, consider adjusting temperature based on layer time. When printing small layers that complete quickly, you might need higher temperatures to compensate for the reduced time the previous layer has to cool. Conversely, on large layers with long print times, you might reduce temperature slightly to avoid over-softening previously deposited material.Flow rate and print speed work together with temperature to control adhesion. Increasing flow rate deposits more material, which can improve contact area between layers. However, if you increase flow too much without adjusting temperature, the plastic won't have enough heat to melt properly. Similarly, slower print speeds give each layer more time to bond with the one below, but only if the temperature is high enough to keep the plastic molten during that extended contact time.Why Does Chamber Temperature Matter for Large FDM Prints?Temperature control doesn't end at the nozzle. In fact, managing the temperature around your part becomes increasingly critical as part size increases. This is especially true when dealing with large format FDM printing issues that don't appear on smaller prints.The core problem: As your nozzle moves away to print other areas, the layers you just deposited start cooling down. The larger your part, the longer it takes for the nozzle to return to any given spot. During this time, temperature differences between the hot new layer and the cooler old layers create stress within your part.Enclosed chamber FDM printing addresses this challenge by keeping the entire part warm throughout the printing process. When you maintain a constant temperature 3D printing environment around your part, several beneficial things happen simultaneously. First, layers cool more slowly and evenly, reducing internal stress. Second, the reduced temperature difference between new and old layers extends the bonding window. Third, materials that are prone to warping stay relaxed and flat.The temperature you should maintain in your chamber depends heavily on the material. For ABS, keeping the chamber between 60{$^\circ$}C and 80{$^\circ$}C dramatically reduces warping and improves layer adhesion. PETG benefits from chamber temperatures around 40{$^\circ$}C to 60{$^\circ$}C, while PLA actually prefers cooler environments and may not need an enclosure at all for smaller parts.Drafts and air currents cause particularly nasty problems because they create uneven cooling. One side of your part might cool faster than the other, causing it to warp or crack along layer lines. Even a ceiling fan or air conditioning vent can ruin a large print by creating these temperature variations. Therefore, if you can't afford a commercial heated chamber, even a simple cardboard box around your printer can make a significant difference.Part cooling fans add another layer of complexity. While these fans help with bridging and overhangs, they work directly against layer adhesion by cooling each layer before it has time to bond properly. For parts where strength matters more than surface detail, consider reducing your part cooling fan speed to 30-50\% or even turning it off entirely for the first several layers. When working on 3D printing projects that demand both accuracy and strength, you'll need to find the right balance for your specific application.Additionally, the bed temperature influences adhesion beyond just the first layer. A hot bed radiates heat upward into the lower portions of your part, helping to prevent delamination in FDM prints by maintaining more consistent temperatures throughout the print height. For tall parts, this effect becomes less pronounced at the top, which is why an enclosure provides more comprehensive temperature control.Can Annealing FDM Parts Improve Layer Strength After Printing?Even with perfect print settings, FDM parts remain weaker in the Z direction than in X-Y. Annealing offers a post-processing solution that can significantly boost overall part strength, including the critical layer-to-layer bonds.What annealing does: When you heat an FDM part below its melting point but above its glass transition temperature, you give the polymer chains another chance to rearrange themselves into a more stable, crystalline structure. This process relieves internal stresses and can increase both the layer bond strength and the overall part strength.                                                                                            Annealing FDM Parts: Before \& After Comparison                    BEFORE ANNEALING              AFTER ANNEALING                                100.0 mm                  50.0 mm                                                                      As-Printed Properties (PLA)                  {$\bullet$} Dimensions: Accurate to design              {$\bullet$} Layer adhesion: Standard strength              {$\bullet$} Heat resistance: \textasciitilde 55-60{$^\circ$}C (glass transition)              {$\bullet$} Relative strength: Baseline (100\%)                                    \textasciitilde 95.0 mm    (5\% shrinkage)                  \textasciitilde 47.5 mm                                                                                                      After Annealing (70{$^\circ$}C, 1 hour)                  {$\bullet$} Dimensions: 3-7\% shrinkage (typical)              {$\bullet$} Layer adhesion: 20-40\% stronger              {$\bullet$} Heat resistance: Up to 90-100{$^\circ$}C              {$\bullet$} Relative strength: 120-140\%                              Annealing Process Overview                            1      Support Part      Use sand/salt      to prevent warp                                        2      Heat Slowly      Controlled oven      to target temp                                        3      Hold Time      60-70{$^\circ$}C PLA      30min - 2hrs                                        4      Cool Gradually      Slow cooldown      prevents stress                                        \ding{51}      Stronger Part      Better heat      resistance                Common temps: PLA 60-70{$^\circ$}C \textbar{} PETG 80-100{$^\circ$}C \textbar{} ABS 80-100{$^\circ$}C  The annealing process follows a specific sequence. First, you need to support your part properly because it will become soft and may warp during heating. Use sand, salt, or a plaster mold to maintain the part's shape. Second, place the part in a temperature-controlled oven and heat it slowly to avoid thermal shock. Third, hold it at the target temperature for a specific duration. Finally, allow it to cool down gradually to prevent new internal stresses from forming.Temperature and time requirements vary by material. PLA typically benefits from annealing at 60{$^\circ$}C to 70{$^\circ$}C for 30 minutes to 2 hours, though some users go as high as 100{$^\circ$}C for faster crystallization at the cost of more dimensional change. PETG can be annealed around 80{$^\circ$}C to 100{$^\circ$}C, while ABS responds well to temperatures between 80{$^\circ$}C and 100{$^\circ$}C. Always start with lower temperatures and shorter times, then increase gradually based on results.The improvements can be substantial. Annealed PLA parts often show 20-40\% increases in strength and significant improvements in heat resistance. PETG gains similar strength benefits with less dimensional change than PLA. ABS, which is already partially crystalline as printed, sees smaller but still meaningful improvements. Importantly, annealing strengthens the layer interfaces along with the bulk material, making it particularly valuable for parts that will experience stress perpendicular to the layer lines.However, annealing comes with trade-offs you need to understand. Dimensional accuracy suffers because the part will shrink and potentially warp during the process. The amount of change varies based on material, part geometry, and the specific time-temperature profile you use. Therefore, you might need to scale your model up slightly before printing to compensate for the expected shrinkage. Small test pieces help you determine the right scaling factor.When does annealing make sense? Consider it for functional parts where strength and heat resistance matter more than precise dimensions. Components for mechanical assemblies, fixtures, jigs, and structural parts often benefit significantly. Conversely, parts that need to fit precisely with other components or maintain tight tolerances probably aren't good candidates for annealing unless you can carefully characterize and compensate for the dimensional changes.Parts that won't be annealed still benefit from all the other techniques in this guide. Proper nozzle temperature, environmental control, and smart layer height choices will give you the strongest possible as-printed parts. Annealing simply provides an additional option when you need to push strength even further.ConclusionStrong layer adhesion in FDM printing isn't about any single magic setting. Instead, it comes from understanding how temperature, time, and contact work together to create bonds between layers. By controlling your nozzle temperature, managing your printing environment, and considering post-processing options like annealing, you can dramatically improve the strength and reliability of your parts.Start with the basics: tune your nozzle temperature up toward the high end of your material's range while watching for stringing or quality issues. If you're printing large parts, invest in an enclosure or at least shield your printer from drafts. Reduce part cooling when strength matters more than surface finish. Consider your layer orientation during design so critical loads work with the material's natural strength rather than against it.Remember that every material behaves differently. What works perfectly for PLA might fail with PETG or ABS. Therefore, keep notes on your successful settings for each material, and don't be afraid to run test prints when trying something new. The time spent testing pays off in fewer failed prints and stronger final parts.Finally, if you're producing parts for demanding applications in fields like automotive or electronics, consider the full toolkit: chamber heating, optimized temperature profiles, proper layer orientation, and annealing when appropriate. Each technique adds to your capability and helps you create parts that perform reliably under real-world stress.External Resources~[FDM 3D printing layer adhesion][\textasciicircum 1][FDM layer bonding strength][\textasciicircum 2][FDM Z axis strength][\textasciicircum 3][Nozzle temperature for layer bonding][\textasciicircum 4][large format FDM printing issues][\textasciicircum 5][Heated chamber adhesion][\textasciicircum 6]---[\textasciicircum 1]: Understanding layer adhesion is crucial for improving print quality and durability in FDM 3D printing.[\textasciicircum 2]: Exploring bonding strength can help you optimize your prints for better performance and reliability.[\textasciicircum 3]: Understanding FDM Z axis strength is crucial for improving print quality and durability. Explore this link for in-depth insights.[\textasciicircum 4]: Finding the right nozzle temperature is key to achieving strong layer adhesion. Check this resource for expert recommendations.[\textasciicircum 5]: Understanding these issues can help improve your printing quality and efficiency.[\textasciicircum 6]: Exploring this topic can enhance your knowledge of print quality and material performance.},
+  howpublished = {https://hotean.com/blogs/hotean-blog/fdm-3d-printing-layer-adhesion},
+  langid = {english},
+  file = {C:\Users\spes1\Zotero\storage\IACURTXR\fdm-3d-printing-layer-adhesion.html}
+}
+
 @misc{BambuStudioAdvanced,
   title = {Bambu {{Studio}} Advanced Quality Settings},
   journal = {Bambu Lab Wiki},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Introduces what are the advanced quality-related parameters and what they can do},
   howpublished = {https://wiki.bambulab.com/en/software/bambu-studio/parameter/quality-advance-settings},
   langid = {english}
@@ -18,7 +31,7 @@
   number = {040801},
   issn = {1530-9827},
   doi = {10.1115/1.4049535},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Automatically detecting surface defects from images is an essential capability in manufacturing applications. Traditional image processing techniques are useful in solving a specific class of problems. However, these techniques do not handle noise, variations in lighting conditions, and backgrounds with complex textures. In recent times, deep learning has been widely explored for use in automation of defect detection. This survey article presents three different ways of classifying various efforts in literature for surface defect detection using deep learning techniques. These three ways are based on defect detection context, learning techniques, and defect localization and classification method respectively. This article also identifies future research directions based on the trends in the deep learning area.},
   file = {C:\Users\spes1\Zotero\storage\KUDAA6AB\Bhatt …等 - 2021 - Image-Based Surface Defect Detection Using Deep Learning A Review.pdf}
 }
@@ -35,24 +48,12 @@
   publisher = {Nature Publishing Group},
   issn = {2041-1723},
   doi = {10.1038/s41467-022-31985-y},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Material extrusion is the most widespread additive manufacturing method but its application in end-use products is limited by vulnerability to errors. Humans can detect errors but cannot provide continuous monitoring or real-time correction. Existing automated approaches are not generalisable across different parts, materials, and printing systems. We train a multi-head neural network using images automatically labelled by deviation from optimal printing parameters. The automation of data acquisition and labelling allows the generation of a large and varied extrusion 3D printing dataset, containing 1.2 million images from 192 different parts labelled with printing parameters. The thus trained neural network, alongside a control loop, enables real-time detection and rapid correction of diverse errors that is effective across many different 2D and 3D geometries, materials, printers, toolpaths, and even extrusion methods. We additionally create visualisations of the network's predictions to shed light on how it makes decisions.},
   copyright = {2022 The Author(s)},
   langid = {english},
   keywords = {Computational science,Electrical and electronic engineering,Mechanical engineering,Techniques and instrumentation},
   file = {C:\Users\spes1\Zotero\storage\3SNAMZCL\Brion和Pattinson - 2022 - Generalisable 3D printing error detection and correction via multi-head neural networks.pdf}
-}
-
-@article{CohenKappaStatistic,
-  title   = {A Coefficient of Agreement for Nominal Scales},
-  author  = {Cohen, Jacob},
-  journal = {Educational and Psychological Measurement},
-  volume  = {20},
-  number  = {1},
-  pages   = {37--46},
-  year    = {1960},
-  doi     = {10.1177/001316446002000104},
-  urldate = {2026-05-25}
 }
 
 @article{caoRankConsistentOrdinal2020,
@@ -65,14 +66,14 @@
   pages = {325--331},
   issn = {0167-8655},
   doi = {10.1016/j.patrec.2020.11.008},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {In many real-world prediction tasks, class labels include information about the relative ordering between labels, which is not captured by commonly-used loss functions such as multi-category cross-entropy. Recently, the deep learning community adopted ordinal regression frameworks to take such ordering information into account. Neural networks were equipped with ordinal regression capabilities by transforming ordinal targets into binary classification subtasks. However, this method suffers from inconsistencies among the different binary classifiers. To resolve these inconsistencies, we propose the COnsistent RAnk Logits (CORAL) framework with strong theoretical guarantees for rank-monotonicity and consistent confidence scores. Moreover, the proposed method is architecture-agnostic and can extend arbitrary state-of-the-art deep neural network classifiers for ordinal regression tasks. The empirical evaluation of the proposed rank-consistent method on a range of face-image datasets for age prediction shows a substantial reduction of the prediction error compared to the reference ordinal regression network.},
   keywords = {Age prediction,Biometrics,Convolutional neural networks,Deep learning,Machine learning,Ordinal regression}
 }
 
 @misc{DeepLearning,
   title = {Deep {{Learning}}},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   howpublished = {https://www.deeplearningbook.org/},
   file = {C:\Users\spes1\Zotero\storage\3MZW4HIU\www.deeplearningbook.org.html}
 }
@@ -87,7 +88,7 @@
   pages = {248--255},
   issn = {1063-6919},
   doi = {10.1109/CVPR.2009.5206848},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {The explosion of image data on the Internet has the potential to foster more sophisticated and robust models and algorithms to index, retrieve, organize and interact with images and multimedia data. But exactly how such data can be harnessed and organized remains a critical problem. We introduce here a new database called ``ImageNet'', a large-scale ontology of images built upon the backbone of the WordNet structure. ImageNet aims to populate the majority of the 80,000 synsets of WordNet with an average of 500--1000 clean and full resolution images. This will result in tens of millions of annotated images organized by the semantic hierarchy of WordNet. This paper offers a detailed analysis of ImageNet in its current state: 12 subtrees with 5247 synsets and 3.2 million images in total. We show that ImageNet is much larger in scale and diversity and much more accurate than the current image datasets. Constructing such a large-scale database is a challenging task. We describe the data collection scheme with Amazon Mechanical Turk. Lastly, we illustrate the usefulness of ImageNet through three simple applications in object recognition, image classification and automatic object clustering. We hope that the scale, accuracy, diversity and hierarchical structure of ImageNet can offer unparalleled opportunities to researchers in the computer vision community and beyond.},
   keywords = {Explosions,Image databases,Image retrieval,Information retrieval,Internet,Large-scale systems,Multimedia databases,Ontologies,Robustness,Spine}
 }
@@ -98,7 +99,7 @@
   year = 2019,
   month = mar,
   doi = {10.5281/zenodo.3828935},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Pretrain, finetune ANY AI model of ANY size on 1 or 10,000+ GPUs with zero code changes.},
   copyright = {Apache-2.0}
 }
@@ -110,7 +111,7 @@
   publisher = {Springer International Publishing},
   address = {Cham},
   doi = {10.1007/978-3-030-56127-7},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   copyright = {https://www.springer.com/tdm},
   isbn = {978-3-030-56126-0 978-3-030-56127-7},
   langid = {english},
@@ -126,7 +127,7 @@
   pages = {1321--1330},
   publisher = {PMLR},
   issn = {2640-3498},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Confidence calibration -- the problem of predicting probability estimates representative of the true correctness likelihood -- is important for classification models in many applications. We discover that modern neural networks, unlike those from a decade ago, are poorly calibrated. Through extensive experiments, we observe that depth, width, weight decay, and Batch Normalization are important factors influencing calibration. We evaluate the performance of various post-processing calibration methods on state-of-the-art architectures with image and document classification datasets. Our analysis and experiments not only offer insights into neural network learning, but also provide a simple and straightforward recipe for practical settings: on most datasets, temperature scaling -- a single-parameter variant of Platt Scaling -- is surprisingly effective at calibrating predictions.},
   langid = {english},
   file = {C\:\\Users\\spes1\\Zotero\\storage\\7RL9YUKA\\Guo …等 - 2017 - On Calibration of Modern Neural Networks.pdf;C\:\\Users\\spes1\\Zotero\\storage\\GR3HBCEY\\Guo …等 - 2017 - On Calibration of Modern Neural Networks.pdf}
@@ -138,7 +139,7 @@
   author = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
   year = 2016,
   pages = {770--778},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   file = {C:\Users\spes1\Zotero\storage\CC3DEQ7J\He …等 - 2016 - Deep Residual Learning for Image Recognition.pdf}
 }
 
@@ -152,7 +153,7 @@
   pages = {135--142},
   issn = {2214-8604},
   doi = {10.1016/j.addma.2017.08.003},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Additive manufacturing (AM) allows for the production of custom parts with previously impractical internal features, but comes with the additional possibility of internal defects due to print error, residual stress buildup, or cyber-attack by a malicious actor. Conventional post process analysis techniques have difficulty detecting these defects, often requiring destructive tests that compromise the integrity (and thus the purpose) of the part. Here, we present a ``certify-as-you-build'' quality assurance system with the capability to monitor a part during the print process, capture the geometry using three-dimensional digital image correlation (3D-DIC), and compare the printed geometry with the computer model to detect print errors in situ. A test case using a fused filament fabrication (FFF) 3D printer was implemented, demonstrating in situ error detection of localized and global defects.},
   keywords = {Additive manufacturing,Digital image correlation,Quality assurance},
   file = {C:\Users\spes1\Zotero\storage\S295FX5E\S2214860417301100.html}
@@ -169,7 +170,7 @@
   primaryclass = {cs.CV},
   publisher = {arXiv},
   doi = {10.48550/arXiv.1704.04861},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {We present a class of efficient models called MobileNets for mobile and embedded vision applications. MobileNets are based on a streamlined architecture that uses depth-wise separable convolutions to build light weight deep neural networks. We introduce two simple global hyper-parameters that efficiently trade off between latency and accuracy. These hyper-parameters allow the model builder to choose the right sized model for their application based on the constraints of the problem. We present extensive experiments on resource and accuracy tradeoffs and show strong performance compared to other popular models on ImageNet classification. We then demonstrate the effectiveness of MobileNets across a wide range of applications and use cases including object detection, finegrain classification, face attributes and large scale geo-localization.},
   archiveprefix = {arXiv},
   keywords = {Computer Science - Computer Vision and Pattern Recognition},
@@ -182,7 +183,7 @@
   author = {Howard, Andrew and Sandler, Mark and Chu, Grace and Chen, Liang-Chieh and Chen, Bo and Tan, Mingxing and Wang, Weijun and Zhu, Yukun and Pang, Ruoming and Vasudevan, Vijay and Le, Quoc V. and Adam, Hartwig},
   year = 2019,
   pages = {1314--1324},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   file = {C:\Users\spes1\Zotero\storage\R9P3JZY7\Howard …等 - 2019 - Searching for MobileNetV3.pdf}
 }
 
@@ -191,7 +192,7 @@
   year = 2017,
   month = sep,
   journal = {Stratasys Ltd.},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   howpublished = {https://investors.stratasys.com/news-events/press-releases/detail/418/inventor-of-fdm-3d-printing-and-co-founder-of-stratasys},
   langid = {english}
 }
@@ -200,7 +201,7 @@
   title = {{{ISO}}/{{ASTM}} 52900:2021},
   shorttitle = {{{ISO}}/{{ASTM}} 52900},
   journal = {ISO},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Additive manufacturing --- General principles --- Fundamentals and vocabulary},
   howpublished = {https://www.iso.org/standard/74514.html},
   langid = {english},
@@ -215,7 +216,7 @@
   month = may,
   pages = {2319--2323},
   doi = {10.1109/RTEICT42901.2018.9012507},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {The Image classification is one of the preliminary processes, which humans learn as infants. The fundamentals of image classification lie in identifying basic shapes and geometry of objects around us. It is a process which involves the following tasks of pre-processing the image (normalization), image segmentation, extraction of key features and identification of the class. The current image classification techniques are much faster in run time and more accurate than ever before, they can be used for extensive applications including, security features, face recognition for authentication and authorization, traffic identification, medical diagnosis and other fields. The idea of image classification can be solved by different approaches. But the machine learning algorithms are the best among them. These algorithms are based on the idea proposed years ago, but couldn't be implemented due to lack of computational power. With the idea of deep learning, the models are trained better and are able to identify different levels of image representation. The convolutional neural networks revolutionized this field by learning the basic shapes in the first layers and evolving to learn features of the image in the deeper layers, resulting in more accurate image classification. The idea of Convolutional neural network was inspired by the hierarchical representation of neurons by Hubel and Wiesel in 1962, their work was based on the study of stimuli of the visual cortex in cat. It was a fundamental breakthrough in the field of computer vision in understanding the working of visual cortex in humans and animals. In this paper feature of an images is extracted using convolution neural network using the concept of deep learning. Further classification algorithms are implemented for various applications.},
   keywords = {Activation Function Layer,Biological neural networks,Classification algorithms,Convolution Neural Network,Feature extraction,Fully Connected Layer,Image classification,kNN Classifier,Linear Classifier,Neurons,Pool Layer,Soft-max Classifier,Support vector machines,Training}
 }
@@ -224,9 +225,9 @@
   title = {Layer Separation and Splitting {{FDM}} \textbar{} {{Prusa Knowledge Base}}},
   year = 2024,
   month = sep,
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {This refers to the de-lamination of the printed layers. It is mostly caused by an incorrect preset/(custom)profile with wrong temperatures and/or too much cooling from either the print fan or the sorrounding environment. Layer-separation is more an\dots},
-  howpublished = {https://help.prusa3d.com/article/layer-separation-and-splitting-fdm\_1806}
+  url = {https://help.prusa3d.com/article/layer-separation-and-splitting-fdm_1806}
 }
 
 @article{lecunGradientbasedLearningApplied1998,
@@ -240,7 +241,7 @@
   pages = {2278--2324},
   issn = {1558-2256},
   doi = {10.1109/5.726791},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Multilayer neural networks trained with the back-propagation algorithm constitute the best example of a successful gradient based learning technique. Given an appropriate network architecture, gradient-based learning algorithms can be used to synthesize a complex decision surface that can classify high-dimensional patterns, such as handwritten characters, with minimal preprocessing. This paper reviews various methods applied to handwritten character recognition and compares them on a standard handwritten digit recognition task. Convolutional neural networks, which are specifically designed to deal with the variability of 2D shapes, are shown to outperform all other techniques. Real-life document recognition systems are composed of multiple modules including field extraction, segmentation recognition, and language modeling. A new learning paradigm, called graph transformer networks (GTN), allows such multimodule systems to be trained globally using gradient-based methods so as to minimize an overall performance measure. Two systems for online handwriting recognition are described. Experiments demonstrate the advantage of global training, and the flexibility of graph transformer networks. A graph transformer network for reading a bank cheque is also described. It uses convolutional neural network character recognizers combined with global training techniques to provide record accuracy on business and personal cheques. It is deployed commercially and reads several million cheques per day.},
   keywords = {Character recognition,Feature extraction,Hidden Markov models,Machine learning,Multi-layer neural network,Neural networks,Optical character recognition software,Optical computing,Pattern recognition,Principal component analysis}
 }
@@ -251,14 +252,14 @@
   author = {Lin, Tsung-Yi and Goyal, Priya and Girshick, Ross and He, Kaiming and Dollar, Piotr},
   year = 2017,
   pages = {2980--2988},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   file = {C:\Users\spes1\Zotero\storage\KFBC9UWQ\Lin …等 - 2017 - Focal Loss for Dense Object Detection.pdf}
 }
 
 @misc{marketsandmarkets3DPrintingMarket,
   title = {{{3D Printing Market}} Worth \$34.5 Billion by 2028 - {{Exclusive Report}} by {{MarketsandMarkets}}™},
   author = {MarketsandMarkets},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {/PRNewswire/ -- The 3D printing market is estimated to grow from USD 15.0 billion in 2023 to USD 34.5 billion by 2028, at a CAGR of 18.1\% according to a new...},
   howpublished = {https://www.prnewswire.com/news-releases/3d-printing-market-worth-34-5-billion-by-2028---exclusive-report-by-marketsandmarkets-301796530.html},
   langid = {english}
@@ -267,7 +268,7 @@
 @misc{OpenSourceData,
   title = {Open {{Source Data Labeling}} and {{AI Evaluation}}},
   journal = {Label Studio},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Multi-modal data labeling and annotation platform for agent traces, LLM evals, RLHF, computer vision, document AI, NLP, audio transcription, and more.},
   howpublished = {https://labelstud.io/},
   langid = {english},
@@ -278,7 +279,7 @@
   title = {Our {{Story}} \textbar{} {{3D Systems}}},
   year = 2017,
   month = jan,
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {For over 30 years we have bridged the gap between inspiration and innovation by connecting our customers with the expertise and digital manufacturing workflow required to solve their business, design or engineering problems.},
   howpublished = {https://www.3dsystems.com/our-story},
   langid = {english}
@@ -295,7 +296,7 @@
   pages = {941--955},
   issn = {1433-755X},
   doi = {10.1007/s10044-023-01181-9},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {In recent times, deep neural networks achieved outstanding predictive performance on various classification and pattern recognition tasks. However, many real-world prediction problems have ordinal response variables, and this ordering information is ignored by conventional classification losses such as the multi-category cross-entropy. Ordinal regression methods for deep neural networks address this. One such method is the CORAL method, which is based on an earlier binary label extension framework and achieves rank consistency among its output layer tasks by imposing a weight-sharing constraint. However, while earlier experiments showed that CORAL's rank consistency is beneficial for performance, it is limited by a weight-sharing constraint in a neural network's fully connected output layer, which may restrict the expressiveness and capacity of a network trained using CORAL. We propose a new method for rank-consistent ordinal regression without this limitation. Our rank-consistent ordinal regression framework (CORN) achieves rank consistency by a novel training scheme. This training scheme uses conditional training sets to obtain the unconditional rank probabilities through applying the chain rule for conditional probability distributions. Experiments on various datasets demonstrate the efficacy of the proposed method to utilize the ordinal target information, and the absence of the weight-sharing restriction improves the performance substantially compared to the CORAL reference approach. Additionally, the suggested CORN method is not tied to any specific architecture and can be utilized with any deep neural network classifier to train it for ordinal regression tasks.},
   langid = {english},
   keywords = {Artificial intelligence,Convolutional neural networks,Deep learning,Ordinal regression}
@@ -304,7 +305,7 @@
 @misc{StringingOozing,
   title = {Stringing and Oozing},
   journal = {Bambu Lab Wiki},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   howpublished = {https://wiki.bambulab.com/en/filament-acc/filament/print-quality/stringing-oozing},
   langid = {english}
 }
@@ -317,7 +318,7 @@
   month = feb,
   pages = {1--7},
   doi = {10.1109/ICECCT.2019.8869364},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Pneumonia is a life-threatening infectious disease affecting one or both lungs in humans commonly caused by bacteria called Streptococcus pneumoniae. One in three deaths in India is caused due to pneumonia as reported by World Health Organization (WHO). Chest X-Rays which are used to diagnose pneumonia need expert radiotherapists for evaluation. Thus, developing an automatic system for detecting pneumonia would be beneficial for treating the disease without any delay particularly in remote areas. Due to the success of deep learning algorithms in analyzing medical images, Convolutional Neural Networks (CNNs) have gained much attention for disease classification. In addition, features learned by pre-trained CNN models on large-scale datasets are much useful in image classification tasks. In this work, we appraise the functionality of pre-trained CNN models utilized as feature-extractors followed by different classifiers for the classification of abnormal and normal chest X-Rays. We analytically determine the optimal CNN model for the purpose. Statistical results obtained demonstrates that pretrained CNN models employed along with supervised classifier algorithms can be very beneficial in analyzing chest X-ray images, specifically to detect Pneumonia.},
   keywords = {Convolutional neural networks,Deep Convolutional Neural Networks,DensetNet,Diseases,Feature extraction,K-nearest neighbors,Lung,Naive Bayes,Random Forest,Support vector machines,SVM,Task analysis,Transfer Learning,X-rays},
   file = {C:\Users\spes1\Zotero\storage\B5YVLGQF\Varshni …等 - 2019 - Pneumonia Detection Using CNN based Feature Extraction.pdf}
@@ -327,15 +328,15 @@
   title = {Warping \textbar{} {{Prusa Knowledge Base}}},
   year = 2025,
   month = mar,
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {When printing large objects, you can sometimes run into an issue with the corners of the object being lifted from the bed -- mostly when printing with high-temperature materials such as PC Blend, ASA or ABS. It's usually a result of a sudden temperat\dots},
   howpublished = {https://help.prusa3d.com/article/warping\_2011}
 }
 
 @misc{WhatIndustrie40,
   title = {What Is {{Industrie}} 4.0?},
-  urldate = {2026-04-15},
-  howpublished = {https://www.plattform-i40.de/IP/Navigation/EN/Industrie40/WhatIsIndustrie40/what-is-industrie40.html},
+  urldate = {2026-05-30},
+  url = {https://www.plattform-i40.de/IP/Navigation/EN/Industrie40/WhatIsIndustrie40/what-is-industrie40.html},
   langid = {english},
   file = {C:\Users\spes1\Zotero\storage\UM9NMTYT\what-is-industrie40.html}
 }
@@ -343,7 +344,7 @@
 @misc{WhatIndustry40,
   title = {What Is {{Industry}} 4.0?},
   journal = {din},
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   howpublished = {https://www.din.de/en/innovation-and-research/industry-4-0/what-is-industry-4-0--75534},
   langid = {english}
 }
@@ -355,7 +356,7 @@
   author = {Zhang, Hongyi and Cisse, Moustapha and Dauphin, Yann N. and {Lopez-Paz}, David},
   year = 2018,
   month = feb,
-  urldate = {2026-04-15},
+  urldate = {2026-05-30},
   abstract = {Large deep neural networks are powerful, but exhibit undesirable behaviors such as memorization and sensitivity to adversarial examples. In this work, we propose mixup, a simple learning principle to alleviate these issues. In essence, mixup trains a neural network on convex combinations of pairs of examples and their labels. By doing so, mixup regularizes the neural network to favor simple linear behavior in-between training examples. Our experiments on the ImageNet-2012, CIFAR-10, CIFAR-100, Google commands and UCI datasets show that mixup improves the generalization of state-of-the-art neural network architectures. We also find that mixup reduces the memorization of corrupt labels, increases the robustness to adversarial examples, and stabilizes the training of generative adversarial networks.},
   langid = {english},
   file = {C:\Users\spes1\Zotero\storage\4K5BDF2G\Zhang …等 - 2018 - mixup Beyond Empirical Risk Minimization.pdf}
