@@ -31,7 +31,8 @@ classoption: [fleqn]
 # ============================================================
 # === 字體設定（CCU 嚴格規範） ===
 # ============================================================
-# 若系統無「標楷體」（常見於 Linux/macOS），可改用 "Noto Serif CJK TC" 或 "思源宋體"
+# 若系統無「標楷體」（常見於 Linux/macOS），改用免費楷體 "AR PL UKai TW"（apt: fonts-arphic-ukai）
+# 或國發會「全字庫正楷體」TW-Kai；論文要求楷體，勿用明體（如 Noto Serif）替代
 mainfont: "Times New Roman"
 CJKmainfont: "標楷體"
 fontsize: 12pt
@@ -227,7 +228,7 @@ toc: false                        # 手動插入 \tableofcontents
 
 ## <第一個主題> {#sec:literature-topic1}
 
-<請在此回顧該主題的相關研究。引用文獻範例：[@example-key1; @example-key2]。>
+<請在此回顧該主題的相關研究。引用文獻範例：[@vaswani2017attention; @he2016resnet]。>
 
 ## <第二個主題> {#sec:literature-topic2}
 

@@ -43,6 +43,16 @@
 .PARAMETER BibStyle
     biblatex 樣式名稱。預設 ieee。
 
+.PARAMETER MainFont
+    覆寫西文主字體（-V mainfont，優先於輸入檔 YAML）。
+
+.PARAMETER CjkFont
+    覆寫中文主字體（-V CJKmainfont，優先於輸入檔 YAML）。
+    用途：無標楷體的環境可改用免費楷體（如 "AR PL UKai TW"）。
+
+.PARAMETER ListProfiles
+    列出目前可用的 profile（讀 profiles\*\profile.yaml）後結束，不需輸入檔。
+
 .PARAMETER Verbose
     詳細輸出。
 
@@ -66,6 +76,8 @@ param(
     [switch]$Clean,
     [switch]$NoBib,
     [switch]$KeepTex,
+    [switch]$NoLint,
+    [switch]$LintStrict,
 
     [ValidateSet("xelatex", "lualatex")]
     [string]$Engine = "xelatex",
@@ -74,7 +86,10 @@ param(
     [string]$ProfileName = "thesis-ncu",
 
     [string]$Template = "",
-    [string]$BibStyle = "ieee"
+    [string]$BibStyle = "ieee",
+    [string]$MainFont = "",
+    [string]$CjkFont = "",
+    [switch]$ListProfiles
 )
 
 # --- 顏色輸出 ---
@@ -110,6 +125,44 @@ function Invoke-Native {
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
 $RepoRoot = Split-Path -Parent $ScriptDir
+
+# --- 列出 profiles\*\profile.yaml 的 name / type / style / description ---
+# 動態枚舉，新增 profile 自動出現，無需維護清單。
+function Show-ProfileList {
+    Write-Host "PaperForge — 可用 profile（profiles\<name>\）：`n"
+    Write-Host ("  {0,-26} {1,-8} {2,-10} {3}" -f "NAME", "TYPE", "STYLE", "DESCRIPTION")
+    $found = 0
+    foreach ($yaml in Get-ChildItem -Path (Join-Path $RepoRoot "profiles") -Filter "profile.yaml" -Recurse -ErrorAction SilentlyContinue) {
+        $found++
+        $name = ""; $type = ""; $style = ""; $desc = ""; $want = $false
+        foreach ($line in Get-Content -LiteralPath $yaml.FullName -Encoding UTF8) {
+            if ($want -and -not $desc) {
+                $desc = $line.Trim() -replace '^[''"]|[''"]$', ''
+                $want = $false
+                continue
+            }
+            if ($line -match '^name\s*:\s*(.*)$')  { $name  = $Matches[1].Trim() -replace '^[''"]|[''"]$', ''; continue }
+            if ($line -match '^type\s*:\s*(.*)$')  { $type  = $Matches[1].Trim() -replace '^[''"]|[''"]$', ''; continue }
+            if ($line -match '^style\s*:\s*(.*)$') { $style = $Matches[1].Trim() -replace '^[''"]|[''"]$', ''; continue }
+            if ($line -match '^description\s*:\s*(.*)$') {
+                $v = $Matches[1].Trim()
+                if ($v -eq "|" -or $v -eq ">" -or $v -eq "") { $want = $true }
+                else { $desc = $v -replace '^[''"]|[''"]$', '' }
+            }
+        }
+        Write-Host ("  {0,-26} {1,-8} {2,-10} {3}" -f $name, $type, $style, $desc)
+    }
+    if ($found -eq 0) {
+        Write-ErrorMsg "找不到任何 profiles\*\profile.yaml"
+        return $false
+    }
+    Write-Host "`n用法：在 paper.md / slides.md 開頭 YAML 寫 profile: <NAME>，或編譯時帶 -ProfileName <NAME>。"
+    return $true
+}
+
+if ($ListProfiles) {
+    if (Show-ProfileList) { exit 0 } else { exit 1 }
+}
 
 # 是否由 CLI 顯式指定 -ProfileName（用 -Profile 別名也算）
 $ProfileFromCli = $PSBoundParameters.ContainsKey('ProfileName')
@@ -302,11 +355,37 @@ if (-not (Test-Path $Template)) {
 }
 
 # --- 編譯函式 ---
+# --- 格式檢查（lint）---
+# 與 CI 共用同一支 scripts/lint.py。預設僅警告、不擋編譯；-LintStrict 才中止。沒有 python 時優雅略過。
+function Invoke-Lint {
+    if ($NoLint) { return }
+    $linter = Join-Path $ScriptDir "lint.py"
+    if (-not (Test-Path $linter)) { return }
+    $py = if (Get-Command python -ErrorAction SilentlyContinue) { "python" }
+          elseif (Get-Command python3 -ErrorAction SilentlyContinue) { "python3" }
+          else { $null }
+    if (-not $py) { Write-WarnMsg "未安裝 python，略過格式檢查（lint）"; return }
+    Write-Info "格式檢查（lint）：$InputAbs"
+    $lintArgs = @($linter)
+    if ($LintStrict) { $lintArgs += "--strict" }
+    $lintArgs += $InputAbs
+    $code = Invoke-Native -Cmd $py -ArgList $lintArgs -ShowOutput
+    if ($code -ne 0) {
+        if ($LintStrict) {
+            Write-ErrorMsg "lint 發現問題（-LintStrict 已啟用，中止編譯）"
+            exit 1
+        }
+        Write-WarnMsg "lint 發現問題（僅警告，繼續編譯；要擋編譯請加 -LintStrict）"
+    }
+}
+
 function Invoke-Build {
     $tmpdir = Join-Path $env:TEMP "paperforge_$([System.IO.Path]::GetRandomFileName())"
     New-Item -ItemType Directory -Path $tmpdir -Force | Out-Null
 
     try {
+        Invoke-Lint
+
         Write-Info "暫存目錄：$tmpdir"
 
         # 複製來源目錄到暫存
@@ -338,6 +417,9 @@ function Invoke-Build {
                 "--template=template.latex",
                 "--pdf-engine=$Engine"
             )
+            # 字體覆寫：命令列 -V 優先於輸入檔 YAML 的 mainfont / CJKmainfont。
+            if ($MainFont) { $pandocArgs += @("-V", "mainfont=$MainFont") }
+            if ($CjkFont)  { $pandocArgs += @("-V", "CJKmainfont=$CjkFont") }
             if ($showOutput) {
                 $pandocArgs += "--verbose"
             }

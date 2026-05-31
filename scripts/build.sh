@@ -17,12 +17,18 @@
 #   --watch            監看模式
 #   --clean            清理中間檔
 #   --no-bib           跳過 biber
+#   --no-lint          跳過格式檢查（lint）
+#   --lint-strict      格式檢查發現問題即中止編譯（預設僅警告、不擋編譯）
 #   --keep-tex         保留 .tex 中間檔
 #   --engine xelatex|lualatex   PDF 引擎（預設 xelatex）
 #   --profile <name>   Profile 名稱。優先序：CLI 旗標 > 輸入檔 YAML 的
 #                      profile: 欄位 > 預設 thesis-ncu。對應 profiles/<name>/。
 #   --template <path>  指定模板（覆寫 --profile 推導出的路徑）
 #   --bib-style <name> biblatex 樣式（預設 ieee）
+#   --main-font <name> 覆寫西文主字體（-V mainfont，優先於輸入檔 YAML）
+#   --cjk-font <name>  覆寫中文主字體（-V CJKmainfont，優先於輸入檔 YAML）
+#                      用途：CI / 無標楷體的 Linux 改用 Noto 等替代字體
+#   --list-profiles    列出目前可用的 profile（讀 profiles/*/profile.yaml）後結束
 #   --verbose          詳細輸出
 #   -h, --help         顯示此說明
 #
@@ -57,6 +63,8 @@ OUTPUT_DIR=""
 WATCH=false
 CLEAN=false
 NO_BIB=false
+LINT=true
+LINT_STRICT=false
 KEEP_TEX=false
 ENGINE="xelatex"
 VERBOSE=false
@@ -64,6 +72,9 @@ BIB_STYLE="ieee"
 PROFILE="thesis-ncu"
 PROFILE_FROM_CLI=false
 TEMPLATE=""
+LIST_PROFILES=false
+MAIN_FONT=""
+CJK_FONT=""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -74,17 +85,60 @@ while [[ $# -gt 0 ]]; do
         --watch) WATCH=true; shift ;;
         --clean) CLEAN=true; shift ;;
         --no-bib) NO_BIB=true; shift ;;
+        --no-lint) LINT=false; shift ;;
+        --lint-strict) LINT_STRICT=true; shift ;;
         --keep-tex) KEEP_TEX=true; shift ;;
         --engine) ENGINE="$2"; shift 2 ;;
         --profile) PROFILE="$2"; PROFILE_FROM_CLI=true; shift 2 ;;
         --template) TEMPLATE="$2"; shift 2 ;;
         --bib-style) BIB_STYLE="$2"; shift 2 ;;
+        --main-font) MAIN_FONT="$2"; shift 2 ;;
+        --cjk-font) CJK_FONT="$2"; shift 2 ;;
+        --list-profiles) LIST_PROFILES=true; shift ;;
         --verbose|-v) VERBOSE=true; shift ;;
         -h|--help) usage 0 ;;
         -*) log_error "未知選項: $1"; usage 1 ;;
         *) INPUT="$1"; shift ;;
     esac
 done
+
+# --- 列出 profiles/*/profile.yaml 的 name / type / style / description ---
+# 動態枚舉，新增 profile 自動出現，無需維護清單。
+list_profiles() {
+    printf "PaperForge — 可用 profile（profiles/<name>/）：\n\n"
+    printf "  %-26s %-8s %-10s %s\n" "NAME" "TYPE" "STYLE" "DESCRIPTION"
+    local found=0
+    local y
+    for y in "$REPO_ROOT"/profiles/*/profile.yaml; do
+        [[ -f "$y" ]] || continue
+        found=$((found + 1))
+        awk '
+            function trim(s){ sub(/^[[:space:]]+/,"",s); sub(/[[:space:]]+$/,"",s);
+                              gsub(/^["\047]|["\047]$/,"",s); return s }
+            BEGIN { name=""; type=""; style=""; desc=""; want=0 }
+            want==1 && desc=="" { desc=trim($0); want=0; next }
+            /^name[[:space:]]*:/  { v=$0; sub(/^name[[:space:]]*:/,"",v);  name=trim(v) }
+            /^type[[:space:]]*:/  { v=$0; sub(/^type[[:space:]]*:/,"",v);  type=trim(v) }
+            /^style[[:space:]]*:/ { v=$0; sub(/^style[[:space:]]*:/,"",v); style=trim(v) }
+            /^description[[:space:]]*:/ {
+                v=$0; sub(/^description[[:space:]]*:/,"",v); v=trim(v)
+                if (v=="|" || v==">" || v=="") { want=1 } else { desc=v }
+            }
+            END { printf "  %-26s %-8s %-10s %s\n", name, type, style, desc }
+        ' "$y"
+    done
+    if [[ $found -eq 0 ]]; then
+        log_error "找不到任何 profiles/*/profile.yaml"
+        return 1
+    fi
+    printf "\n用法：在 paper.md / slides.md 開頭 YAML 寫 profile: <NAME>，或編譯時帶 --profile <NAME>。\n"
+}
+
+# --list-profiles：列出後即結束，不需輸入檔
+if [[ "$LIST_PROFILES" == "true" ]]; then
+    list_profiles
+    exit $?
+fi
 
 # --- 讀取 Markdown 檔開頭 YAML frontmatter 的 profile: 欄位 ---
 # 若沒有 frontmatter 或 profile 欄位則回傳空字串
@@ -261,8 +315,35 @@ if [[ ! -f "$TEMPLATE" ]]; then
     exit 1
 fi
 
+# --- 格式檢查（lint）---
+# 與 CI 共用同一支 scripts/lint.py，避免規則在 bash/PowerShell/CI 三處抄寫漂移。
+# 預設僅警告、不擋編譯（你仍拿得到 PDF）；--lint-strict 才在發現問題時中止。
+# 沒有 python3 時優雅略過，不讓「檢查器的直譯器缺席」害你編不出 PDF。
+do_lint() {
+    [[ "$LINT" == "true" ]] || return 0
+    local linter="${SCRIPT_DIR}/lint.py"
+    [[ -f "$linter" ]] || return 0
+    if ! command -v python3 &> /dev/null; then
+        log_warn "未安裝 python3，略過格式檢查（lint）"
+        return 0
+    fi
+    log_info "格式檢查（lint）：$INPUT_ABS"
+    local strict_flag=()
+    [[ "$LINT_STRICT" == "true" ]] && strict_flag=(--strict)
+    if python3 "$linter" "${strict_flag[@]}" "$INPUT_ABS"; then
+        return 0
+    fi
+    if [[ "$LINT_STRICT" == "true" ]]; then
+        log_error "lint 發現問題（--lint-strict 已啟用，中止編譯）"
+        exit 1
+    fi
+    log_warn "lint 發現問題（僅警告，繼續編譯；要擋編譯請加 --lint-strict）"
+}
+
 # --- 核心編譯函式 ---
 do_build() {
+    do_lint
+
     local tmpdir
     tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/paperforge.XXXXXX")"
     trap "rm -rf '$tmpdir'" EXIT
@@ -292,6 +373,11 @@ do_build() {
         --template="template.latex"
         --pdf-engine="$ENGINE"
     )
+    # 字體覆寫：命令列 -V 優先於輸入檔 YAML 的 mainfont / CJKmainfont。
+    # 用途：CI 或無「標楷體」的 Linux 環境可改用 Noto 等替代字體，
+    #       而 skeleton 本身仍保留真實論文字體設定。
+    [[ -n "$MAIN_FONT" ]] && pandoc_args+=(-V "mainfont=$MAIN_FONT")
+    [[ -n "$CJK_FONT"  ]] && pandoc_args+=(-V "CJKmainfont=$CJK_FONT")
     if [[ "$VERBOSE" == "true" ]]; then
         pandoc_args+=(--verbose)
     fi
