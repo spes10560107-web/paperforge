@@ -16,7 +16,7 @@ period-months: "計 8 個月"
 affiliation: "國立聯合大學機械工程學系"
 handling-method: "本計畫可公開查詢"
 year: "115"
-month: "04"
+month: "05"
 day: "27"
 
 # ============================================================
@@ -73,66 +73,6 @@ numbersections: true
 secnumdepth: 4
 toc: false
 ---
-
-<!-- ============================================================ -->
-<!-- 封面頁（國科會大專學生研究計畫成果報告） -->
-<!-- ============================================================ -->
-
-\begin{titlepage}
-
-\begin{center}
-
-\vspace*{1.5cm}
-
-{\bfseries\fontsize{20pt}{28pt}\selectfont 國科會補助\par}
-
-\vspace{0.5cm}
-
-{\bfseries\fontsize{20pt}{28pt}\selectfont 大專學生研究計畫研究成果報告\par}
-
-\vspace{1.5cm}
-
-{\fontsize{16pt}{20pt}\selectfont ＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\par}
-
-\vspace{0.3cm}
-
-{\fontsize{14pt}{18pt}\selectfont 計\,畫\,名\,稱：\ProjectTitleZh\par}
-
-\vspace{0.3cm}
-
-{\fontsize{16pt}{20pt}\selectfont ＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\par}
-
-\end{center}
-
-\vspace{1.2cm}
-
-\noindent\hspace*{2cm}\begin{minipage}{0.8\textwidth}
-\setlength{\parskip}{0.35cm}
-
-執行計畫學生：\StudentName
-
-學生計畫編號：\ProjectId
-
-研\,究\,期\,間：\PeriodFrom 至 \PeriodTo 止，\PeriodMonths
-
-指\,導\,教\,授：\AdvisorName
-\end{minipage}
-
-\vfill
-
-\begin{center}
-\setlength{\parskip}{0.3cm}
-
-處理方式：\HandlingMethod
-
-執\,行\,單\,位：\Affiliation
-
-中\,華\,民\,國\,\ROCYear\ 年\ \ROCMonth\ 月\ \ROCDay\ 日
-\end{center}
-
-\vspace*{0.5cm}
-
-\end{titlepage}
 
 <!-- ============================================================ -->
 <!-- 內封頁 -->
@@ -875,7 +815,7 @@ Macro avg     & 0.823 & 0.776 & 0.791 & 168 \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.96\textwidth,height=0.52\textheight,keepaspectratio]{images/gradcam-DA-misclassified.png}
+\includegraphics[width=0.96\textwidth,height=0.75\textheight,keepaspectratio]{images/gradcam-DA-misclassified.png}
 \caption{D→A 跨等級誤判 Grad-CAM 分析（上：fish02，信心度 0.941；下：fish04，信心度 0.565）。左欄為原始影像（真實等級 D），中欄為熱力圖，右欄為疊加結果；兩者熱力圖激活均偏離拉絲細絲區域。}
 \label{fig:gradcam-da}
 \end{figure}
