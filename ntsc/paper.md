@@ -16,7 +16,7 @@ period-months: "計 8 個月"
 affiliation: "國立聯合大學機械工程學系"
 handling-method: "本計畫可公開查詢"
 year: "115"
-month: "04"
+month: "05"
 day: "27"
 
 # ============================================================
@@ -73,66 +73,6 @@ numbersections: true
 secnumdepth: 4
 toc: false
 ---
-
-<!-- ============================================================ -->
-<!-- 封面頁（國科會大專學生研究計畫成果報告） -->
-<!-- ============================================================ -->
-
-\begin{titlepage}
-
-\begin{center}
-
-\vspace*{1.5cm}
-
-{\bfseries\fontsize{20pt}{28pt}\selectfont 國科會補助\par}
-
-\vspace{0.5cm}
-
-{\bfseries\fontsize{20pt}{28pt}\selectfont 大專學生研究計畫研究成果報告\par}
-
-\vspace{1.5cm}
-
-{\fontsize{16pt}{20pt}\selectfont ＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\par}
-
-\vspace{0.3cm}
-
-{\fontsize{14pt}{18pt}\selectfont 計\,畫\,名\,稱：\ProjectTitleZh\par}
-
-\vspace{0.3cm}
-
-{\fontsize{16pt}{20pt}\selectfont ＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\,＊\par}
-
-\end{center}
-
-\vspace{1.2cm}
-
-\noindent\hspace*{2cm}\begin{minipage}{0.8\textwidth}
-\setlength{\parskip}{0.35cm}
-
-執行計畫學生：\StudentName
-
-學生計畫編號：\ProjectId
-
-研\,究\,期\,間：\PeriodFrom 至 \PeriodTo 止，\PeriodMonths
-
-指\,導\,教\,授：\AdvisorName
-\end{minipage}
-
-\vfill
-
-\begin{center}
-\setlength{\parskip}{0.3cm}
-
-處理方式：\HandlingMethod
-
-執\,行\,單\,位：\Affiliation
-
-中\,華\,民\,國\,\ROCYear\ 年\ \ROCMonth\ 月\ \ROCDay\ 日
-\end{center}
-
-\vspace*{0.5cm}
-
-\end{titlepage}
 
 <!-- ============================================================ -->
 <!-- 內封頁 -->
@@ -871,8 +811,14 @@ Macro avg     & 0.823 & 0.776 & 0.791 & 168 \\
 
 進一步回溯定位：2 筆 D→A 誤判均來自同一張原始照片，對應裁切圖 fish02 與 fish04。其中 fish02 之模型信心度高達 0.941（品質分 96.7），屬**高信心誤判**；fish04 信心度為 0.565（品質分 85.0），處於分類邊界，同樣被判為 A，品質分卻只有 85.0 而非 fish02 的 96.7，顯示低信心時品質分頭不必然隨分類頭給出接近滿分，兩頭在邊界樣本上可不一致。兩筆均來自同一批次同一原圖，可能與該次拍攝角度使 D 級樣本的拉絲對比度降低有關，導致模型以高信心誤判為無拉絲的 A 級。
 
-<!-- TODO@學長 變更說明（2026-05）：原圖 4-2「D→A 跨等級誤判 Grad-CAM 可視化」（label fig:gradcam-da，images/gradcam-DA-misclassified.png）已移除。原因：原圖子圖標題字級過小、整圖偏小且下半頁留白過多，排版效果不佳；其關鍵發現（兩樣本熱力圖激活均偏離拉絲細絲區域）已改以下方內文敘述保留，不再附圖。移除後其後各圖編號由 LaTeX 自動遞補，正文均以 \ref{} 引用故無須手動調整。 -->
-此兩筆 D→A 誤判樣本之 Grad-CAM 可視化顯示：fish02（信心度 0.941）之熱力圖高亮區域集中於魚骨結構而非拉絲間隙，模型激活點偏離瑕疵區域；fish04（信心度 0.565）熱力圖則較分散，反映模型在邊界樣本上的激活不確定性。
+圖 \ref{fig:gradcam-da} 為此兩筆 D→A 誤判樣本之 Grad-CAM 可視化。fish02（信心度 0.941）之熱力圖高亮區域集中於魚骨結構而非拉絲間隙，顯示模型激活點偏離瑕疵區域；fish04（信心度 0.565）熱力圖較分散，反映模型在邊界樣本上的激活不確定性。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.96\textwidth,height=0.75\textheight,keepaspectratio]{images/gradcam-DA-misclassified.png}
+\caption{D→A 跨等級誤判 Grad-CAM 分析（上：fish02，信心度 0.941；下：fish04，信心度 0.565）。左欄為原始影像（真實等級 D），中欄為熱力圖，右欄為疊加結果；兩者熱力圖激活均偏離拉絲細絲區域。}
+\label{fig:gradcam-da}
+\end{figure}
 
 \begin{figure}[H]
 \centering
